@@ -330,7 +330,17 @@
   },
   "156": {
     "inputs": {
-      "UNKNOWN": "🖼️ Image Inpainting",
+      "seed": 820770957981404,
+      "control_after_generate": "randomize",
+      "steps": 4,
+      "cfg": 1,
+      "sampler_name": "euler",
+      "scheduler": "simple",
+      "denoise": 1,
+      "Inpainting_mode": "Image First",
+      "LanPaint_NumSteps": 2,
+      "LanPaint_PromptMode": "🖼️ Image Inpainting",
+      "LanPaint_Info": "LanPaint KSampler. For more info, visit https://github.com/scraed/LanPaint. If you find it useful, please give a star ⭐️!",
       "model": [
         "161",
         0
@@ -348,7 +358,10 @@
         0
       ]
     },
-    "_meta": {}
+    "class_type": "LanPaint_KSampler",
+    "_meta": {
+      "title": "LanPaint KSampler"
+    }
   },
   "160": {
     "inputs": {
