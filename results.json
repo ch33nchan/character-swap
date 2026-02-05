@@ -1,46 +1,8 @@
 {
-  "run_info": {
-    "start_time": "2026-02-05T11:07:32.106257",
-    "end_time": "2026-02-05T11:35:23.138530",
-    "duration_sec": 1671.032273,
-    "csv_file": "Master - Tech Solutioning - Char Const - Rerun with head_eye gaze.csv",
-    "workflow_file": "Flux2 Klein 9b Face Swap(API).json",
-    "comfyui_url": "http://localhost:8189",
-    "start_row": 1,
-    "end_row": 49,
-    "gpu_ids": null
-  },
   "summary": {
     "total_rows": 49,
     "successful": 48,
     "failed": 1,
-    "success_rate": 98.0,
-    "total_time_sec": 1668.01,
-    "avg_time_per_row_sec": 34.04,
-    "timing_breakdown": {
-      "avg_download_sec": 1.26,
-      "avg_face_detection_sec": 2.72,
-      "avg_upload_sec": 0.16,
-      "avg_processing_sec": 29.42
-    }
-  },
-  "results": [
-    {
-      "row": 1,
-      "success": true,
-      "timestamp": "2026-02-05T11:07:32.107401",
-      "generated_url": "https://dev-content.dashtoon.ai/stability-images/d494f44e-6a95-4697-a3e9-f898c241fd46.png",
-      "original_url": "https://content.dashtoon.ai/user-uploaded-files/ee6e6b48-efc7-4ea3-ad0f-7853f2747a22.png",
-      "output_path": "data/output/row_0001/result.png",
-      "timing": {
-        "download_sec": 0.14,
-        "face_detection_sec": 3.58,
-        "upload_sec": 0.13,
-        "processing_sec": 27.13,
-        "total_sec": 31.38
-      },
-      "face_detection": {
-        "detected": true,
-        "confidence": 0.8,
-        "bbox": {
-          "x": 
+    "success_rate": 98.0
+  }
+}
