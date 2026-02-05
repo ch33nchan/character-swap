@@ -562,6 +562,24 @@ def main():
     logger.info(f"Total time: {total_time:.1f}s, Avg per row: {avg_time:.1f}s")
     logger.info(f"{'='*60}")
     
+    # Convert numpy types to native Python types for JSON serialization
+    def convert_to_native(obj):
+        if isinstance(obj, dict):
+            return {k: convert_to_native(v) for k, v in obj.items()}
+        elif isinstance(obj, list):
+            return [convert_to_native(v) for v in obj]
+        elif isinstance(obj, (np.integer, np.int32, np.int64)):
+            return int(obj)
+        elif isinstance(obj, (np.floating, np.float32, np.float64)):
+            return float(obj)
+        elif isinstance(obj, np.ndarray):
+            return obj.tolist()
+        elif isinstance(obj, np.bool_):
+            return bool(obj)
+        return obj
+    
+    results = [convert_to_native(r) for r in results]
+    
     # Save comprehensive results.json
     results_data = {
         'run_info': {
