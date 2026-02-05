@@ -2,6 +2,7 @@
 """
 Face Swap Automation with Auto Face Mask Generation
 Uses MediaPipe for face detection and creates masked PNGs for ComfyUI
+Tracks quality metrics, timing, and updates CSV with results
 """
 
 import argparse
@@ -10,8 +11,9 @@ import logging
 import os
 import sys
 import time
+from datetime import datetime
 from pathlib import Path
-from typing import Dict, Optional, Tuple
+from typing import Dict, Optional, Tuple, Any
 
 import cv2
 import numpy as np
@@ -19,7 +21,6 @@ import pandas as pd
 import requests
 from PIL import Image
 
-# Configuration
 DEFAULT_COMFYUI_URL = "http://localhost:8189"
 MAX_RETRIES = 3
 DOWNLOAD_TIMEOUT = 30
@@ -38,18 +39,46 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 
-def detect_face_and_create_mask(image_path: Path, output_path: Path, expansion: float = 0.3) -> bool:
+def get_image_metrics(image_path: Path) -> Dict[str, Any]:
+    """Get image quality metrics"""
+    try:
+        img = Image.open(image_path)
+        file_size = image_path.stat().st_size
+        width, height = img.size
+        
+        arr = np.array(img.convert('RGB'))
+        brightness = arr.mean()
+        contrast = arr.std()
+        
+        return {
+            'width': width,
+            'height': height,
+            'file_size_bytes': file_size,
+            'file_size_mb': round(file_size / (1024 * 1024), 2),
+            'megapixels': round((width * height) / 1_000_000, 2),
+            'brightness': round(brightness, 2),
+            'contrast': round(contrast, 2),
+            'mode': img.mode
+        }
+    except Exception as e:
+        logger.error(f"Failed to get metrics for {image_path}: {e}")
+        return {}
+
+
+def detect_face_and_create_mask(image_path: Path, output_path: Path, expansion: float = 0.3) -> Tuple[bool, Dict]:
     """
     Detect face in image and create a PNG with alpha mask for the face region.
-    Uses MediaPipe for face detection, PIL for saving RGBA.
+    Returns (success, face_info)
     """
+    face_info = {'detected': False, 'confidence': 0, 'bbox': None}
+    
     try:
         import mediapipe as mp
         
         img = cv2.imread(str(image_path))
         if img is None:
             logger.error(f"Could not read image: {image_path}")
-            return False
+            return False, face_info
         
         h, w = img.shape[:2]
         rgb = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
@@ -68,12 +97,16 @@ def detect_face_and_create_mask(image_path: Path, output_path: Path, expansion: 
                 y2 = min(h, cy + face_h // 2)
             else:
                 detection = results.detections[0]
-                bbox = detection.location_data.relative_bounding_box
+                face_info['detected'] = True
+                face_info['confidence'] = round(detection.score[0], 3)
                 
+                bbox = detection.location_data.relative_bounding_box
                 x1 = int(bbox.xmin * w)
                 y1 = int(bbox.ymin * h)
                 face_w = int(bbox.width * w)
                 face_h = int(bbox.height * h)
+                
+                face_info['bbox'] = {'x': x1, 'y': y1, 'width': face_w, 'height': face_h}
                 
                 exp_w = int(face_w * expansion)
                 exp_h = int(face_h * expansion)
@@ -101,20 +134,19 @@ def detect_face_and_create_mask(image_path: Path, output_path: Path, expansion: 
         
         saved = Image.open(output_path)
         logger.info(f"Face mask created: {output_path} (mode={saved.mode}, size={saved.size})")
-        return True
+        return True, face_info
         
     except ImportError:
         logger.error("MediaPipe not installed. Run: pip install mediapipe")
-        return False
+        return False, face_info
     except Exception as e:
         logger.error(f"Face detection failed: {e}")
         import traceback
         traceback.print_exc()
-        return False
+        return False, face_info
 
 
 def download_image(url: str, output_path: Path, retries: int = MAX_RETRIES) -> bool:
-    """Download image from URL with retries"""
     output_path.parent.mkdir(parents=True, exist_ok=True)
     
     for attempt in range(retries):
@@ -137,7 +169,6 @@ def download_image(url: str, output_path: Path, retries: int = MAX_RETRIES) -> b
 
 
 def upload_to_comfyui(server_url: str, image_path: Path) -> Optional[str]:
-    """Upload image to ComfyUI server"""
     try:
         url = f"{server_url}/upload/image"
         
@@ -155,12 +186,6 @@ def upload_to_comfyui(server_url: str, image_path: Path) -> Optional[str]:
 
 
 def modify_api_workflow(api_workflow: Dict, generated_img: str, original_img: str, output_prefix: str) -> Dict:
-    """
-    Modify API format workflow with row-specific images
-    Node 151: Generated image with face mask (RGBA PNG)
-    Node 121: Original image (reference face)
-    Node 9: SaveImage output
-    """
     workflow = json.loads(json.dumps(api_workflow))
     
     if "151" in workflow:
@@ -179,7 +204,6 @@ def modify_api_workflow(api_workflow: Dict, generated_img: str, original_img: st
 
 
 def queue_workflow(server_url: str, workflow: Dict, client_id: str) -> Optional[str]:
-    """Submit workflow to ComfyUI"""
     try:
         url = f"{server_url}/prompt"
         payload = {
@@ -202,7 +226,6 @@ def queue_workflow(server_url: str, workflow: Dict, client_id: str) -> Optional[
 
 
 def wait_for_completion(server_url: str, prompt_id: str, timeout: int = COMFYUI_TIMEOUT) -> bool:
-    """Wait for workflow completion"""
     url = f"{server_url}/history/{prompt_id}"
     start_time = time.time()
     
@@ -232,7 +255,6 @@ def wait_for_completion(server_url: str, prompt_id: str, timeout: int = COMFYUI_
 
 
 def get_output_images(server_url: str, prompt_id: str, save_node_id: str = "9"):
-    """Get output images from completed workflow, specifically from SaveImage node"""
     try:
         url = f"{server_url}/history/{prompt_id}"
         response = requests.get(url, timeout=10)
@@ -258,7 +280,6 @@ def get_output_images(server_url: str, prompt_id: str, save_node_id: str = "9"):
 
 
 def download_output(server_url: str, image_info: Dict, output_path: Path) -> bool:
-    """Download output image from ComfyUI"""
     try:
         output_path.parent.mkdir(parents=True, exist_ok=True)
         
@@ -282,8 +303,8 @@ def download_output(server_url: str, image_info: Dict, output_path: Path) -> boo
         return False
 
 
-def process_row(row_data: pd.Series, row_num: int, workflow_template: Dict, server_url: str) -> bool:
-    """Process single CSV row"""
+def process_row(row_data: pd.Series, row_num: int, workflow_template: Dict, server_url: str) -> Dict[str, Any]:
+    """Process single CSV row and return detailed results"""
     logger.info(f"\n{'='*60}")
     logger.info(f"Row {row_num}")
     logger.info(f"{'='*60}")
@@ -292,36 +313,82 @@ def process_row(row_data: pd.Series, row_num: int, workflow_template: Dict, serv
     input_dir = Path(INPUT_DIR) / row_dir
     output_dir = Path(OUTPUT_DIR) / row_dir
     
+    result = {
+        'row': row_num,
+        'success': False,
+        'timestamp': datetime.now().isoformat(),
+        'generated_url': '',
+        'original_url': '',
+        'output_path': '',
+        'timing': {
+            'download_sec': 0,
+            'face_detection_sec': 0,
+            'upload_sec': 0,
+            'processing_sec': 0,
+            'total_sec': 0
+        },
+        'face_detection': {},
+        'input_metrics': {},
+        'output_metrics': {},
+        'error': None
+    }
+    
+    total_start = time.time()
+    
     try:
         generated_url = row_data.get('Generated Image', '')
         original_url = row_data.get('Original Image', '')
+        result['generated_url'] = generated_url
+        result['original_url'] = original_url
         
         if not generated_url or not original_url:
-            logger.error("Missing image URLs")
-            return False
+            result['error'] = "Missing image URLs"
+            logger.error(result['error'])
+            return result
         
+        # Download
+        download_start = time.time()
         logger.info("Downloading...")
         gen_path = input_dir / "generated_raw.png"
         orig_path = input_dir / "original.png"
         
         if not download_image(generated_url, gen_path):
-            return False
+            result['error'] = "Failed to download generated image"
+            return result
         if not download_image(original_url, orig_path):
-            return False
+            result['error'] = "Failed to download original image"
+            return result
+        result['timing']['download_sec'] = round(time.time() - download_start, 2)
         
+        # Get input metrics
+        result['input_metrics']['generated'] = get_image_metrics(gen_path)
+        result['input_metrics']['original'] = get_image_metrics(orig_path)
+        
+        # Face detection
+        face_start = time.time()
         logger.info("Detecting face and creating mask...")
         gen_masked_path = input_dir / "generated.png"
-        if not detect_face_and_create_mask(gen_path, gen_masked_path):
+        mask_success, face_info = detect_face_and_create_mask(gen_path, gen_masked_path)
+        result['face_detection'] = face_info
+        
+        if not mask_success:
             logger.warning("Face mask creation failed, using original image")
             gen_masked_path = gen_path
+        result['timing']['face_detection_sec'] = round(time.time() - face_start, 2)
         
+        # Upload
+        upload_start = time.time()
         logger.info("Uploading...")
         gen_name = upload_to_comfyui(server_url, gen_masked_path)
         orig_name = upload_to_comfyui(server_url, orig_path)
         
         if not gen_name or not orig_name:
-            return False
+            result['error'] = "Failed to upload images"
+            return result
+        result['timing']['upload_sec'] = round(time.time() - upload_start, 2)
         
+        # Process
+        process_start = time.time()
         logger.info("Preparing workflow...")
         modified = modify_api_workflow(
             workflow_template,
@@ -335,29 +402,41 @@ def process_row(row_data: pd.Series, row_num: int, workflow_template: Dict, serv
         prompt_id = queue_workflow(server_url, modified, client_id)
         
         if not prompt_id:
-            return False
+            result['error'] = "Failed to queue workflow"
+            return result
         
         if not wait_for_completion(server_url, prompt_id):
-            return False
+            result['error'] = "Workflow execution failed or timed out"
+            return result
         
         logger.info("Downloading results...")
         images = get_output_images(server_url, prompt_id)
         if not images:
-            logger.error("No output images")
-            return False
+            result['error'] = "No output images returned"
+            return result
         
         result_path = output_dir / "result.png"
         if not download_output(server_url, images[0], result_path):
-            return False
+            result['error'] = "Failed to download result"
+            return result
         
+        result['timing']['processing_sec'] = round(time.time() - process_start, 2)
+        
+        # Get output metrics
+        result['output_path'] = str(result_path)
+        result['output_metrics'] = get_image_metrics(result_path)
+        
+        result['success'] = True
         logger.info(f"SUCCESS: {result_path}")
-        return True
         
     except Exception as e:
+        result['error'] = str(e)
         logger.error(f"Error: {e}")
         import traceback
         traceback.print_exc()
-        return False
+    
+    result['timing']['total_sec'] = round(time.time() - total_start, 2)
+    return result
 
 
 def main():
@@ -368,6 +447,8 @@ def main():
     parser.add_argument('--start-row', type=int, default=1, help='Start row (1-indexed)')
     parser.add_argument('--end-row', type=int, help='End row (inclusive)')
     parser.add_argument('--gpu-ids', type=str, help='GPU IDs (e.g., 0,1,2,3)')
+    parser.add_argument('--update-csv', action='store_true', help='Update CSV with results columns')
+    parser.add_argument('--output-csv', type=str, help='Output CSV path (default: adds _results suffix)')
     
     args = parser.parse_args()
     
@@ -385,21 +466,95 @@ def main():
     
     end = args.end_row if args.end_row else len(df)
     results = []
+    run_start = datetime.now()
+    
+    # Add new columns if updating CSV
+    if args.update_csv:
+        if 'Swap_Status' not in df.columns:
+            df['Swap_Status'] = ''
+        if 'Swap_Output_Path' not in df.columns:
+            df['Swap_Output_Path'] = ''
+        if 'Swap_Time_Sec' not in df.columns:
+            df['Swap_Time_Sec'] = 0.0
+        if 'Swap_Output_Size_MB' not in df.columns:
+            df['Swap_Output_Size_MB'] = 0.0
+        if 'Swap_Output_Width' not in df.columns:
+            df['Swap_Output_Width'] = 0
+        if 'Swap_Output_Height' not in df.columns:
+            df['Swap_Output_Height'] = 0
+        if 'Swap_Face_Detected' not in df.columns:
+            df['Swap_Face_Detected'] = False
+        if 'Swap_Face_Confidence' not in df.columns:
+            df['Swap_Face_Confidence'] = 0.0
     
     for idx in range(args.start_row - 1, min(end, len(df))):
         row_num = idx + 1
-        success = process_row(df.iloc[idx], row_num, workflow_template, args.comfyui_url)
-        results.append({'row': row_num, 'success': success, 'timestamp': time.strftime('%Y-%m-%d %H:%M:%S')})
+        result = process_row(df.iloc[idx], row_num, workflow_template, args.comfyui_url)
+        results.append(result)
+        
+        # Update DataFrame
+        if args.update_csv:
+            df.at[idx, 'Swap_Status'] = 'success' if result['success'] else f"failed: {result.get('error', 'unknown')}"
+            df.at[idx, 'Swap_Output_Path'] = result.get('output_path', '')
+            df.at[idx, 'Swap_Time_Sec'] = result['timing']['total_sec']
+            df.at[idx, 'Swap_Output_Size_MB'] = result.get('output_metrics', {}).get('file_size_mb', 0)
+            df.at[idx, 'Swap_Output_Width'] = result.get('output_metrics', {}).get('width', 0)
+            df.at[idx, 'Swap_Output_Height'] = result.get('output_metrics', {}).get('height', 0)
+            df.at[idx, 'Swap_Face_Detected'] = result.get('face_detection', {}).get('detected', False)
+            df.at[idx, 'Swap_Face_Confidence'] = result.get('face_detection', {}).get('confidence', 0)
     
+    run_end = datetime.now()
+    
+    # Summary
     successful = sum(1 for r in results if r['success'])
+    failed = len(results) - successful
+    total_time = sum(r['timing']['total_sec'] for r in results)
+    avg_time = total_time / len(results) if results else 0
+    
     logger.info(f"\n{'='*60}")
     logger.info(f"COMPLETE: {successful}/{len(results)} successful")
+    logger.info(f"Total time: {total_time:.1f}s, Avg per row: {avg_time:.1f}s")
     logger.info(f"{'='*60}")
     
-    with open("results.json", 'w') as f:
-        json.dump({'summary': {'total': len(results), 'successful': successful, 'failed': len(results) - successful}, 'results': results}, f, indent=2)
+    # Save comprehensive results.json
+    results_data = {
+        'run_info': {
+            'start_time': run_start.isoformat(),
+            'end_time': run_end.isoformat(),
+            'duration_sec': (run_end - run_start).total_seconds(),
+            'csv_file': args.csv,
+            'workflow_file': args.workflow,
+            'comfyui_url': args.comfyui_url,
+            'start_row': args.start_row,
+            'end_row': end,
+            'gpu_ids': args.gpu_ids
+        },
+        'summary': {
+            'total_rows': len(results),
+            'successful': successful,
+            'failed': failed,
+            'success_rate': round(successful / len(results) * 100, 1) if results else 0,
+            'total_time_sec': round(total_time, 2),
+            'avg_time_per_row_sec': round(avg_time, 2),
+            'timing_breakdown': {
+                'avg_download_sec': round(sum(r['timing']['download_sec'] for r in results) / len(results), 2) if results else 0,
+                'avg_face_detection_sec': round(sum(r['timing']['face_detection_sec'] for r in results) / len(results), 2) if results else 0,
+                'avg_upload_sec': round(sum(r['timing']['upload_sec'] for r in results) / len(results), 2) if results else 0,
+                'avg_processing_sec': round(sum(r['timing']['processing_sec'] for r in results) / len(results), 2) if results else 0
+            }
+        },
+        'results': results
+    }
     
+    with open("results.json", 'w') as f:
+        json.dump(results_data, f, indent=2)
     logger.info(f"Results saved to: results.json")
+    
+    # Save updated CSV
+    if args.update_csv:
+        output_csv = args.output_csv or args.csv.replace('.csv', '_results.csv')
+        df.to_csv(output_csv, index=False)
+        logger.info(f"Updated CSV saved to: {output_csv}")
 
 
 if __name__ == "__main__":
