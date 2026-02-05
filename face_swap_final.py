@@ -65,20 +65,27 @@ def get_image_metrics(image_path: Path) -> Dict[str, Any]:
         return {}
 
 
-def detect_face_and_create_mask(image_path: Path, output_path: Path, expansion: float = 0.3) -> Tuple[bool, Dict]:
-    """
-    Detect face in image and create a PNG with alpha mask for the face region.
-    Returns (success, face_info)
-    """
-    face_info = {'detected': False, 'confidence': 0, 'bbox': None}
-    
+def detect_face_opencv(img: np.ndarray) -> Optional[Tuple[int, int, int, int]]:
+    """Detect face using OpenCV's Haar cascade (fallback method)"""
+    try:
+        cascade_path = cv2.data.haarcascades + 'haarcascade_frontalface_default.xml'
+        face_cascade = cv2.CascadeClassifier(cascade_path)
+        gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+        faces = face_cascade.detectMultiScale(gray, scaleFactor=1.1, minNeighbors=5, minSize=(30, 30))
+        if len(faces) > 0:
+            x, y, w, h = faces[0]
+            return (x, y, w, h)
+    except Exception as e:
+        logger.warning(f"OpenCV face detection failed: {e}")
+    return None
+
+
+def detect_face_mediapipe(img: np.ndarray) -> Optional[Tuple[int, int, int, int, float]]:
+    """Detect face using MediaPipe (returns x, y, w, h, confidence)"""
     try:
         import mediapipe as mp
-        
-        img = cv2.imread(str(image_path))
-        if img is None:
-            logger.error(f"Could not read image: {image_path}")
-            return False, face_info
+        if not hasattr(mp, 'solutions'):
+            return None
         
         h, w = img.shape[:2]
         rgb = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
@@ -86,37 +93,79 @@ def detect_face_and_create_mask(image_path: Path, output_path: Path, expansion: 
         mp_face = mp.solutions.face_detection
         with mp_face.FaceDetection(model_selection=1, min_detection_confidence=0.5) as face_detection:
             results = face_detection.process(rgb)
+            if results.detections:
+                detection = results.detections[0]
+                bbox = detection.location_data.relative_bounding_box
+                x1 = int(bbox.xmin * w)
+                y1 = int(bbox.ymin * h)
+                face_w = int(bbox.width * w)
+                face_h = int(bbox.height * h)
+                conf = detection.score[0]
+                return (x1, y1, face_w, face_h, conf)
+    except Exception as e:
+        logger.warning(f"MediaPipe face detection failed: {e}")
+    return None
+
+
+def detect_face_and_create_mask(image_path: Path, output_path: Path, expansion: float = 0.3) -> Tuple[bool, Dict]:
+    """
+    Detect face in image and create a PNG with alpha mask for the face region.
+    Tries MediaPipe first, falls back to OpenCV Haar cascade.
+    Returns (success, face_info)
+    """
+    face_info = {'detected': False, 'confidence': 0, 'bbox': None, 'method': None}
+    
+    try:
+        img = cv2.imread(str(image_path))
+        if img is None:
+            logger.error(f"Could not read image: {image_path}")
+            return False, face_info
+        
+        h, w = img.shape[:2]
+        x1, y1, x2, y2 = 0, 0, 0, 0
+        
+        mp_result = detect_face_mediapipe(img)
+        if mp_result:
+            fx, fy, fw, fh, conf = mp_result
+            face_info['detected'] = True
+            face_info['confidence'] = round(conf, 3)
+            face_info['bbox'] = {'x': fx, 'y': fy, 'width': fw, 'height': fh}
+            face_info['method'] = 'mediapipe'
             
-            if not results.detections:
-                logger.warning(f"No face detected in {image_path}, using center region")
+            exp_w = int(fw * expansion)
+            exp_h = int(fh * expansion)
+            x1 = max(0, fx - exp_w)
+            y1 = max(0, fy - exp_h)
+            x2 = min(w, fx + fw + exp_w)
+            y2 = min(h, fy + fh + exp_h)
+            logger.info(f"Face detected (MediaPipe): confidence={conf:.2f}")
+        else:
+            cv_result = detect_face_opencv(img)
+            if cv_result:
+                fx, fy, fw, fh = cv_result
+                face_info['detected'] = True
+                face_info['confidence'] = 0.8
+                face_info['bbox'] = {'x': fx, 'y': fy, 'width': fw, 'height': fh}
+                face_info['method'] = 'opencv'
+                
+                exp_w = int(fw * expansion)
+                exp_h = int(fh * expansion)
+                x1 = max(0, fx - exp_w)
+                y1 = max(0, fy - exp_h)
+                x2 = min(w, fx + fw + exp_w)
+                y2 = min(h, fy + fh + exp_h)
+                logger.info(f"Face detected (OpenCV Haar)")
+            else:
+                logger.warning(f"No face detected, using upper-center region")
+                face_info['method'] = 'fallback'
                 cx, cy = w // 2, h // 3
                 face_w, face_h = w // 3, h // 3
                 x1 = max(0, cx - face_w // 2)
                 y1 = max(0, cy - face_h // 2)
                 x2 = min(w, cx + face_w // 2)
                 y2 = min(h, cy + face_h // 2)
-            else:
-                detection = results.detections[0]
-                face_info['detected'] = True
-                face_info['confidence'] = round(detection.score[0], 3)
-                
-                bbox = detection.location_data.relative_bounding_box
-                x1 = int(bbox.xmin * w)
-                y1 = int(bbox.ymin * h)
-                face_w = int(bbox.width * w)
-                face_h = int(bbox.height * h)
-                
-                face_info['bbox'] = {'x': x1, 'y': y1, 'width': face_w, 'height': face_h}
-                
-                exp_w = int(face_w * expansion)
-                exp_h = int(face_h * expansion)
-                
-                x1 = max(0, x1 - exp_w)
-                y1 = max(0, y1 - exp_h)
-                x2 = min(w, x1 + face_w + 2 * exp_w)
-                y2 = min(h, y1 + face_h + 2 * exp_h)
         
-        logger.info(f"Face region: ({x1},{y1}) to ({x2},{y2})")
+        logger.info(f"Mask region: ({x1},{y1}) to ({x2},{y2})")
         
         mask = np.zeros((h, w), dtype=np.uint8)
         center = ((x1 + x2) // 2, (y1 + y2) // 2)
@@ -133,12 +182,9 @@ def detect_face_and_create_mask(image_path: Path, output_path: Path, expansion: 
         pil_rgba.save(str(output_path), 'PNG')
         
         saved = Image.open(output_path)
-        logger.info(f"Face mask created: {output_path} (mode={saved.mode}, size={saved.size})")
+        logger.info(f"Face mask created: {output_path} (mode={saved.mode})")
         return True, face_info
         
-    except ImportError:
-        logger.error("MediaPipe not installed. Run: pip install mediapipe")
-        return False, face_info
     except Exception as e:
         logger.error(f"Face detection failed: {e}")
         import traceback
