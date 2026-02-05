@@ -425,7 +425,7 @@
   },
   "200": {
     "inputs": {
-      "model_name": "sam2.1_hiera_large.pt"
+      "model_name": "sam_vit_h (2.56GB)"
     },
     "class_type": "SAMModelLoader (segment anything)",
     "_meta": {
