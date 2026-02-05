@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
-Face Swap Automation - Final Working Version
-Works with ComfyUI API format workflows
+Face Swap Automation with Auto Face Mask Generation
+Uses MediaPipe for face detection and creates masked PNGs for ComfyUI
 """
 
 import argparse
@@ -11,10 +11,13 @@ import os
 import sys
 import time
 from pathlib import Path
-from typing import Dict, Optional
+from typing import Dict, Optional, Tuple
 
+import cv2
+import numpy as np
 import pandas as pd
 import requests
+from PIL import Image
 
 # Configuration
 DEFAULT_COMFYUI_URL = "http://localhost:8189"
@@ -33,6 +36,74 @@ logging.basicConfig(
     ]
 )
 logger = logging.getLogger(__name__)
+
+
+def detect_face_and_create_mask(image_path: Path, output_path: Path, expansion: float = 0.3) -> bool:
+    """
+    Detect face in image and create a PNG with alpha mask for the face region.
+    Uses MediaPipe for face detection.
+    """
+    try:
+        import mediapipe as mp
+        
+        img = cv2.imread(str(image_path))
+        if img is None:
+            logger.error(f"Could not read image: {image_path}")
+            return False
+        
+        h, w = img.shape[:2]
+        rgb = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+        
+        mp_face = mp.solutions.face_detection
+        with mp_face.FaceDetection(model_selection=1, min_detection_confidence=0.5) as face_detection:
+            results = face_detection.process(rgb)
+            
+            if not results.detections:
+                logger.warning(f"No face detected in {image_path}, using center region")
+                cx, cy = w // 2, h // 3
+                face_w, face_h = w // 3, h // 3
+                x1 = max(0, cx - face_w // 2)
+                y1 = max(0, cy - face_h // 2)
+                x2 = min(w, cx + face_w // 2)
+                y2 = min(h, cy + face_h // 2)
+            else:
+                detection = results.detections[0]
+                bbox = detection.location_data.relative_bounding_box
+                
+                x1 = int(bbox.xmin * w)
+                y1 = int(bbox.ymin * h)
+                face_w = int(bbox.width * w)
+                face_h = int(bbox.height * h)
+                
+                exp_w = int(face_w * expansion)
+                exp_h = int(face_h * expansion)
+                
+                x1 = max(0, x1 - exp_w)
+                y1 = max(0, y1 - exp_h)
+                x2 = min(w, x1 + face_w + 2 * exp_w)
+                y2 = min(h, y1 + face_h + 2 * exp_h)
+        
+        mask = np.zeros((h, w), dtype=np.uint8)
+        center = ((x1 + x2) // 2, (y1 + y2) // 2)
+        axes = ((x2 - x1) // 2, (y2 - y1) // 2)
+        cv2.ellipse(mask, center, axes, 0, 0, 360, 255, -1)
+        mask = cv2.GaussianBlur(mask, (21, 21), 10)
+        
+        rgba = cv2.cvtColor(img, cv2.COLOR_BGR2RGBA)
+        rgba[:, :, 3] = mask
+        
+        output_path.parent.mkdir(parents=True, exist_ok=True)
+        cv2.imwrite(str(output_path), rgba)
+        
+        logger.info(f"Face mask created: {output_path}")
+        return True
+        
+    except ImportError:
+        logger.error("MediaPipe not installed. Run: pip install mediapipe")
+        return False
+    except Exception as e:
+        logger.error(f"Face detection failed: {e}")
+        return False
 
 
 def download_image(url: str, output_path: Path, retries: int = MAX_RETRIES) -> bool:
@@ -79,13 +150,12 @@ def upload_to_comfyui(server_url: str, image_path: Path) -> Optional[str]:
 def modify_api_workflow(api_workflow: Dict, generated_img: str, original_img: str, output_prefix: str) -> Dict:
     """
     Modify API format workflow with row-specific images
-    Node 151: Generated image (main input with mask)
-    Node 121: Original image (reference)
+    Node 151: Generated image with face mask (RGBA PNG)
+    Node 121: Original image (reference face)
     Node 9: SaveImage output
     """
     workflow = json.loads(json.dumps(api_workflow))
     
-    # Update LoadImage nodes
     if "151" in workflow:
         workflow["151"]["inputs"]["image"] = generated_img
         logger.info(f"Node 151: {generated_img}")
@@ -94,7 +164,6 @@ def modify_api_workflow(api_workflow: Dict, generated_img: str, original_img: st
         workflow["121"]["inputs"]["image"] = original_img  
         logger.info(f"Node 121: {original_img}")
     
-    # Update SaveImage output prefix
     if "9" in workflow:
         workflow["9"]["inputs"]["filename_prefix"] = output_prefix
         logger.info(f"Node 9: {output_prefix}")
@@ -120,7 +189,8 @@ def queue_workflow(server_url: str, workflow: Dict, client_id: str) -> Optional[
         return prompt_id
     except Exception as e:
         logger.error(f"Queue failed: {e}")
-        logger.error(f"Response: {e.response.text if hasattr(e, 'response') else 'N/A'}")
+        if hasattr(e, 'response'):
+            logger.error(f"Response: {e.response.text}")
         return None
 
 
@@ -208,7 +278,6 @@ def process_row(row_data: pd.Series, row_num: int, workflow_template: Dict, serv
     output_dir = Path(OUTPUT_DIR) / row_dir
     
     try:
-        # Get URLs
         generated_url = row_data.get('Generated Image', '')
         original_url = row_data.get('Original Image', '')
         
@@ -216,9 +285,8 @@ def process_row(row_data: pd.Series, row_num: int, workflow_template: Dict, serv
             logger.error("Missing image URLs")
             return False
         
-        # Download
         logger.info("Downloading...")
-        gen_path = input_dir / "generated.png"
+        gen_path = input_dir / "generated_raw.png"
         orig_path = input_dir / "original.png"
         
         if not download_image(generated_url, gen_path):
@@ -226,15 +294,19 @@ def process_row(row_data: pd.Series, row_num: int, workflow_template: Dict, serv
         if not download_image(original_url, orig_path):
             return False
         
-        # Upload
+        logger.info("Detecting face and creating mask...")
+        gen_masked_path = input_dir / "generated.png"
+        if not detect_face_and_create_mask(gen_path, gen_masked_path):
+            logger.warning("Face mask creation failed, using original image")
+            gen_masked_path = gen_path
+        
         logger.info("Uploading...")
-        gen_name = upload_to_comfyui(server_url, gen_path)
+        gen_name = upload_to_comfyui(server_url, gen_masked_path)
         orig_name = upload_to_comfyui(server_url, orig_path)
         
         if not gen_name or not orig_name:
             return False
         
-        # Modify workflow
         logger.info("Preparing workflow...")
         modified = modify_api_workflow(
             workflow_template,
@@ -243,7 +315,6 @@ def process_row(row_data: pd.Series, row_num: int, workflow_template: Dict, serv
             output_prefix=f"{row_dir}_result"
         )
         
-        # Execute
         logger.info("Executing face swap...")
         client_id = str(int(time.time() * 1000))
         prompt_id = queue_workflow(server_url, modified, client_id)
@@ -254,7 +325,6 @@ def process_row(row_data: pd.Series, row_num: int, workflow_template: Dict, serv
         if not wait_for_completion(server_url, prompt_id):
             return False
         
-        # Download results
         logger.info("Downloading results...")
         images = get_output_images(server_url, prompt_id)
         if not images:
@@ -265,7 +335,7 @@ def process_row(row_data: pd.Series, row_num: int, workflow_template: Dict, serv
         if not download_output(server_url, images[0], result_path):
             return False
         
-        logger.info(f"✓ SUCCESS: {result_path}")
+        logger.info(f"SUCCESS: {result_path}")
         return True
         
     except Exception as e:
@@ -290,17 +360,14 @@ def main():
         os.environ['CUDA_VISIBLE_DEVICES'] = args.gpu_ids
         logger.info(f"Using GPUs: {args.gpu_ids}")
     
-    # Load CSV
     df = pd.read_csv(args.csv)
     logger.info(f"CSV: {len(df)} rows")
     
-    # Load workflow
     with open(args.workflow) as f:
         workflow_template = json.load(f)
     logger.info(f"Workflow: {args.workflow}")
     logger.info(f"Nodes in workflow: {len(workflow_template)}")
     
-    # Process rows
     end = args.end_row if args.end_row else len(df)
     results = []
     
@@ -309,13 +376,11 @@ def main():
         success = process_row(df.iloc[idx], row_num, workflow_template, args.comfyui_url)
         results.append({'row': row_num, 'success': success, 'timestamp': time.strftime('%Y-%m-%d %H:%M:%S')})
     
-    # Summary
     successful = sum(1 for r in results if r['success'])
     logger.info(f"\n{'='*60}")
     logger.info(f"COMPLETE: {successful}/{len(results)} successful")
     logger.info(f"{'='*60}")
     
-    # Save results
     with open("results.json", 'w') as f:
         json.dump({'summary': {'total': len(results), 'successful': successful, 'failed': len(results) - successful}, 'results': results}, f, indent=2)
     
