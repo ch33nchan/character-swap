@@ -15,7 +15,10 @@ build/
 face_swap.log
 
 # Data directories
-data/
+data/input/
+
+# Track output results
+!data/output/
 
 # Processing logs (keep in git for tracking)
 # processing_log.json is tracked
