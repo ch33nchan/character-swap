@@ -97,25 +97,6 @@
       "title": "ImageScaleToTotalPixels"
     }
   },
-  "117": {
-    "inputs": {
-      "rgthree_comparer": {
-        "images": []
-      },
-      "image_a": [
-        "149",
-        0
-      ],
-      "image_b": [
-        "104",
-        0
-      ]
-    },
-    "class_type": "Image Comparer (rgthree)",
-    "_meta": {
-      "title": "Image Comparer (rgthree)"
-    }
-  },
   "118": {
     "inputs": {
       "conditioning": [
