@@ -231,8 +231,8 @@ def wait_for_completion(server_url: str, prompt_id: str, timeout: int = COMFYUI_
     return False
 
 
-def get_output_images(server_url: str, prompt_id: str):
-    """Get output images from completed workflow"""
+def get_output_images(server_url: str, prompt_id: str, save_node_id: str = "9"):
+    """Get output images from completed workflow, specifically from SaveImage node"""
     try:
         url = f"{server_url}/history/{prompt_id}"
         response = requests.get(url, timeout=10)
@@ -240,12 +240,20 @@ def get_output_images(server_url: str, prompt_id: str):
         
         images = []
         if prompt_id in history:
-            for node_output in history[prompt_id].get('outputs', {}).values():
-                if 'images' in node_output:
-                    images.extend(node_output['images'])
+            outputs = history[prompt_id].get('outputs', {})
+            
+            if save_node_id in outputs and 'images' in outputs[save_node_id]:
+                images = outputs[save_node_id]['images']
+                logger.info(f"Found {len(images)} images from node {save_node_id}")
+            else:
+                for node_id, node_output in outputs.items():
+                    if 'images' in node_output:
+                        logger.info(f"Node {node_id} has {len(node_output['images'])} images")
+                        images.extend(node_output['images'])
         
         return images
-    except:
+    except Exception as e:
+        logger.error(f"Failed to get output images: {e}")
         return []
 
 
