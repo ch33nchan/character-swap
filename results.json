@@ -1,294 +1,46 @@
 {
   "run_info": {
-    "start_time": "2026-02-05T10:57:30.796118",
-    "end_time": "2026-02-05T11:00:04.572687",
-    "duration_sec": 153.776569,
+    "start_time": "2026-02-05T11:07:32.106257",
+    "end_time": "2026-02-05T11:35:23.138530",
+    "duration_sec": 1671.032273,
     "csv_file": "Master - Tech Solutioning - Char Const - Rerun with head_eye gaze.csv",
     "workflow_file": "Flux2 Klein 9b Face Swap(API).json",
     "comfyui_url": "http://localhost:8189",
     "start_row": 1,
-    "end_row": 5,
+    "end_row": 49,
     "gpu_ids": null
   },
   "summary": {
-    "total_rows": 5,
-    "successful": 5,
-    "failed": 0,
-    "success_rate": 100.0,
-    "total_time_sec": 153.78,
-    "avg_time_per_row_sec": 30.76,
+    "total_rows": 49,
+    "successful": 48,
+    "failed": 1,
+    "success_rate": 98.0,
+    "total_time_sec": 1668.01,
+    "avg_time_per_row_sec": 34.04,
     "timing_breakdown": {
-      "avg_download_sec": 0.51,
-      "avg_face_detection_sec": 0.16,
-      "avg_upload_sec": 0.11,
-      "avg_processing_sec": 29.56
+      "avg_download_sec": 1.26,
+      "avg_face_detection_sec": 2.72,
+      "avg_upload_sec": 0.16,
+      "avg_processing_sec": 29.42
     }
   },
   "results": [
     {
       "row": 1,
       "success": true,
-      "timestamp": "2026-02-05T10:57:30.797392",
+      "timestamp": "2026-02-05T11:07:32.107401",
       "generated_url": "https://dev-content.dashtoon.ai/stability-images/d494f44e-6a95-4697-a3e9-f898c241fd46.png",
       "original_url": "https://content.dashtoon.ai/user-uploaded-files/ee6e6b48-efc7-4ea3-ad0f-7853f2747a22.png",
       "output_path": "data/output/row_0001/result.png",
       "timing": {
-        "download_sec": 0.18,
-        "face_detection_sec": 0.4,
-        "upload_sec": 0.1,
-        "processing_sec": 27.41,
-        "total_sec": 28.48
-      },
-      "face_detection": {
-        "detected": false,
-        "confidence": 0,
-        "bbox": null
-      },
-      "input_metrics": {
-        "generated": {
-          "width": 1536,
-          "height": 2752,
-          "file_size_bytes": 5561517,
-          "file_size_mb": 5.3,
-          "megapixels": 4.23,
-          "brightness": 103.6,
-          "contrast": 59.19,
-          "mode": "RGB"
-        },
-        "original": {
-          "width": 1536,
-          "height": 2752,
-          "file_size_bytes": 5821653,
-          "file_size_mb": 5.55,
-          "megapixels": 4.23,
-          "brightness": 87.13,
-          "contrast": 61.17,
-          "mode": "RGB"
-        }
-      },
-      "output_metrics": {
-        "width": 1072,
-        "height": 1936,
-        "file_size_bytes": 2658528,
-        "file_size_mb": 2.54,
-        "megapixels": 2.08,
-        "brightness": 103.2,
-        "contrast": 59.51,
-        "mode": "RGB"
-      },
-      "error": null
-    },
-    {
-      "row": 2,
-      "success": true,
-      "timestamp": "2026-02-05T10:57:59.275016",
-      "generated_url": "https://dev-content.dashtoon.ai/stability-images/efc45287-396f-48f7-93a1-ccde56371d69.png",
-      "original_url": "https://content.dashtoon.ai/user-uploaded-files/a0cbc434-9529-4588-a357-e6b7f712c562.png",
-      "output_path": "data/output/row_0002/result.png",
-      "timing": {
         "download_sec": 0.14,
-        "face_detection_sec": 0.11,
-        "upload_sec": 0.11,
-        "processing_sec": 30.1,
-        "total_sec": 30.86
-      },
-      "face_detection": {
-        "detected": false,
-        "confidence": 0,
-        "bbox": null
-      },
-      "input_metrics": {
-        "generated": {
-          "width": 1536,
-          "height": 2752,
-          "file_size_bytes": 5574016,
-          "file_size_mb": 5.32,
-          "megapixels": 4.23,
-          "brightness": 82.98,
-          "contrast": 74.04,
-          "mode": "RGB"
-        },
-        "original": {
-          "width": 1536,
-          "height": 2752,
-          "file_size_bytes": 5870725,
-          "file_size_mb": 5.6,
-          "megapixels": 4.23,
-          "brightness": 88.2,
-          "contrast": 77.0,
-          "mode": "RGB"
-        }
-      },
-      "output_metrics": {
-        "width": 1072,
-        "height": 1936,
-        "file_size_bytes": 2787308,
-        "file_size_mb": 2.66,
-        "megapixels": 2.08,
-        "brightness": 82.38,
-        "contrast": 74.12,
-        "mode": "RGB"
-      },
-      "error": null
-    },
-    {
-      "row": 3,
-      "success": true,
-      "timestamp": "2026-02-05T10:58:30.138474",
-      "generated_url": "https://dev-content.dashtoon.ai/stability-images/19fedcb9-f62a-4c83-b7a9-4c8019a42e4d.png",
-      "original_url": "https://content.dashtoon.ai/user-uploaded-files/001400c3-b0f4-4a06-85ed-98648c54ac44.png",
-      "output_path": "data/output/row_0003/result.png",
-      "timing": {
-        "download_sec": 1.44,
-        "face_detection_sec": 0.11,
+        "face_detection_sec": 3.58,
         "upload_sec": 0.13,
-        "processing_sec": 30.1,
-        "total_sec": 32.23
+        "processing_sec": 27.13,
+        "total_sec": 31.38
       },
       "face_detection": {
-        "detected": false,
-        "confidence": 0,
-        "bbox": null
-      },
-      "input_metrics": {
-        "generated": {
-          "width": 1536,
-          "height": 2752,
-          "file_size_bytes": 5608758,
-          "file_size_mb": 5.35,
-          "megapixels": 4.23,
-          "brightness": 106.81,
-          "contrast": 65.77,
-          "mode": "RGB"
-        },
-        "original": {
-          "width": 1536,
-          "height": 2752,
-          "file_size_bytes": 7161233,
-          "file_size_mb": 6.83,
-          "megapixels": 4.23,
-          "brightness": 93.36,
-          "contrast": 70.12,
-          "mode": "RGBA"
-        }
-      },
-      "output_metrics": {
-        "width": 1072,
-        "height": 1936,
-        "file_size_bytes": 2655034,
-        "file_size_mb": 2.53,
-        "megapixels": 2.08,
-        "brightness": 106.45,
-        "contrast": 65.95,
-        "mode": "RGB"
-      },
-      "error": null
-    },
-    {
-      "row": 4,
-      "success": true,
-      "timestamp": "2026-02-05T10:59:02.370735",
-      "generated_url": "https://dev-content.dashtoon.ai/stability-images/2be1155a-cf19-4f23-99c6-99b963df1bef.png",
-      "original_url": "https://content.dashtoon.ai/user-uploaded-files/8ce17d1b-90ef-4362-bd10-e5545aae55ab.png",
-      "output_path": "data/output/row_0004/result.png",
-      "timing": {
-        "download_sec": 0.14,
-        "face_detection_sec": 0.1,
-        "upload_sec": 0.11,
-        "processing_sec": 30.1,
-        "total_sec": 30.86
-      },
-      "face_detection": {
-        "detected": false,
-        "confidence": 0,
-        "bbox": null
-      },
-      "input_metrics": {
-        "generated": {
-          "width": 1536,
-          "height": 2752,
-          "file_size_bytes": 5800578,
-          "file_size_mb": 5.53,
-          "megapixels": 4.23,
-          "brightness": 98.33,
-          "contrast": 60.29,
-          "mode": "RGB"
-        },
-        "original": {
-          "width": 1536,
-          "height": 2752,
-          "file_size_bytes": 5473681,
-          "file_size_mb": 5.22,
-          "megapixels": 4.23,
-          "brightness": 77.32,
-          "contrast": 63.99,
-          "mode": "RGB"
-        }
-      },
-      "output_metrics": {
-        "width": 1072,
-        "height": 1936,
-        "file_size_bytes": 2858615,
-        "file_size_mb": 2.73,
-        "megapixels": 2.08,
-        "brightness": 97.92,
-        "contrast": 60.35,
-        "mode": "RGB"
-      },
-      "error": null
-    },
-    {
-      "row": 5,
-      "success": true,
-      "timestamp": "2026-02-05T10:59:33.226862",
-      "generated_url": "https://dev-content.dashtoon.ai/stability-images/918f9989-a873-4982-967f-d1418a1ae0ae.png",
-      "original_url": "https://content.dashtoon.ai/user-uploaded-files/98dc93c8-94d5-43fc-882d-85c4d6f06c0f.png",
-      "output_path": "data/output/row_0005/result.png",
-      "timing": {
-        "download_sec": 0.63,
-        "face_detection_sec": 0.1,
-        "upload_sec": 0.12,
-        "processing_sec": 30.09,
-        "total_sec": 31.35
-      },
-      "face_detection": {
-        "detected": false,
-        "confidence": 0,
-        "bbox": null
-      },
-      "input_metrics": {
-        "generated": {
-          "width": 1536,
-          "height": 2752,
-          "file_size_bytes": 5505178,
-          "file_size_mb": 5.25,
-          "megapixels": 4.23,
-          "brightness": 112.57,
-          "contrast": 75.94,
-          "mode": "RGB"
-        },
-        "original": {
-          "width": 1536,
-          "height": 2752,
-          "file_size_bytes": 5775180,
-          "file_size_mb": 5.51,
-          "megapixels": 4.23,
-          "brightness": 110.62,
-          "contrast": 75.6,
-          "mode": "RGB"
-        }
-      },
-      "output_metrics": {
-        "width": 1072,
-        "height": 1936,
-        "file_size_bytes": 2728972,
-        "file_size_mb": 2.6,
-        "megapixels": 2.08,
-        "brightness": 112.01,
-        "contrast": 76.06,
-        "mode": "RGB"
-      },
-      "error": null
-    }
-  ]
-}
+        "detected": true,
+        "confidence": 0.8,
+        "bbox": {
+          "x": 
