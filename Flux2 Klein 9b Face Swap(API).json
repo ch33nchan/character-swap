@@ -337,9 +337,9 @@
       "sampler_name": "euler",
       "scheduler": "simple",
       "denoise": 1,
-      "Inpainting_mode": "Image First",
+      "Inpainting_mode": "🖼️ Image Inpainting",
       "LanPaint_NumSteps": 2,
-      "LanPaint_PromptMode": "🖼️ Image Inpainting",
+      "LanPaint_PromptMode": "Image First",
       "LanPaint_Info": "LanPaint KSampler. For more info, visit https://github.com/scraed/LanPaint. If you find it useful, please give a star ⭐️!",
       "model": [
         "161",
