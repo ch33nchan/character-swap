@@ -282,11 +282,11 @@
   },
   "151": {
     "inputs": {
-      "image": "clipspace/clipspace-painted-masked-1768969516849.png [input]"
+      "image": "generated.png"
     },
     "class_type": "LoadImage",
     "_meta": {
-      "title": "Load Image"
+      "title": "Load Image (Generated)"
     }
   },
   "152": {
@@ -319,7 +319,7 @@
       "resize_type.crop": "center",
       "scale_method": "bicubic",
       "input": [
-        "151",
+        "202",
         1
       ]
     },
@@ -391,7 +391,7 @@
   },
   "162": {
     "inputs": {
-      "switch": true,
+      "switch": false,
       "on_false": [
         "152",
         0
@@ -421,6 +421,46 @@
     "class_type": "EmptyFlux2LatentImage",
     "_meta": {
       "title": "Empty Flux 2 Latent"
+    }
+  },
+  "200": {
+    "inputs": {
+      "model_name": "sam2.1_hiera_large.pt"
+    },
+    "class_type": "SAMModelLoader (segment anything)",
+    "_meta": {
+      "title": "SAMModelLoader"
+    }
+  },
+  "201": {
+    "inputs": {
+      "model_name": "GroundingDINO_SwinT_OGC (694MB)"
+    },
+    "class_type": "GroundingDinoModelLoader (segment anything)",
+    "_meta": {
+      "title": "GroundingDinoModelLoader"
+    }
+  },
+  "202": {
+    "inputs": {
+      "prompt": "face, head",
+      "threshold": 0.3,
+      "sam_model": [
+        "200",
+        0
+      ],
+      "grounding_dino_model": [
+        "201",
+        0
+      ],
+      "image": [
+        "151",
+        0
+      ]
+    },
+    "class_type": "GroundingDinoSAMSegment (segment anything)",
+    "_meta": {
+      "title": "GroundingDinoSAMSegment (Auto Face Mask)"
     }
   }
 }
