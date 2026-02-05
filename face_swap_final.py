@@ -41,7 +41,7 @@ logger = logging.getLogger(__name__)
 def detect_face_and_create_mask(image_path: Path, output_path: Path, expansion: float = 0.3) -> bool:
     """
     Detect face in image and create a PNG with alpha mask for the face region.
-    Uses MediaPipe for face detection.
+    Uses MediaPipe for face detection, PIL for saving RGBA.
     """
     try:
         import mediapipe as mp
@@ -83,19 +83,24 @@ def detect_face_and_create_mask(image_path: Path, output_path: Path, expansion: 
                 x2 = min(w, x1 + face_w + 2 * exp_w)
                 y2 = min(h, y1 + face_h + 2 * exp_h)
         
+        logger.info(f"Face region: ({x1},{y1}) to ({x2},{y2})")
+        
         mask = np.zeros((h, w), dtype=np.uint8)
         center = ((x1 + x2) // 2, (y1 + y2) // 2)
         axes = ((x2 - x1) // 2, (y2 - y1) // 2)
         cv2.ellipse(mask, center, axes, 0, 0, 360, 255, -1)
         mask = cv2.GaussianBlur(mask, (21, 21), 10)
         
-        rgba = cv2.cvtColor(img, cv2.COLOR_BGR2RGBA)
-        rgba[:, :, 3] = mask
+        pil_img = Image.open(image_path).convert('RGB')
+        pil_mask = Image.fromarray(mask)
+        pil_rgba = pil_img.copy()
+        pil_rgba.putalpha(pil_mask)
         
         output_path.parent.mkdir(parents=True, exist_ok=True)
-        cv2.imwrite(str(output_path), rgba)
+        pil_rgba.save(str(output_path), 'PNG')
         
-        logger.info(f"Face mask created: {output_path}")
+        saved = Image.open(output_path)
+        logger.info(f"Face mask created: {output_path} (mode={saved.mode}, size={saved.size})")
         return True
         
     except ImportError:
@@ -103,6 +108,8 @@ def detect_face_and_create_mask(image_path: Path, output_path: Path, expansion: 
         return False
     except Exception as e:
         logger.error(f"Face detection failed: {e}")
+        import traceback
+        traceback.print_exc()
         return False
 
 
