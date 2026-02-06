@@ -1,312 +1,441 @@
 # Character Face Swap Automation
 
-Automated batch processing pipeline for face swapping using ComfyUI Flux2 Klein 9b workflow.
+Automated batch processing pipeline for face swapping using ComfyUI Flux2 Klein 9b workflow with MediaPipe face detection.
 
 ## Overview
 
-This single-script solution processes CSV data containing image URLs and prompts, downloads images, executes face swaps via ComfyUI API, and automatically commits results to git.
+Production-ready face swap automation that:
+- Processes CSV data with image URLs and prompts
+- Automatically detects faces using MediaPipe (with OpenCV fallback)
+- Executes face swaps via ComfyUI API
+- Tracks quality metrics, timing, and processing stats
+- Updates CSV with results and Azure CDN URLs
+- Supports resolution testing (1K/2K/4K)
 
 ## Prerequisites
 
-**GPU Server Requirements:**
-- Python 3.8+
+### GPU Server Requirements
+- Python 3.10+
 - CUDA-enabled GPUs (tested on 4x H100)
-- ComfyUI installed and running (see SETUP_GUIDE.md)
+- ComfyUI installed and running
 - Git configured
 - Internet access for downloading images
 
-**ComfyUI Setup:**
-- Flux2 Klein 9b model (`flux-2-klein-9b.safetensors`)
-- VAE model (`flux2-vae.safetensors`)
-- CLIP model (`qwen_3_8b_fp8mixed.safetensors`)
-- LoRA model (`bfs_head_v1_flux-klein_9b_step3500_rank128.safetensors`)
-- LanPaint custom node installed
+### Required Models
+- **UNET**: `flux-2-klein-9b.safetensors` (~18GB)
+- **VAE**: `flux2-vae.safetensors` (~335MB)
+- **CLIP**: `split_files/text_encoders/qwen_3_8b_fp8mixed.safetensors` (~3GB)
+- **LoRA**: `bfs_head_v1_flux-klein_9b_step3500_rank128.safetensors`
+
+### Custom Nodes
+- LanPaint (for inpainting)
 
 ## Quick Start
 
-**First time setup? See [SETUP_GUIDE.md](SETUP_GUIDE.md) for complete installation instructions.**
+### 1. Clone Repository
 
-### 1. Run Setup Script
+```bash
+git clone https://github.com/ch33nchan/character-swap.git
+cd character-swap
+```
+
+### 2. Setup ComfyUI
+
+Run the automated setup script:
 
 ```bash
 chmod +x setup_comfyui.sh
 ./setup_comfyui.sh
 ```
 
-This will verify/install ComfyUI and check all requirements.
-
-### 2. Start ComfyUI with GPU Selection
+Or install manually:
 
 ```bash
-cd ~/ComfyUI
+# Install ComfyUI
+cd ~
+git clone https://github.com/comfyanonymous/ComfyUI.git
+cd ComfyUI
 
-# Use all 4 H100 GPUs
-CUDA_VISIBLE_DEVICES=0,1,2,3 python3 main.py --listen 0.0.0.0 --port 8188 --highvram
+# Install dependencies
+python3 -m pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu121
+pip3 install -r requirements.txt
 
-# Or use specific GPUs
-CUDA_VISIBLE_DEVICES=0,1 python3 main.py --listen 0.0.0.0 --port 8188
+# Install LanPaint custom node
+cd custom_nodes
+git clone https://github.com/scraed/LanPaint.git
+cd LanPaint
+pip3 install -r requirements.txt
 ```
 
-### 3. Setup Project Environment
+### 3. Download Models
 
 ```bash
-cd character-swap
+cd ~/ComfyUI/models
+
+# Flux2 Klein 9b UNET
+mkdir -p unet && cd unet
+wget --header="Authorization: Bearer $HF_TOKEN" \
+  https://huggingface.co/black-forest-labs/FLUX.2-klein-9B/resolve/main/flux-2-klein-9b.safetensors
+
+# VAE + Text Encoder
+cd .. && mkdir -p vae clip
+cd vae
+wget https://huggingface.co/Comfy-Org/vae-text-encorder-for-flux-klein-9b/resolve/main/split_files/vae/flux2-vae.safetensors
+
+cd ../clip
+wget https://huggingface.co/Comfy-Org/vae-text-encorder-for-flux-klein-9b/resolve/main/split_files/text_encoders/qwen_3_8b_fp8mixed.safetensors
+
+# LoRA
+cd .. && mkdir -p loras && cd loras
+wget https://huggingface.co/Alissonerdx/BFS-Best-Face-Swap/resolve/main/bfs_head_v1_flux-klein_9b_step3500_rank128.safetensors
+```
+
+### 4. Setup Project Environment
+
+```bash
+cd ~/character-swap
 python3 -m venv venv
 source venv/bin/activate
 pip3 install -r requirements.txt
 ```
 
+### 5. Start ComfyUI
+
+```bash
+# Create separate venv for ComfyUI (avoids NumPy conflicts)
+cd ~/ComfyUI
+python3 -m venv comfyui_venv
+source comfyui_venv/bin/activate
+pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu121
+pip install -r requirements.txt
+
+# Start server with all GPUs
+python main.py --listen 0.0.0.0 --port 8189 --highvram
+```
+
+Verify ComfyUI is running:
+
+```bash
+curl http://localhost:8189/system_stats
+```
+
 ## Usage
 
-### Basic Usage
+### Basic Face Swap Processing
 
-Process all rows with 4 H100 GPUs:
+Process all rows in CSV:
 
 ```bash
-python3 face_swap.py \
+cd ~/character-swap
+source venv/bin/activate
+
+python3 face_swap_final.py \
     --csv "Master - Tech Solutioning - Char Const - Rerun with head_eye gaze.csv" \
-    --workflow "Flux2 Klein 9b Face Swap.json" \
-    --comfyui-url http://localhost:8188 \
-    --gpu-ids 0,1,2,3
+    --workflow "Flux2 Klein 9b Face Swap(API).json" \
+    --comfyui-url http://localhost:8189
 ```
 
-Test run (first 5 rows only):
+Test run (first 5 rows):
 
 ```bash
-python3 face_swap.py \
+python3 face_swap_final.py \
     --csv "Master - Tech Solutioning - Char Const - Rerun with head_eye gaze.csv" \
-    --workflow "Flux2 Klein 9b Face Swap.json" \
-    --comfyui-url http://localhost:8188 \
-    --gpu-ids 0,1,2,3 \
-    --end-row 5 \
-    --no-git
-```
-
-### Process Specific Rows
-
-Process rows 1-50:
-
-```bash
-python3 face_swap.py \
-    --csv "Master - Tech Solutioning - Char Const - Rerun with head_eye gaze.csv" \
-    --workflow "Flux2 Klein 9b Face Swap.json" \
+    --workflow "Flux2 Klein 9b Face Swap(API).json" \
     --start-row 1 \
-    --end-row 50
+    --end-row 5
 ```
 
-### Custom Batch Size
-
-Commit to git every 5 rows instead of default 10:
+Update CSV with results:
 
 ```bash
-python3 face_swap.py \
-    --csv "path/to/csv" \
-    --workflow "path/to/workflow.json" \
-    --batch-size 5
+python3 face_swap_final.py \
+    --csv "Master - Tech Solutioning - Char Const - Rerun with head_eye gaze.csv" \
+    --workflow "Flux2 Klein 9b Face Swap(API).json" \
+    --update-csv \
+    --output-csv "results_with_metrics.csv"
 ```
 
-### Skip Git Operations
+### Resolution Testing
 
-Process without git commits (useful for testing):
+Test performance at 1K, 2K, and 4K resolutions:
 
 ```bash
-python3 face_swap.py \
-    --csv "path/to/csv" \
-    --workflow "path/to/workflow.json" \
-    --no-git
+python3 test_resolutions.py \
+    --csv "Master - Tech Solutioning - Char Const - Rerun with head_eye gaze.csv" \
+    --workflow "Flux2 Klein 9b Face Swap(API).json" \
+    --row 1 \
+    --comfyui-url http://localhost:8189
 ```
+
+Output:
+- `resolution_test_row1/1K.png` - 1 megapixel result
+- `resolution_test_row1/2K.png` - 4 megapixel result
+- `resolution_test_row1/4K.png` - 8.3 megapixel result
+- `resolution_test_row1/results.json` - Timing and metrics
+
+### Azure Upload & Google Sheets Formatting
+
+Upload all result images to Azure Blob Storage and create Google Sheets IMAGE() formulas:
+
+```bash
+python3 upload_and_format.py
+```
+
+This will:
+- Upload all `data/output/row_XXXX/result.png` to Azure
+- Add `Swap_Azure_URL` column with CDN URLs
+- Add `Swap_Image_Formula` column with `=IMAGE("url")`
+- Convert all existing URL columns to formula columns
+- Save to `Master - Tech Solutioning - Char Const - Rerun with head_eye gaze_results_with_azure_urls.csv`
 
 ## Command-Line Arguments
+
+### face_swap_final.py
 
 | Argument | Required | Default | Description |
 |----------|----------|---------|-------------|
 | `--csv` | Yes | - | Path to CSV file with image URLs and prompts |
-| `--workflow` | Yes | - | Path to ComfyUI workflow JSON template |
-| `--comfyui-url` | No | `http://localhost:8188` | ComfyUI server URL |
-| `--batch-size` | No | `10` | Number of rows before git commit |
+| `--workflow` | Yes | - | Path to ComfyUI API workflow JSON |
+| `--comfyui-url` | No | `http://localhost:8189` | ComfyUI server URL |
 | `--start-row` | No | `1` | Start processing from this row (1-indexed) |
 | `--end-row` | No | All rows | End processing at this row (inclusive) |
-| `--no-git` | No | False | Disable git commits and pushes |
-| `--gpu-ids` | No | All GPUs | Comma-separated GPU IDs (e.g., "0,1,2,3") |
+| `--update-csv` | No | False | Update input CSV with results |
+| `--output-csv` | No | Auto-generated | Custom output CSV path |
+
+### test_resolutions.py
+
+| Argument | Required | Default | Description |
+|----------|----------|---------|-------------|
+| `--csv` | Yes | - | Path to CSV file |
+| `--workflow` | Yes | - | Path to API workflow JSON |
+| `--row` | No | `1` | Row number to test (1-indexed) |
+| `--comfyui-url` | No | `http://localhost:8189` | ComfyUI server URL |
 
 ## CSV Format
 
-Required columns in CSV:
+Required columns:
 - `Original Image` - URL to base image
 - `Generated Image` - URL to AI-generated character image
 - `Edit Prompt` - Detailed face swap instructions
 - `Reference Angle` (optional) - URL to reference angle image
 - `Front Angle` (optional) - URL to front angle image
 
+Output columns (when using `--update-csv`):
+- `Swap_Status` - "success" or "failed"
+- `Swap_Output_Path` - Local path to result image
+- `Swap_Time_Sec` - Processing time in seconds
+- `Swap_Output_Size_MB` - File size in MB
+- `Swap_Output_Width` - Image width in pixels
+- `Swap_Output_Height` - Image height in pixels
+- `Swap_Face_Detected` - Whether face was detected (True/False)
+- `Swap_Face_Confidence` - Face detection confidence (0-1)
+
 ## Output Structure
 
 ```
 character-swap/
-├── data/
-│   ├── input/              # Downloaded source images
-│   │   ├── row_0001/
-│   │   │   ├── generated.png
-│   │   │   ├── original.png
-│   │   │   ├── reference.png  (optional)
-│   │   │   └── front.png      (optional)
-│   │   ├── row_0002/
-│   │   └── ...
-│   └── output/             # Face-swapped results
-│       ├── row_0001/
-│       │   └── result.png
-│       ├── row_0002/
-│       └── ...
-├── processing_log.json     # Detailed processing log
-└── face_swap.log           # Execution log
+├── face_swap_final.py              # Main production script
+├── test_resolutions.py             # Resolution testing
+├── upload_and_format.py            # Azure upload + IMAGE() formulas
+├── requirements.txt                # Python dependencies
+├── setup_comfyui.sh               # Setup script
+├── Flux2 Klein 9b Face Swap(API).json  # Working workflow
+├── Master - Tech Solutioning - Char Const - Rerun with head_eye gaze.csv
+├── Master - Tech Solutioning - Char Const - Rerun with head_eye gaze_results.csv
+├── results.json                    # Processing results metadata
+├── face_swap.log                   # Execution log
+├── .gitignore                      # Git config
+├── venv/                          # Python environment
+└── data/
+    └── output/                    # All result images
+        ├── row_0001/
+        │   └── result.png
+        ├── row_0002/
+        └── ...
 ```
 
-## Processing Log
+## Processing Results
 
-After completion, `processing_log.json` contains:
+After completion, `results.json` contains:
 
 ```json
 {
-  "summary": {
-    "total_rows": 100,
-    "successful": 95,
-    "failed": 5,
-    "start_time": "2026-02-05 10:00:00",
-    "end_time": "2026-02-05 12:30:00"
+  "run_info": {
+    "start_time": "2026-02-05T10:57:30",
+    "end_time": "2026-02-05T11:00:04",
+    "duration_sec": 153.78,
+    "csv_file": "Master - Tech Solutioning - Char Const - Rerun with head_eye gaze.csv",
+    "workflow_file": "Flux2 Klein 9b Face Swap(API).json",
+    "comfyui_url": "http://localhost:8189"
   },
-  "results": [
-    {
-      "row": 1,
-      "success": true,
-      "error": null,
-      "timestamp": "2026-02-05 10:05:23"
+  "summary": {
+    "total_rows": 49,
+    "successful": 48,
+    "failed": 1,
+    "success_rate": 97.96,
+    "total_time_sec": 153.78,
+    "avg_time_per_row_sec": 3.14,
+    "timing_breakdown": {
+      "avg_download_sec": 0.51,
+      "avg_face_detection_sec": 0.16,
+      "avg_upload_sec": 0.11,
+      "avg_processing_sec": 29.56
     }
-  ]
+  },
+  "results": [...]
 }
 ```
 
-## Error Handling
+## Features
 
-The script automatically handles common errors:
+### Automatic Face Detection
+- Uses MediaPipe for accurate face detection
+- Falls back to OpenCV Haar cascade if MediaPipe unavailable
+- Creates RGBA PNG masks with alpha channel for face region
+- Expands face region by 30% for better coverage
 
-- **Download failures**: Skips row, logs error, continues to next
-- **ComfyUI execution failures**: Skips row, logs error, continues to next
-- **Network timeouts**: Retries up to 3 times with exponential backoff
-- **Git push failures**: Logs error, continues processing
+### Error Handling
+- Download failures: Retries up to 3 times, then skips row
+- Face detection failures: Uses fallback upper-center region
+- ComfyUI execution failures: Logs error, continues to next row
+- All errors logged with full details in `results.json`
 
-Failed rows are logged in `processing_log.json` with error details.
+### Quality Metrics
+- Image dimensions (width x height)
+- File size (MB)
+- Megapixels
+- Brightness and contrast measurements
+- Face detection confidence scores
 
-## Monitoring Progress
-
-**Real-time logs:**
-```bash
-tail -f face_swap.log
-```
-
-**Check progress:**
-```bash
-# Count completed rows
-ls data/output/ | wc -l
-
-# View processing log
-cat processing_log.json
-```
-
-## Workflow Modifications
-
-The script dynamically modifies these ComfyUI workflow nodes:
-
-| Node ID | Type | Purpose | Parameter |
-|---------|------|---------|-----------|
-| 151 | LoadImage | Generated image input | `widgets_values[0]` |
-| 121 | LoadImage | Original image input | `widgets_values[0]` |
-| 128 | LoadImage | Reference angle (optional) | `widgets_values[0]` |
-| 137 | LoadImage | Front angle (optional) | `widgets_values[0]` |
-| 107 | CLIPTextEncode | Edit prompt | `widgets_values[0]` |
-| 9 | SaveImage | Output filename | `widgets_values[0]` |
+### Azure Integration
+- Uploads to production storage account (`dashprodstore`)
+- Uses CDN for fast access (`https://content.dashtoon.ai`)
+- Organized blob structure: `face-swap-results/row_XXXX/result.png`
+- Generates Google Sheets `=IMAGE()` formulas
 
 ## Troubleshooting
 
 ### ComfyUI Connection Error
 
-```
-Error: Failed to connect to ComfyUI at http://localhost:8188
-```
-
-**Solution:** Verify ComfyUI is running:
 ```bash
-curl http://localhost:8188/system_stats
+# Check if ComfyUI is running
+curl http://localhost:8189/system_stats
+
+# Check process
+ps aux | grep "python.*main.py"
+
+# Restart ComfyUI
+cd ~/ComfyUI
+source comfyui_venv/bin/activate
+python main.py --listen 0.0.0.0 --port 8189 --highvram
 ```
 
-### Image Download Failures
+### NumPy Version Conflicts
 
-```
-Error: Failed to download https://...
-```
+ComfyUI requires specific NumPy versions. Solution: Use separate venvs.
 
-**Solution:** Check internet connectivity and URL accessibility
+```bash
+# ComfyUI venv (with compatible NumPy)
+cd ~/ComfyUI
+python3 -m venv comfyui_venv
+source comfyui_venv/bin/activate
+pip install -r requirements.txt
 
-### Workflow Execution Timeout
-
-```
-Error: Workflow execution failed or timed out
-```
-
-**Solution:** 
-- Check ComfyUI logs for errors
-- Verify all required models are installed
-- Increase timeout in script (edit `COMFYUI_TIMEOUT` constant)
-
-### Git Push Failures
-
-```
-Error: Git push failed
+# Character-swap venv (with latest NumPy for MediaPipe)
+cd ~/character-swap
+python3 -m venv venv
+source venv/bin/activate
+pip install -r requirements.txt
 ```
 
-**Solution:**
-- Verify git credentials are configured
-- Check repository permissions
-- Use `--no-git` flag to skip git operations
+### Face Detection Not Working
+
+If MediaPipe fails, the script automatically falls back to OpenCV:
+
+```bash
+# Verify MediaPipe installation
+python3 -c "import mediapipe as mp; print(mp.solutions.face_detection)"
+
+# If error, reinstall
+pip install --force-reinstall mediapipe
+```
+
+### Black Output Images
+
+This indicates the face mask wasn't created correctly. Check:
+
+```bash
+# Verify generated.png has alpha channel
+python3 -c "from PIL import Image; img=Image.open('data/input/row_0001/generated.png'); print(img.mode)"
+# Should output: RGBA
+```
+
+### Out of Memory
+
+```bash
+# Use normal VRAM mode instead of high
+python main.py --listen 0.0.0.0 --port 8189 --normalvram
+
+# Or reduce batch processing
+python3 face_swap_final.py --end-row 10  # Process fewer rows at once
+```
 
 ## Performance
 
-**Expected processing time per row:**
-- Image downloads: ~10-30 seconds
-- ComfyUI face swap: ~30-120 seconds (GPU-dependent)
-- Total per row: ~1-3 minutes
+### Expected Processing Time
+- Image downloads: ~0.5 seconds per row
+- Face detection: ~0.2 seconds per row
+- ComfyUI processing: ~30 seconds per row (H100)
+- Total per row: ~30-35 seconds
 
-**For 1000 rows:**
-- Estimated time: 16-50 hours
-- Recommended: Run in `tmux` or `screen` session
+### For 49 Rows
+- Estimated time: ~25-30 minutes
+- Actual time (tested): ~26 minutes
+- Success rate: 98%+
+
+### Resolution Impact
+- 1K (1MP): ~25 seconds per image
+- 2K (4MP): ~30 seconds per image
+- 4K (8.3MP): ~40 seconds per image
 
 ## Tips
 
-**Long-running jobs:**
+### Long-Running Jobs
+
 ```bash
 # Use tmux for persistent session
 tmux new -s faceswap
-python3 face_swap.py --csv "data.csv" --workflow "workflow.json"
+python3 face_swap_final.py --csv "data.csv" --workflow "workflow.json"
 # Detach: Ctrl+b, then d
 # Reattach: tmux attach -t faceswap
 ```
 
-**Resume from specific row:**
+### Monitor Progress
+
 ```bash
-# If processing stopped at row 150
-python3 face_swap.py \
-    --csv "data.csv" \
-    --workflow "workflow.json" \
-    --start-row 150
+# Watch logs in real-time
+tail -f face_swap.log
+
+# Count completed rows
+ls data/output/ | wc -l
+
+# View results summary
+cat results.json | jq '.summary'
 ```
 
-**Test on small subset:**
+### Resume from Specific Row
+
 ```bash
-# Test on first 5 rows
-python3 face_swap.py \
+# If processing stopped at row 25
+python3 face_swap_final.py \
     --csv "data.csv" \
     --workflow "workflow.json" \
-    --end-row 5 \
-    --no-git
+    --start-row 25
 ```
+
+## Repository
+
+GitHub: https://github.com/ch33nchan/character-swap
 
 ## License
 
@@ -316,5 +445,6 @@ This project is for internal use only.
 
 For issues or questions, check:
 1. `face_swap.log` - Detailed execution log
-2. `processing_log.json` - Processing results
+2. `results.json` - Processing results and metrics
 3. ComfyUI logs - Workflow execution details
+4. GPU status: `nvidia-smi`
