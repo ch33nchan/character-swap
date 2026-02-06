@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Patch Ostris AI-Toolkit: add low_cpu_mem_usage=False to FluxTransformer2DModel.from_pretrained.
+Patch Ostris AI-Toolkit for Flux: low_cpu_mem_usage=False; remove torch_dtype from tokenizer calls (fixes 'not a string').
 Run: python3 scripts/patch_ai_toolkit_flux_meta.py [--work-dir lora_training]
 """
 import argparse
@@ -19,6 +19,24 @@ def main():
         print(f"Not found: {toolkit_file}")
         return 1
     text = toolkit_file.read_text()
+
+    flux_start = text.find("elif self.model_config.is_flux:")
+    if flux_start >= 0:
+        flux_section = text[flux_start : flux_start + 15000]
+        if "tokenizer_2 = T5TokenizerFast.from_pretrained" in flux_section and "torch_dtype=dtype" in flux_section:
+            did_replace = False
+            for old, new in [
+                ("tokenizer_2 = T5TokenizerFast.from_pretrained(base_model_path, subfolder=\"tokenizer_2\", torch_dtype=dtype)", "tokenizer_2 = T5TokenizerFast.from_pretrained(base_model_path, subfolder=\"tokenizer_2\")"),
+                (" tokenizer_2 = T5TokenizerFast.from_pretrained(base_model_path, subfolder=\"tokenizer_2\", torch_dtype=dtype)", " tokenizer_2 = T5TokenizerFast.from_pretrained(base_model_path, subfolder=\"tokenizer_2\")"),
+            ]:
+                if old in text:
+                    text = text.replace(old, new, 1)
+                    did_replace = True
+                    break
+            if did_replace:
+                toolkit_file.write_text(text)
+                print("Patched: removed torch_dtype from T5TokenizerFast.from_pretrained (fixes 'not a string').")
+                text = toolkit_file.read_text()
 
     idx = text.find("FluxTransformer2DModel.from_pretrained(")
     if idx == -1:
