@@ -263,13 +263,11 @@ class LoRATrainingPipeline:
                 str(pip_path), 'install', '-r', str(requirements)
             ], check=True)
         
-        # Install additional dependencies
         subprocess.run([
             str(pip_path), 'install',
-            'transformers', 'accelerate', 'safetensors', 
-            'omegaconf', 'pyyaml'
+            'transformers', 'accelerate', 'safetensors',
+            'omegaconf', 'pyyaml', 'oyaml'
         ], check=True)
-        
         logger.info("✓ Dependencies installed")
         logger.info("="*60)
     
@@ -416,30 +414,31 @@ class LoRATrainingPipeline:
             return value
         return str(value)
     
-    def train(self, gpu_id: int = 0, config_path: Optional[str] = None):
+    def train(self, gpu_id: int = 0, gpu_ids: Optional[str] = None, config_path: Optional[str] = None):
         """
-        Step 4: Execute training
+        Step 4: Execute training. Uses AI-Toolkit venv Python (has oyaml). Multi-GPU: set gpu_ids e.g. "0,1,2,3".
         """
         logger.info("="*60)
         logger.info("STEP 4: TRAINING")
         logger.info("="*60)
-        
         if config_path is None:
             config_path = self.config_dir / 'character_lora.yaml'
-        
         if not Path(config_path).exists():
             logger.error(f"Config not found: {config_path}")
             logger.info("Run: python3 train_character_lora.py prepare first")
             return False
-        
-        # Set GPU
-        os.environ['CUDA_VISIBLE_DEVICES'] = str(gpu_id)
-        logger.info(f"Using GPU: {gpu_id}")
-        
-        # Run training
-        # Use sys.executable to get the currently active Python (from venv)
-        python_path = Path(sys.executable)
-        run_script = self.toolkit_dir / 'run.py'
+        if gpu_ids:
+            os.environ["CUDA_VISIBLE_DEVICES"] = gpu_ids
+            logger.info(f"Using GPUs: {gpu_ids}")
+        else:
+            os.environ["CUDA_VISIBLE_DEVICES"] = str(gpu_id)
+            logger.info(f"Using GPU: {gpu_id}")
+        toolkit_venv_python = self.toolkit_dir / "venv" / "bin" / "python3"
+        if toolkit_venv_python.exists():
+            python_path = toolkit_venv_python
+        else:
+            python_path = Path(sys.executable)
+        run_script = self.toolkit_dir / "run.py"
         
         # Convert to absolute paths
         run_script = run_script.resolve()
@@ -586,7 +585,8 @@ Examples:
     
     # Train command
     train_parser = subparsers.add_parser('train', help='Train LoRA')
-    train_parser.add_argument('--gpu-id', type=int, default=0, help='GPU ID to use')
+    train_parser.add_argument('--gpu-id', type=int, default=0, help='Single GPU ID (ignored if --gpu-ids set)')
+    train_parser.add_argument('--gpu-ids', type=str, default=None, help='Multiple GPUs e.g. "0,1,2,3"')
     train_parser.add_argument('--steps', type=int, default=1500, help='Training steps')
     train_parser.add_argument('--lr', type=float, default=0.0004, help='Learning rate')
     train_parser.add_argument('--batch-size', type=int, default=1, help='Batch size')
@@ -658,7 +658,7 @@ Examples:
                 use_local_model=not args.use_hf
             )
         
-        success = pipeline.train(gpu_id=args.gpu_id, config_path=str(config_path))
+        success = pipeline.train(gpu_id=args.gpu_id, gpu_ids=args.gpu_ids, config_path=str(config_path))
         
         if success:
             print("\n" + "="*60)
