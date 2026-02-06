@@ -1,10 +1,11 @@
-# Character Face Swap Automation
+# Character Swap Automation
 
-Batch face swap using ComfyUI Flux2 Klein 9b + MediaPipe face detection. Output: minimal CSV (row + Swap_Image_Formula) for sheets; full run details in results.json.
+Batch face swap using ComfyUI Flux2 Klein 9b + MediaPipe. Goal: same character (including hair, attire) in original pose and background. Output: minimal CSV (row + Swap_Image_Formula); full run details in results.json.
 
 ## Scope
 
-Face swap only (face inpainting). Full character + attire swap needs a different ComfyUI workflow.
+- **Current pipeline**: Face swap only (face inpainting). Full character + hair + attire in original pose/background requires a different ComfyUI workflow (e.g. full-body segmentation + inpainting).
+- **LoRA training**: Trains on full character (face, hair, attire) from multiple columns: Generated Image, Reference Angle, Front Angle.
 
 ## Prerequisites
 
@@ -25,6 +26,24 @@ ComfyUI (separate venv): install ComfyUI, LanPaint, models; then:
 ```bash
 cd ~/ComfyUI && source comfyui_venv/bin/activate
 python main.py --listen 0.0.0.0 --port 8189 --highvram
+```
+
+## GPU server quick reference
+
+```bash
+cd /mnt/data1/srini/character-swap
+source venv/bin/activate
+
+# Face swap (ComfyUI must be running on 8189)
+python3 face_swap_final.py --csv "Master - Tech Solutioning - Char Const - Rerun with head_eye gaze.csv" --quality high --comfyui-url http://localhost:8189 --update-csv --output-csv "Master - Tech Solutioning - Char Const - Rerun with head_eye gaze_results.csv"
+
+# Upload to Azure and sheet CSV (local or server)
+python3 upload_and_format.py --csv "Master - Tech Solutioning - Char Const - Rerun with head_eye gaze_results.csv" --output-csv sheet.csv
+
+# LoRA: setup once, then train
+python3 train_character_lora.py setup --work-dir lora_training
+export HF_TOKEN=your_token
+python3 train_character_lora.py train --use-hf --gpu-id 0 --steps 1500 --work-dir lora_training
 ```
 
 ## Commands to Run
@@ -68,28 +87,43 @@ Produces: `sheet.csv` (columns: row, Swap_Image_Formula) and `upload_results.jso
 | `--output-csv` | Output CSV path |
 | `--timeout` | ComfyUI wait seconds (default 600) |
 
-## LoRA training (FLUX.2-klein-9B)
+## LoRA training (full character: face, hair, attire)
 
-Optional: train a character LoRA with black-forest-labs/FLUX.2-klein-9B for consistent character generation.
+Trains on FLUX.2-klein-9B. By default uses three CSV columns: **Generated Image**, **Reference Angle**, **Front Angle** so the LoRA learns the full character (hair, attire) from multiple angles.
+
+### Local: prepare dataset
 
 ```bash
-# 1. Prepare dataset (local)
-python3 train_character_lora.py prepare --csv "your.csv" --max-images 30 --source-column "Generated Image"
+cd /path/to/character-swap
+source venv/bin/activate
 
-# 2. Transfer to GPU server
-scp -r lora_training user@gpu-server:~/
-
-# 3. Setup AI-Toolkit (GPU server)
-python3 train_character_lora.py setup --work-dir lora_training
-
-# 4. Train (use HuggingFace model; HF token required if gated)
-python3 train_character_lora.py train --use-hf --gpu-id 0 --steps 1500 --work-dir lora_training
-
-# 5. Test
-python3 train_character_lora.py test --lora-path "lora_training/output/character_expression_lora/character_expression_lora.safetensors"
+python3 train_character_lora.py prepare \
+  --csv "Master - Tech Solutioning - Char Const - Rerun with head_eye gaze_results.csv" \
+  --max-images 30 \
+  --trigger-word "mychar" \
+  --character-name "mychar"
 ```
 
-Train args: `--model-path`, `--use-hf`, `--steps`, `--lr`, `--batch-size`, `--lora-rank`. Copy trained LoRA to ComfyUI `models/loras/` and use trigger word in prompts.
+Optional: `--source-column "Generated Image" "Reference Angle" "Front Angle"` (default). Use a single column with `--source-column "Generated Image"`.
+
+### GPU server: setup and train
+
+```bash
+cd /mnt/data1/srini/character-swap
+source venv/bin/activate
+
+# 1. Setup AI-Toolkit (once)
+python3 train_character_lora.py setup --work-dir lora_training
+
+# 2. Train (HF token required if model is gated)
+export HF_TOKEN=your_token
+python3 train_character_lora.py train --use-hf --gpu-id 0 --steps 1500 --work-dir lora_training
+
+# 3. Test
+python3 train_character_lora.py test --lora-path "lora_training/output/character_expression_lora/character_expression_lora.safetensors" --work-dir lora_training
+```
+
+Train args: `--model-path`, `--use-hf`, `--steps`, `--lr`, `--batch-size`, `--lora-rank`. Copy trained LoRA to ComfyUI `models/loras/` and use the trigger word in prompts.
 
 ## Output layout
 

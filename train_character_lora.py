@@ -1,18 +1,7 @@
 #!/usr/bin/env python3
 """
-Complete LoRA Training Pipeline for Character + Expression Control
-Single script to prepare dataset, generate configs, and train on GPU server
-
-Usage:
-    # Step 1: Prepare dataset locally
-    python3 train_character_lora.py prepare --csv "path/to/csv" --max-images 30
-    
-    # Step 2: On GPU server, setup and train
-    python3 train_character_lora.py setup
-    python3 train_character_lora.py train --gpu-id 0
-    
-    # Step 3: Test trained LoRA
-    python3 train_character_lora.py test --lora-path "output/character_lora.safetensors"
+LoRA training for full character (face, hair, attire) + expression.
+Uses multiple image columns by default: Generated Image, Reference Angle, Front Angle.
 """
 
 import argparse
@@ -39,107 +28,86 @@ logger = logging.getLogger(__name__)
 class LoRATrainingPipeline:
     """Complete pipeline for training character expression LoRA"""
     
-    def __init__(self, work_dir: str = "lora_training"):
+    def __init__(self, work_dir: str = "lora_training", character_name: str = "CHARNAME", trigger_word: Optional[str] = None):
         self.work_dir = Path(work_dir)
         self.dataset_dir = self.work_dir / "dataset"
         self.images_dir = self.dataset_dir / "images"
         self.config_dir = self.work_dir / "config"
         self.output_dir = self.work_dir / "output"
         self.toolkit_dir = self.work_dir / "ai-toolkit"
-        
-        # Character name (customize this)
-        self.character_name = "CHARNAME"
-        self.trigger_word = "CHARNAME"
-    
-    def prepare_dataset(self, csv_path: str, max_images: int = 30, 
-                       source_column: str = "Generated Image"):
+        self.character_name = character_name
+        self.trigger_word = trigger_word or character_name
+
+    def prepare_dataset(self, csv_path: str, max_images: int = 30,
+                       source_columns: Optional[List[str]] = None) -> int:
         """
-        Step 1: Download images from CSV and create training dataset
+        Download images from one or more CSV columns (full character: hair, attire, multiple angles).
+        Default columns: Generated Image, Reference Angle, Front Angle.
         """
         logger.info("="*60)
-        logger.info("STEP 1: DATASET PREPARATION")
+        logger.info("STEP 1: DATASET PREPARATION (full character: hair, attire)")
         logger.info("="*60)
-        
-        # Create directories
+        if source_columns is None:
+            source_columns = ["Generated Image", "Reference Angle", "Front Angle"]
         self.images_dir.mkdir(parents=True, exist_ok=True)
-        
-        # Load CSV
         df = pd.read_csv(csv_path)
-        logger.info(f"Loaded CSV: {len(df)} rows")
-        
-        # Download images
+        logger.info(f"Loaded CSV: {len(df)} rows, columns: {source_columns}")
+        for col in source_columns:
+            if col not in df.columns:
+                logger.warning(f"Column not in CSV: {col}, skipping")
+        source_columns = [c for c in source_columns if c in df.columns]
+        if not source_columns:
+            raise ValueError("No valid source columns found in CSV")
         dataset_info = []
-        successful = 0
-        
-        for idx in range(min(max_images, len(df))):
-            row = df.iloc[idx]
-            
-            try:
-                # Get image URL
-                image_url = row[source_column]
-                if pd.isna(image_url) or not str(image_url).startswith('http'):
-                    logger.warning(f"Row {idx+1}: Invalid URL, skipping")
+        global_idx = 0
+        max_rows = min(max_images, len(df))
+        for row_idx in range(max_rows):
+            row = df.iloc[row_idx]
+            caption = self._create_caption(row, row_idx)
+            for col in source_columns:
+                url = row.get(col)
+                if pd.isna(url) or not str(url).strip().startswith("http"):
                     continue
-                
-                # Download image
-                logger.info(f"[{idx+1}/{max_images}] Downloading from row {idx+1}...")
-                response = requests.get(image_url, timeout=30)
-                response.raise_for_status()
-                
-                # Save image
-                img_path = self.images_dir / f"image_{idx:04d}.png"
-                with open(img_path, 'wb') as f:
-                    f.write(response.content)
-                
-                # Verify image
-                img = Image.open(img_path)
-                width, height = img.size
-                logger.info(f"  ✓ Saved: {img_path.name} ({width}x{height})")
-                
-                # Create caption
-                caption = self._create_caption(row, idx)
-                caption_path = self.images_dir / f"image_{idx:04d}.txt"
-                with open(caption_path, 'w') as f:
-                    f.write(caption)
-                
-                logger.info(f"  ✓ Caption: {caption[:80]}...")
-                
-                dataset_info.append({
-                    'image': str(img_path),
-                    'caption': caption,
-                    'original_row': idx + 1,
-                    'size': f"{width}x{height}"
-                })
-                
-                successful += 1
-                
-            except Exception as e:
-                logger.error(f"Row {idx+1}: Failed - {e}")
-                continue
-        
-        # Save dataset metadata
+                try:
+                    logger.info(f"[{global_idx+1}] Row {row_idx+1} ({col})...")
+                    response = requests.get(str(url).strip(), timeout=30)
+                    response.raise_for_status()
+                    img_path = self.images_dir / f"image_{global_idx:04d}.png"
+                    with open(img_path, "wb") as f:
+                        f.write(response.content)
+                    img = Image.open(img_path)
+                    w, h = img.size
+                    cap_path = self.images_dir / f"image_{global_idx:04d}.txt"
+                    with open(cap_path, "w") as f:
+                        f.write(caption)
+                    logger.info(f"  Saved {img_path.name} ({w}x{h}), caption: {caption[:60]}...")
+                    dataset_info.append({
+                        "image": str(img_path),
+                        "caption": caption,
+                        "original_row": row_idx + 1,
+                        "column": col,
+                        "size": f"{w}x{h}",
+                    })
+                    global_idx += 1
+                except Exception as e:
+                    logger.error(f"Row {row_idx+1} {col}: {e}")
         metadata = {
-            'total_images': successful,
-            'character_name': self.character_name,
-            'trigger_word': self.trigger_word,
-            'source_csv': csv_path,
-            'images': dataset_info
+            "total_images": global_idx,
+            "character_name": self.character_name,
+            "trigger_word": self.trigger_word,
+            "source_csv": csv_path,
+            "source_columns": source_columns,
+            "images": dataset_info,
         }
-        
-        metadata_path = self.dataset_dir / 'dataset_info.json'
-        with open(metadata_path, 'w') as f:
+        metadata_path = self.dataset_dir / "dataset_info.json"
+        with open(metadata_path, "w") as f:
             json.dump(metadata, f, indent=2)
-        
-        # Analyze dataset
         self._analyze_dataset()
-        
         logger.info("\n" + "="*60)
-        logger.info(f"✓ Dataset prepared: {successful} images")
-        logger.info(f"✓ Location: {self.images_dir}")
-        logger.info(f"✓ Metadata: {metadata_path}")
+        logger.info(f"Dataset prepared: {global_idx} images (full character: hair, attire)")
+        logger.info(f"Location: {self.images_dir}, metadata: {metadata_path}")
         logger.info("="*60)
-        
-        return successful
+        return global_idx
     
     def _create_caption(self, row: pd.Series, idx: int) -> str:
         """
@@ -168,34 +136,25 @@ class LoRATrainingPipeline:
         return caption
     
     def _extract_character_features(self, prompt: str) -> str:
-        """Extract character-specific features from prompt"""
+        """Extract full-character features: face, hair, attire, body."""
         if not prompt:
-            return "portrait, professional photo"
-        
-        # Keywords that indicate character features
+            return "full body, portrait, professional photo, high quality"
         feature_keywords = [
-            'face', 'hair', 'eyes', 'skin', 'clothing', 'wearing',
-            'style', 'look', 'appearance', 'features', 'expression'
+            "face", "hair", "eyes", "skin", "clothing", "wearing", "attire", "outfit",
+            "style", "look", "appearance", "features", "expression", "body", "pose",
         ]
-        
-        lines = prompt.split('\n')
+        lines = prompt.split("\n")
         feature_lines = []
-        
         for line in lines:
             line_lower = line.lower()
             if any(kw in line_lower for kw in feature_keywords):
-                # Clean up the line
-                clean_line = line.strip('- ').strip()
-                if clean_line and not clean_line.startswith('CRITICAL'):
-                    feature_lines.append(clean_line)
-        
+                clean = line.strip("- ").strip()
+                if clean and not clean.startswith("CRITICAL"):
+                    feature_lines.append(clean)
         if feature_lines:
-            # Combine and simplify
-            features = ' '.join(feature_lines[:3])  # Take first 3 relevant lines
-            features = re.sub(r'\s+', ' ', features)  # Clean whitespace
-            return features
-        
-        return "portrait, professional photo, high quality"
+            features = " ".join(feature_lines[:5])
+            return re.sub(r"\s+", " ", features)
+        return "full body, portrait, professional photo, hair and attire, high quality"
     
     def _detect_expression(self, prompt: str, idx: int) -> Optional[str]:
         """Detect or assign expression based on prompt or index"""
@@ -612,10 +571,13 @@ Examples:
     subparsers = parser.add_subparsers(dest='command', help='Command to execute')
     
     # Prepare command
-    prepare_parser = subparsers.add_parser('prepare', help='Prepare training dataset')
+    prepare_parser = subparsers.add_parser('prepare', help='Prepare dataset (full character: hair, attire)')
     prepare_parser.add_argument('--csv', required=True, help='Path to CSV file')
-    prepare_parser.add_argument('--max-images', type=int, default=30, help='Maximum images to download')
-    prepare_parser.add_argument('--source-column', default='Generated Image', help='CSV column with image URLs')
+    prepare_parser.add_argument('--max-images', type=int, default=30, help='Max rows to scan (multiple images per row if multiple columns)')
+    prepare_parser.add_argument('--source-column', nargs='*', default=None,
+                               help='CSV columns for images (default: Generated Image, Reference Angle, Front Angle)')
+    prepare_parser.add_argument('--trigger-word', default='CHARNAME', help='Trigger word for LoRA')
+    prepare_parser.add_argument('--character-name', default='CHARNAME', help='Character name (used in captions)')
     prepare_parser.add_argument('--work-dir', default='lora_training', help='Working directory')
     
     # Setup command
@@ -644,31 +606,33 @@ Examples:
     if not args.command:
         parser.print_help()
         return
-    
-    # Initialize pipeline
-    pipeline = LoRATrainingPipeline(work_dir=args.work_dir)
-    
-    # Execute command
-    if args.command == 'prepare':
+
+    work_dir = getattr(args, "work_dir", "lora_training")
+    character_name = getattr(args, "character_name", "CHARNAME")
+    trigger_word = getattr(args, "trigger_word", "CHARNAME")
+    pipeline = LoRATrainingPipeline(work_dir=work_dir, character_name=character_name, trigger_word=trigger_word)
+
+    if args.command == "prepare":
+        source_columns = getattr(args, "source_column", None)
+        if source_columns is not None and len(source_columns) == 0:
+            source_columns = None
         pipeline.prepare_dataset(
             csv_path=args.csv,
             max_images=args.max_images,
-            source_column=args.source_column
+            source_columns=source_columns,
         )
-        # Also create config
         pipeline.create_training_config()
-        
         print("\n" + "="*60)
         print("NEXT STEPS:")
         print("="*60)
         print("1. Transfer dataset to GPU server:")
-        print(f"   scp -r {args.work_dir} user@gpu-server:~/")
+        print(f"   scp -r {work_dir} user@gpu-server:~/")
         print("")
         print("2. On GPU server, setup AI-Toolkit:")
-        print(f"   python3 train_character_lora.py setup --work-dir {args.work_dir}")
+        print(f"   python3 train_character_lora.py setup --work-dir {work_dir}")
         print("")
-        print("3. Train LoRA:")
-        print(f"   python3 train_character_lora.py train --gpu-id 0 --work-dir {args.work_dir}")
+        print("3. Train LoRA (full character including hair, attire):")
+        print(f"   python3 train_character_lora.py train --gpu-id 0 --work-dir {work_dir}")
         print("="*60)
     
     elif args.command == 'setup':
