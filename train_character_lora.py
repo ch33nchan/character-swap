@@ -433,12 +433,14 @@ class LoRATrainingPipeline:
         else:
             os.environ["CUDA_VISIBLE_DEVICES"] = str(gpu_id)
             logger.info(f"Using GPU: {gpu_id}")
-        toolkit_venv_python = self.toolkit_dir / "venv" / "bin" / "python3"
+        toolkit_dir_abs = self.toolkit_dir.resolve()
+        toolkit_venv_python = toolkit_dir_abs / "venv" / "bin" / "python3"
         if toolkit_venv_python.exists():
-            python_path = toolkit_venv_python.resolve()
+            python_path = toolkit_venv_python
         else:
+            logger.warning("AI-Toolkit venv not found, using current Python (ensure oyaml is installed: pip install oyaml)")
             python_path = Path(sys.executable).resolve()
-        run_script = self.toolkit_dir / "run.py"
+        run_script = toolkit_dir_abs / "run.py"
         run_script = run_script.resolve()
         config_path = Path(config_path).resolve()
         
@@ -466,7 +468,7 @@ class LoRATrainingPipeline:
                 str(python_path),
                 str(run_script),
                 str(config_path)
-            ], check=True, cwd=str(self.toolkit_dir))
+            ], check=True, cwd=str(toolkit_dir_abs))
             
             logger.info("="*60)
             logger.info("✓ Training complete!")
