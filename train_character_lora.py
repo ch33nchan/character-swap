@@ -460,11 +460,11 @@ class LoRATrainingPipeline:
         logger.info(f"Using GPU: {gpu_id}")
         
         # Run training
-        python_path = self.toolkit_dir / 'venv' / 'bin' / 'python'
+        # Use sys.executable to get the currently active Python (from venv)
+        python_path = Path(sys.executable)
         run_script = self.toolkit_dir / 'run.py'
         
         # Convert to absolute paths
-        python_path = python_path.resolve()
         run_script = run_script.resolve()
         config_path = Path(config_path).resolve()
         
