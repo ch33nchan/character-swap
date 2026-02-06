@@ -7,6 +7,7 @@ Set env vars:
   export CDN_BASE_URL="https://dev-content.dashtoon.ai"  # Optional, uses blob URL if not set
 """
 
+import argparse
 import os
 import sys
 from pathlib import Path
@@ -72,9 +73,13 @@ def to_image_formula(url: str) -> str:
 
 
 def main():
-    csv_path = "Master - Tech Solutioning - Char Const - Rerun with head_eye gaze_results.csv"
+    parser = argparse.ArgumentParser(description="Upload face swap results to Azure and add =IMAGE() columns")
+    parser.add_argument("--csv", required=True, help="Input CSV path (with Swap_Status etc.)")
+    parser.add_argument("--output-csv", help="Output CSV path (default: input_with_azure_urls.csv)")
+    args = parser.parse_args()
+    csv_path = args.csv
     output_dir = Path("data/output")
-    
+
     if not Path(csv_path).exists():
         print(f"ERROR: CSV not found: {csv_path}")
         return
@@ -147,7 +152,7 @@ def main():
         print(f"\n✓ Uploaded {success_count}/{total} images")
     
     # Save updated CSV
-    output_csv = csv_path.replace('.csv', '_with_azure_urls.csv')
+    output_csv = args.output_csv or csv_path.replace('.csv', '_with_azure_urls.csv')
     df.to_csv(output_csv, index=False)
     
     print("\n" + "="*60)

@@ -36,6 +36,29 @@ QUALITY_WORKFLOW = {
     "ultra": f"{DEFAULT_WORKFLOW_BASE}_ultra.json",
 }
 
+QUALITY_PRESETS = {
+    "fast": {"steps": 4, "denoise": 0.8, "cfg": 1, "lora_strength": 1.0, "megapixels": 2},
+    "balanced": {"steps": 8, "denoise": 0.9, "cfg": 2, "lora_strength": 0.95, "megapixels": 4},
+    "high": {"steps": 12, "denoise": 0.95, "cfg": 3, "lora_strength": 0.9, "megapixels": 6},
+    "ultra": {"steps": 20, "denoise": 1.0, "cfg": 4, "lora_strength": 0.85, "megapixels": 8.3},
+}
+
+
+def apply_quality_preset(workflow: Dict, quality: str) -> None:
+    params = QUALITY_PRESETS.get(quality)
+    if not params:
+        return
+    if "156" in workflow:
+        workflow["156"]["inputs"]["steps"] = params["steps"]
+        workflow["156"]["inputs"]["denoise"] = params["denoise"]
+    if "100" in workflow:
+        workflow["100"]["inputs"]["guidance"] = params["cfg"]
+    if "161" in workflow:
+        workflow["161"]["inputs"]["strength_model"] = params["lora_strength"]
+    if "135" in workflow:
+        workflow["135"]["inputs"]["value"] = params["megapixels"]
+    logger.info(f"Quality preset: {quality} (steps={params['steps']}, denoise={params['denoise']}, cfg={params['cfg']}, {params['megapixels']}MP)")
+
 logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s - %(levelname)s - %(message)s',
@@ -525,6 +548,8 @@ def main():
         workflow_template = json.load(f)
     logger.info(f"Workflow: {args.workflow}")
     logger.info(f"Nodes in workflow: {len(workflow_template)}")
+    if args.quality:
+        apply_quality_preset(workflow_template, args.quality)
     
     end = args.end_row if args.end_row else len(df)
     results = []
