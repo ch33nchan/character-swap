@@ -272,8 +272,9 @@ class LoRATrainingPipeline:
         logger.info("="*60)
     
     def create_training_config(self, steps: int = 1500, learning_rate: float = 0.0004,
-                              batch_size: int = 1, lora_rank: int = 16, 
-                              model_path: str = None, use_local_model: bool = True):
+                              batch_size: int = 1, lora_rank: int = 16,
+                              model_path: str = None, use_local_model: bool = True,
+                              quantize: bool = True):
         """
         Step 3: Create training configuration
         """
@@ -317,7 +318,7 @@ class LoRATrainingPipeline:
                     'model': {
                         'name_or_path': model_path,
                         'is_flux': True,
-                        'quantize': True
+                        'quantize': quantize
                     },
                     
                     'network': {
@@ -593,6 +594,7 @@ Examples:
     train_parser.add_argument('--lora-rank', type=int, default=16, help='LoRA rank')
     train_parser.add_argument('--model-path', default=None, help='Base model path or HF id (default: FLUX.2-klein-9B when using HF)')
     train_parser.add_argument('--use-hf', action='store_true', help='Use HuggingFace black-forest-labs/FLUX.2-klein-9B (requires HF token if gated)')
+    train_parser.add_argument('--no-quantize', action='store_true', help='Disable quantize (use with --use-hf to avoid meta tensor error)')
     train_parser.add_argument('--work-dir', default='lora_training', help='Working directory')
     
     # Test command
@@ -646,18 +648,24 @@ Examples:
         print("="*60)
     
     elif args.command == 'train':
-        # Create config if it doesn't exist
         config_path = pipeline.config_dir / 'character_lora.yaml'
-        if not config_path.exists():
+        if not config_path.exists() or args.use_hf:
+            hf_model = "black-forest-labs/FLUX.2-klein-9B"
+            use_quantize = not getattr(args, "no_quantize", False)
+            if args.use_hf and use_quantize:
+                use_quantize = False
+                logger.info("Disabling quantize for HF model (avoids meta tensor error)")
             pipeline.create_training_config(
                 steps=args.steps,
                 learning_rate=args.lr,
                 batch_size=args.batch_size,
                 lora_rank=args.lora_rank,
-                model_path=args.model_path,
-                use_local_model=not args.use_hf
+                model_path=(hf_model if args.use_hf else args.model_path),
+                use_local_model=not args.use_hf,
+                quantize=use_quantize
             )
-        
+            if args.use_hf:
+                logger.info("Config written with HuggingFace model: %s", hf_model)
         success = pipeline.train(gpu_id=args.gpu_id, gpu_ids=args.gpu_ids, config_path=str(config_path))
         
         if success:
