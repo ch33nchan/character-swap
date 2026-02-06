@@ -22,11 +22,19 @@ import requests
 from PIL import Image
 
 DEFAULT_COMFYUI_URL = "http://localhost:8189"
+DEFAULT_WORKFLOW_BASE = "Flux2 Klein 9b Face Swap(API)"
 MAX_RETRIES = 3
 DOWNLOAD_TIMEOUT = 30
-COMFYUI_TIMEOUT = 300
+COMFYUI_TIMEOUT = 600
 INPUT_DIR = "data/input"
 OUTPUT_DIR = "data/output"
+
+QUALITY_WORKFLOW = {
+    "fast": f"{DEFAULT_WORKFLOW_BASE}.json",
+    "balanced": f"{DEFAULT_WORKFLOW_BASE}.json",
+    "high": f"{DEFAULT_WORKFLOW_BASE}_high.json",
+    "ultra": f"{DEFAULT_WORKFLOW_BASE}_ultra.json",
+}
 
 logging.basicConfig(
     level=logging.INFO,
@@ -349,7 +357,7 @@ def download_output(server_url: str, image_info: Dict, output_path: Path) -> boo
         return False
 
 
-def process_row(row_data: pd.Series, row_num: int, workflow_template: Dict, server_url: str) -> Dict[str, Any]:
+def process_row(row_data: pd.Series, row_num: int, workflow_template: Dict, server_url: str, timeout: int = COMFYUI_TIMEOUT) -> Dict[str, Any]:
     """Process single CSV row and return detailed results"""
     logger.info(f"\n{'='*60}")
     logger.info(f"Row {row_num}")
@@ -451,7 +459,7 @@ def process_row(row_data: pd.Series, row_num: int, workflow_template: Dict, serv
             result['error'] = "Failed to queue workflow"
             return result
         
-        if not wait_for_completion(server_url, prompt_id):
+        if not wait_for_completion(server_url, prompt_id, timeout=timeout):
             result['error'] = "Workflow execution failed or timed out"
             return result
         
@@ -488,16 +496,24 @@ def process_row(row_data: pd.Series, row_num: int, workflow_template: Dict, serv
 def main():
     parser = argparse.ArgumentParser(description='Face swap automation using ComfyUI API')
     parser.add_argument('--csv', required=True, help='CSV file path')
-    parser.add_argument('--workflow', required=True, help='API format workflow JSON')
+    parser.add_argument('--workflow', help='API format workflow JSON (overrides --quality if set)')
+    parser.add_argument('--quality', choices=list(QUALITY_WORKFLOW), help='Quality preset: fast, balanced, high, ultra (uses default workflow files)')
     parser.add_argument('--comfyui-url', default=DEFAULT_COMFYUI_URL, help='ComfyUI server URL')
     parser.add_argument('--start-row', type=int, default=1, help='Start row (1-indexed)')
     parser.add_argument('--end-row', type=int, help='End row (inclusive)')
     parser.add_argument('--gpu-ids', type=str, help='GPU IDs (e.g., 0,1,2,3)')
     parser.add_argument('--update-csv', action='store_true', help='Update CSV with results columns')
     parser.add_argument('--output-csv', type=str, help='Output CSV path (default: adds _results suffix)')
+    parser.add_argument('--timeout', type=int, default=COMFYUI_TIMEOUT, help=f'ComfyUI wait timeout in seconds (default: {COMFYUI_TIMEOUT})')
     
     args = parser.parse_args()
-    
+    if not args.workflow and not args.quality:
+        parser.error("Either --workflow or --quality is required")
+    workflow_path = args.workflow or QUALITY_WORKFLOW[args.quality]
+    if not os.path.isabs(workflow_path) and not Path(workflow_path).exists():
+        workflow_path = str(Path(__file__).resolve().parent / Path(workflow_path).name)
+    args.workflow = workflow_path
+
     if args.gpu_ids:
         os.environ['CUDA_VISIBLE_DEVICES'] = args.gpu_ids
         logger.info(f"Using GPUs: {args.gpu_ids}")
@@ -535,7 +551,7 @@ def main():
     
     for idx in range(args.start_row - 1, min(end, len(df))):
         row_num = idx + 1
-        result = process_row(df.iloc[idx], row_num, workflow_template, args.comfyui_url)
+        result = process_row(df.iloc[idx], row_num, workflow_template, args.comfyui_url, args.timeout)
         results.append(result)
         
         # Update DataFrame
@@ -588,10 +604,12 @@ def main():
             'duration_sec': (run_end - run_start).total_seconds(),
             'csv_file': args.csv,
             'workflow_file': args.workflow,
+            'quality': getattr(args, 'quality', None),
             'comfyui_url': args.comfyui_url,
             'start_row': args.start_row,
             'end_row': end,
-            'gpu_ids': args.gpu_ids
+            'gpu_ids': args.gpu_ids,
+            'timeout_sec': args.timeout
         },
         'summary': {
             'total_rows': len(results),
