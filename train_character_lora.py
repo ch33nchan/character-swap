@@ -463,7 +463,25 @@ class LoRATrainingPipeline:
         python_path = self.toolkit_dir / 'venv' / 'bin' / 'python'
         run_script = self.toolkit_dir / 'run.py'
         
+        # Convert to absolute paths
+        python_path = python_path.resolve()
+        run_script = run_script.resolve()
+        config_path = Path(config_path).resolve()
+        
+        # Verify files exist
+        if not python_path.exists():
+            logger.error(f"Python not found: {python_path}")
+            logger.error("Make sure you ran: python3 train_character_lora.py setup")
+            return False
+        
+        if not run_script.exists():
+            logger.error(f"run.py not found: {run_script}")
+            logger.error("AI-Toolkit may not be properly installed")
+            return False
+        
         logger.info(f"Starting training...")
+        logger.info(f"Python: {python_path}")
+        logger.info(f"Script: {run_script}")
         logger.info(f"Config: {config_path}")
         logger.info(f"Output: {self.output_dir}")
         logger.info("\nTraining will take 2-4 hours on H100...")
