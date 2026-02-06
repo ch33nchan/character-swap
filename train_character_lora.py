@@ -315,7 +315,8 @@ class LoRATrainingPipeline:
         logger.info("="*60)
     
     def create_training_config(self, steps: int = 1500, learning_rate: float = 0.0004,
-                              batch_size: int = 1, lora_rank: int = 16):
+                              batch_size: int = 1, lora_rank: int = 16, 
+                              model_path: str = None, use_local_model: bool = True):
         """
         Step 3: Create training configuration
         """
@@ -324,6 +325,20 @@ class LoRATrainingPipeline:
         logger.info("="*60)
         
         self.config_dir.mkdir(parents=True, exist_ok=True)
+        
+        # Determine model path
+        if use_local_model and model_path is None:
+            # Try to find local ComfyUI models
+            comfyui_model = Path.home() / "ComfyUI" / "models" / "unet" / "flux-2-klein-9b.safetensors"
+            if comfyui_model.exists():
+                model_path = str(comfyui_model.parent.parent)  # Point to ComfyUI/models/
+                logger.info(f"Using local model: {model_path}")
+            else:
+                # Fallback to HuggingFace (requires HF_TOKEN)
+                model_path = "black-forest-labs/FLUX.2-dev"
+                logger.warning("Local model not found, using HuggingFace (requires HF_TOKEN)")
+        elif model_path is None:
+            model_path = "black-forest-labs/FLUX.2-dev"
         
         # Sample prompts for validation during training
         sample_prompts = [
@@ -344,7 +359,7 @@ class LoRATrainingPipeline:
                     'device': 'cuda:0',
                     
                     'model': {
-                        'name_or_path': 'black-forest-labs/FLUX.2-dev',
+                        'name_or_path': model_path,
                         'is_flux': True,
                         'quantize': True
                     },
@@ -615,6 +630,8 @@ Examples:
     train_parser.add_argument('--lr', type=float, default=0.0004, help='Learning rate')
     train_parser.add_argument('--batch-size', type=int, default=1, help='Batch size')
     train_parser.add_argument('--lora-rank', type=int, default=16, help='LoRA rank')
+    train_parser.add_argument('--model-path', default=None, help='Path to base model (default: auto-detect ComfyUI models)')
+    train_parser.add_argument('--use-hf', action='store_true', help='Use HuggingFace model instead of local')
     train_parser.add_argument('--work-dir', default='lora_training', help='Working directory')
     
     # Test command
@@ -673,7 +690,9 @@ Examples:
                 steps=args.steps,
                 learning_rate=args.lr,
                 batch_size=args.batch_size,
-                lora_rank=args.lora_rank
+                lora_rank=args.lora_rank,
+                model_path=args.model_path,
+                use_local_model=not args.use_hf
             )
         
         success = pipeline.train(gpu_id=args.gpu_id, config_path=str(config_path))
