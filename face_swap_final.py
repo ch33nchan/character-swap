@@ -32,8 +32,8 @@ OUTPUT_DIR = "data/output"
 QUALITY_WORKFLOW = {
     "fast": f"{DEFAULT_WORKFLOW_BASE}.json",
     "balanced": f"{DEFAULT_WORKFLOW_BASE}.json",
-    "high": f"{DEFAULT_WORKFLOW_BASE}_high.json",
-    "ultra": f"{DEFAULT_WORKFLOW_BASE}_ultra.json",
+    "high": f"{DEFAULT_WORKFLOW_BASE}.json",
+    "ultra": f"{DEFAULT_WORKFLOW_BASE}.json",
 }
 
 QUALITY_PRESETS = {

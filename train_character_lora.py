@@ -326,19 +326,18 @@ class LoRATrainingPipeline:
         
         self.config_dir.mkdir(parents=True, exist_ok=True)
         
-        # Determine model path
+        # Determine model path (default: FLUX.2-klein-9B for character swap alignment)
+        default_hf_model = "black-forest-labs/FLUX.2-klein-9B"
         if use_local_model and model_path is None:
-            # Try to find local ComfyUI models
             comfyui_model = Path.home() / "ComfyUI" / "models" / "unet" / "flux-2-klein-9b.safetensors"
             if comfyui_model.exists():
-                model_path = str(comfyui_model.parent.parent)  # Point to ComfyUI/models/
+                model_path = str(comfyui_model.parent.parent)
                 logger.info(f"Using local model: {model_path}")
             else:
-                # Fallback to HuggingFace (requires HF_TOKEN)
-                model_path = "black-forest-labs/FLUX.2-dev"
-                logger.warning("Local model not found, using HuggingFace (requires HF_TOKEN)")
+                model_path = default_hf_model
+                logger.warning("Local model not found, using HuggingFace (requires HF_TOKEN for gated model)")
         elif model_path is None:
-            model_path = "black-forest-labs/FLUX.2-dev"
+            model_path = default_hf_model
         
         # Sample prompts for validation during training
         sample_prompts = [
@@ -540,9 +539,9 @@ class LoRATrainingPipeline:
         output_path = Path(output_dir)
         output_path.mkdir(parents=True, exist_ok=True)
         
-        logger.info("Loading Flux pipeline...")
+        logger.info("Loading Flux pipeline (FLUX.2-klein-9B)...")
         pipe = FluxPipeline.from_pretrained(
-            "black-forest-labs/FLUX.2-dev",
+            "black-forest-labs/FLUX.2-klein-9B",
             torch_dtype=torch.bfloat16
         )
         
@@ -630,8 +629,8 @@ Examples:
     train_parser.add_argument('--lr', type=float, default=0.0004, help='Learning rate')
     train_parser.add_argument('--batch-size', type=int, default=1, help='Batch size')
     train_parser.add_argument('--lora-rank', type=int, default=16, help='LoRA rank')
-    train_parser.add_argument('--model-path', default=None, help='Path to base model (default: auto-detect ComfyUI models)')
-    train_parser.add_argument('--use-hf', action='store_true', help='Use HuggingFace model instead of local')
+    train_parser.add_argument('--model-path', default=None, help='Base model path or HF id (default: FLUX.2-klein-9B when using HF)')
+    train_parser.add_argument('--use-hf', action='store_true', help='Use HuggingFace black-forest-labs/FLUX.2-klein-9B (requires HF token if gated)')
     train_parser.add_argument('--work-dir', default='lora_training', help='Working directory')
     
     # Test command
