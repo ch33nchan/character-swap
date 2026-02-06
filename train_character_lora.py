@@ -415,15 +415,19 @@ class LoRATrainingPipeline:
         for key, value in data.items():
             if isinstance(value, dict):
                 lines.append(f"{prefix}{key}:")
-                lines.append(self._dict_to_yaml(value, indent + 1))
+                for line in self._dict_to_yaml(value, indent + 1).split('\n'):
+                    if line.strip():
+                        lines.append(line)
             elif isinstance(value, list):
                 lines.append(f"{prefix}{key}:")
                 for item in value:
                     if isinstance(item, dict):
-                        lines.append(f"{prefix}- ")
-                        lines.append(self._dict_to_yaml(item, indent + 1).replace(prefix, prefix + '  ', 1))
+                        lines.append(f"{prefix}  -")
+                        for line in self._dict_to_yaml(item, indent + 2).split('\n'):
+                            if line.strip():
+                                lines.append(f"  {line}")
                     else:
-                        lines.append(f"{prefix}- {self._yaml_value(item)}")
+                        lines.append(f"{prefix}  - {self._yaml_value(item)}")
             else:
                 lines.append(f"{prefix}{key}: {self._yaml_value(value)}")
         
