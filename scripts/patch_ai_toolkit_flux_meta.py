@@ -1,9 +1,10 @@
 #!/usr/bin/env python3
 """
-Patch Ostris AI-Toolkit to avoid meta tensor when loading Flux from HuggingFace.
+Patch Ostris AI-Toolkit: add low_cpu_mem_usage=False to FluxTransformer2DModel.from_pretrained.
 Run: python3 scripts/patch_ai_toolkit_flux_meta.py [--work-dir lora_training]
 """
 import argparse
+import re
 import sys
 from pathlib import Path
 
@@ -16,26 +17,74 @@ def main():
 
     if not toolkit_file.exists():
         print(f"Not found: {toolkit_file}")
-        print("Run after: python3 train_character_lora.py setup --work-dir", args.work_dir)
         return 1
     text = toolkit_file.read_text()
-    if "low_cpu_mem_usage=False" in text and "FluxTransformer2DModel" in text:
-        print("Already patched.")
-        return 0
-    if "FluxTransformer2DModel.from_pretrained" not in text:
-        print("Toolkit file structure unexpected.")
+
+    idx = text.find("FluxTransformer2DModel.from_pretrained(")
+    if idx == -1:
+        print("FluxTransformer2DModel.from_pretrained not found.")
         return 1
-    text = text.replace("# low_cpu_mem_usage=False,", "low_cpu_mem_usage=False,")
-    if "low_cpu_mem_usage=False" not in text:
-        idx = text.find("torch_dtype=dtype,")
-        if idx == -1:
-            print("Could not find insertion point.")
-            return 1
-        end = text.find("\n", idx) + 1
-        text = text[:end] + "        low_cpu_mem_usage=False,\n" + text[end:]
-    toolkit_file.write_text(text)
-    print("Patched: Flux from_pretrained now uses low_cpu_mem_usage=False")
-    return 0
+    block = text[idx : idx + 700]
+    if "low_cpu_mem_usage=False" in block and "# low_cpu_mem_usage" not in block:
+        print("Already patched (low_cpu_mem_usage=False in Flux block).")
+        return 0
+
+    flux_section = text[idx : idx + 1200]
+    def patch_in_flux(repl):
+        return text[:idx] + flux_section.replace(repl[0], repl[1], 1) + text[idx + 1200:]
+    if " # low_cpu_mem_usage=False," in flux_section:
+        text = patch_in_flux((" # low_cpu_mem_usage=False,", " low_cpu_mem_usage=False,"))
+        toolkit_file.write_text(text)
+        print("Patched: uncommented low_cpu_mem_usage=False in Flux from_pretrained.")
+        return 0
+    if "# low_cpu_mem_usage=False," in flux_section:
+        text = patch_in_flux(("# low_cpu_mem_usage=False,", "low_cpu_mem_usage=False,"))
+        toolkit_file.write_text(text)
+        print("Patched: uncommented low_cpu_mem_usage=False in Flux from_pretrained.")
+        return 0
+    for old, new in [("    # low_cpu_mem_usage=False,", "    low_cpu_mem_usage=False,"), ("        # low_cpu_mem_usage=False,", "        low_cpu_mem_usage=False,")]:
+        if old in flux_section:
+            text = patch_in_flux((old, new))
+            toolkit_file.write_text(text)
+            print("Patched: uncommented low_cpu_mem_usage=False in Flux from_pretrained.")
+            return 0
+
+    for pattern, replacement in [
+        (r"(FluxTransformer2DModel\.from_pretrained\(\s*transformer_path,\s*subfolder=subfolder,\s*torch_dtype=dtype,)\s*(\))", r"\1\n        low_cpu_mem_usage=False,\n    \2"),
+        (r"(torch_dtype=dtype,)\s*\n\s*(# [^\n]*\n\s*)*\s*\)", r"\1\n        low_cpu_mem_usage=False,\n    )"),
+    ]:
+        new_text, n = re.subn(pattern, replacement, text, count=1)
+        if n:
+            toolkit_file.write_text(new_text)
+            print("Patched: added low_cpu_mem_usage=False to Flux from_pretrained.")
+            return 0
+
+    line_after_dtype = None
+    for line in block.split("\n"):
+        if "torch_dtype=dtype" in line:
+            line_after_dtype = line
+            break
+    if line_after_dtype is None:
+        print("Could not find torch_dtype=dtype in Flux block.")
+        return 1
+    indent = len(line_after_dtype) - len(line_after_dtype.lstrip())
+    insert_line = " " * indent + "low_cpu_mem_usage=False,\n"
+    target = "torch_dtype=dtype,\n"
+    pos = text.find(target, idx)
+    if pos == -1:
+        target = "torch_dtype=dtype,"
+        pos = text.find(target, idx)
+        if pos != -1:
+            pos = text.find("\n", pos) + 1
+    else:
+        pos += len(target)
+    if pos != -1:
+        text = text[:pos] + insert_line + text[pos:]
+        toolkit_file.write_text(text)
+        print("Patched: added low_cpu_mem_usage=False to Flux from_pretrained.")
+        return 0
+    print("Could not find insertion point.")
+    return 1
 
 if __name__ == "__main__":
     sys.exit(main())
