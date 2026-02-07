@@ -6,15 +6,17 @@ Tracks quality metrics, timing, and updates CSV with results
 """
 
 import argparse
+import base64
 import json
 import logging
+import mimetypes
 import os
 import re
 import sys
 import time
 from datetime import datetime
 from pathlib import Path
-from typing import Dict, Optional, Tuple, Any, Iterable
+from typing import Dict, Optional, Tuple, Any, Iterable, List
 
 import cv2
 import numpy as np
@@ -52,6 +54,11 @@ DEFAULT_ROW_PROMPT = (
     "identity source: transfer face identity, hairstyle, hair color/texture, skin tone, body shape, outfit, "
     "accessories, and character style from image 2. Do not keep clothing or hairstyle from image 1. Keep the "
     "expression from image 1 while keeping all other character attributes from image 2."
+)
+
+VERIFIER_RULE = (
+    "Expected output rule: keep expression from Original Image, and keep character identity from Generated "
+    "Image including hairstyle, attire, body shape, and overall appearance. Keep original scene/pose/gesture."
 )
 
 
@@ -177,6 +184,75 @@ def generate_pose_analysis_with_gemini(
     except Exception as exc:
         logger.warning(f"Gemini analysis failed: {exc}")
         return ""
+
+
+def _encode_image_inline_part(image_path: Path) -> Optional[Dict[str, Any]]:
+    try:
+        if not image_path.exists():
+            return None
+        mime_type = mimetypes.guess_type(str(image_path))[0] or "image/png"
+        with open(image_path, "rb") as f:
+            data = base64.b64encode(f.read()).decode("utf-8")
+        return {"inline_data": {"mime_type": mime_type, "data": data}}
+    except Exception as exc:
+        logger.warning(f"Failed to encode image for verifier: {image_path} ({exc})")
+        return None
+
+
+def verify_output_with_gemini(
+    original_path: Path,
+    generated_path: Path,
+    output_path: Path,
+    edit_prompt: str,
+    gemini_model: str,
+    timeout: int = GEMINI_TIMEOUT,
+) -> Dict[str, Any]:
+    api_key = os.getenv("GEMINI_API_KEY")
+    if not api_key:
+        return {"enabled": False, "passed": False, "score": 0.0, "reason": "GEMINI_API_KEY not set"}
+
+    url = f"https://generativelanguage.googleapis.com/v1beta/models/{gemini_model}:generateContent?key={api_key}"
+    instruction = (
+        "You are a strict image verification model. Compare 3 images:\n"
+        "1) Original Image\n"
+        "2) Generated Image\n"
+        "3) Output Image\n\n"
+        f"{VERIFIER_RULE}\n"
+        f"Edit prompt context: {edit_prompt or 'N/A'}\n\n"
+        "Return ONLY compact JSON with keys: passed (boolean), score (0-1), reason (short string)."
+    )
+    parts: List[Dict[str, Any]] = [{"text": instruction}]
+    for label, path in [("Original Image", original_path), ("Generated Image", generated_path), ("Output Image", output_path)]:
+        image_part = _encode_image_inline_part(path)
+        if image_part:
+            parts.append({"text": label})
+            parts.append(image_part)
+
+    payload = {
+        "contents": [{"role": "user", "parts": parts}],
+        "generationConfig": {"temperature": 0.0, "topP": 0.9, "maxOutputTokens": 120},
+    }
+    try:
+        response = requests.post(url, json=payload, timeout=timeout)
+        response.raise_for_status()
+        data = response.json()
+        candidates = data.get("candidates", [])
+        if not candidates:
+            return {"enabled": True, "passed": False, "score": 0.0, "reason": "No verifier candidates"}
+        text = "".join(
+            p.get("text", "")
+            for p in candidates[0].get("content", {}).get("parts", [])
+            if p.get("text")
+        ).strip()
+        parsed = json.loads(text)
+        return {
+            "enabled": True,
+            "passed": bool(parsed.get("passed", False)),
+            "score": float(parsed.get("score", 0.0)),
+            "reason": str(parsed.get("reason", "")).strip(),
+        }
+    except Exception as exc:
+        return {"enabled": True, "passed": False, "score": 0.0, "reason": f"Verifier failed: {exc}"}
 
 
 def get_image_metrics(image_path: Path) -> Dict[str, Any]:
@@ -557,6 +633,8 @@ def process_row(
     gemini_model: str = DEFAULT_GEMINI_MODEL,
     gemini_timeout: int = GEMINI_TIMEOUT,
     mask_mode: str = "character",
+    use_gemini_verifier: bool = False,
+    verifier_threshold: float = 0.75,
 ) -> Dict[str, Any]:
     """Process single CSV row and return detailed results"""
     logger.info(f"\n{'='*60}")
@@ -575,6 +653,12 @@ def process_row(
         'original_url': '',
         'edit_prompt': '',
         'analysis': '',
+        'verification': {
+            'enabled': False,
+            'passed': False,
+            'score': 0.0,
+            'reason': ''
+        },
         'output_path': '',
         'timing': {
             'download_sec': 0,
@@ -707,6 +791,28 @@ def process_row(
         # Get output metrics
         result['output_path'] = str(result_path)
         result['output_metrics'] = get_image_metrics(result_path)
+
+        if use_gemini_verifier:
+            verification = verify_output_with_gemini(
+                original_path=orig_path,
+                generated_path=gen_path,
+                output_path=result_path,
+                edit_prompt=edit_prompt,
+                gemini_model=gemini_model,
+                timeout=gemini_timeout,
+            )
+            if verification.get("enabled", False):
+                verification["passed"] = (
+                    verification.get("passed", False)
+                    and float(verification.get("score", 0.0)) >= verifier_threshold
+                )
+            result['verification'] = verification
+            logger.info(
+                "Verifier: passed=%s score=%.3f reason=%s",
+                verification.get("passed", False),
+                float(verification.get("score", 0.0)),
+                verification.get("reason", ""),
+            )
         
         result['success'] = True
         logger.info(f"SUCCESS: {result_path}")
@@ -735,6 +841,8 @@ def main():
     parser.add_argument('--use-gemini-analysis', action='store_true', help='Use Gemini to analyze pose/scene and augment row prompt')
     parser.add_argument('--gemini-model', type=str, default=DEFAULT_GEMINI_MODEL, help=f'Gemini model name (default: {DEFAULT_GEMINI_MODEL})')
     parser.add_argument('--gemini-timeout', type=int, default=GEMINI_TIMEOUT, help=f'Gemini timeout in seconds (default: {GEMINI_TIMEOUT})')
+    parser.add_argument('--use-gemini-verifier', action='store_true', help='Verify output against intended transfer rule using Gemini')
+    parser.add_argument('--verifier-threshold', type=float, default=0.75, help='Verifier minimum score for pass (default: 0.75)')
     parser.add_argument('--mask-mode', choices=['character', 'face'], default='character', help='Mask scope for generated image transfer (default: character)')
     parser.add_argument(
         '--minimal-csv',
@@ -767,6 +875,8 @@ def main():
         apply_quality_preset(workflow_template, args.quality)
     if args.use_gemini_analysis:
         logger.info(f"Gemini analysis enabled (model={args.gemini_model})")
+    if args.use_gemini_verifier:
+        logger.info(f"Gemini verifier enabled (model={args.gemini_model}, threshold={args.verifier_threshold})")
     logger.info(f"Mask mode: {args.mask_mode}")
     
     end = args.end_row if args.end_row else len(df)
@@ -795,6 +905,12 @@ def main():
                 df['Swap_Face_Detected'] = False
             if 'Swap_Face_Confidence' not in df.columns:
                 df['Swap_Face_Confidence'] = 0.0
+            if 'Swap_Verified' not in df.columns:
+                df['Swap_Verified'] = False
+            if 'Swap_Verifier_Score' not in df.columns:
+                df['Swap_Verifier_Score'] = 0.0
+            if 'Swap_Verifier_Reason' not in df.columns:
+                df['Swap_Verifier_Reason'] = ''
     
     for idx in range(args.start_row - 1, min(end, len(df))):
         row_num = idx + 1
@@ -808,6 +924,8 @@ def main():
             args.gemini_model,
             args.gemini_timeout,
             args.mask_mode,
+            args.use_gemini_verifier,
+            args.verifier_threshold,
         )
         results.append(result)
         
@@ -824,6 +942,9 @@ def main():
                 df.at[idx, 'Swap_Output_Height'] = result.get('output_metrics', {}).get('height', 0)
                 df.at[idx, 'Swap_Face_Detected'] = result.get('face_detection', {}).get('detected', False)
                 df.at[idx, 'Swap_Face_Confidence'] = result.get('face_detection', {}).get('confidence', 0)
+                df.at[idx, 'Swap_Verified'] = result.get('verification', {}).get('passed', False)
+                df.at[idx, 'Swap_Verifier_Score'] = result.get('verification', {}).get('score', 0.0)
+                df.at[idx, 'Swap_Verifier_Reason'] = result.get('verification', {}).get('reason', '')
                 if 'Analysis' in df.columns:
                     df.at[idx, 'Analysis'] = result.get('analysis', '')
     
@@ -832,6 +953,7 @@ def main():
     # Summary
     successful = sum(1 for r in results if r['success'])
     failed = len(results) - successful
+    verified_passed = sum(1 for r in results if r.get('verification', {}).get('passed'))
     total_time = sum(r['timing']['total_sec'] for r in results)
     avg_time = total_time / len(results) if results else 0
     
@@ -873,12 +995,15 @@ def main():
             'gpu_ids': args.gpu_ids,
             'timeout_sec': args.timeout,
             'use_gemini_analysis': args.use_gemini_analysis,
-            'gemini_model': args.gemini_model if args.use_gemini_analysis else ""
+            'use_gemini_verifier': args.use_gemini_verifier,
+            'gemini_model': args.gemini_model if (args.use_gemini_analysis or args.use_gemini_verifier) else "",
+            'verifier_threshold': args.verifier_threshold if args.use_gemini_verifier else 0.0
         },
         'summary': {
             'total_rows': len(results),
             'successful': successful,
             'failed': failed,
+            'verified_passed': verified_passed,
             'success_rate': round(successful / len(results) * 100, 1) if results else 0,
             'total_time_sec': round(total_time, 2),
             'avg_time_per_row_sec': round(avg_time, 2),
