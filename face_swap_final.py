@@ -47,11 +47,11 @@ QUALITY_PRESETS = {
 }
 
 DEFAULT_ROW_PROMPT = (
-    "Use image 1 (Original Image) as the strict base for full scene composition: keep its background, "
-    "location, camera framing, pose, gesture, hand signs, body orientation, lighting, and perspective. "
-    "Transfer only character identity details from image 2 (Generated Image): face identity and body shape. "
-    "Do not move the subject to a new location, do not change gesture/pose from image 1, and do not alter "
-    "camera angle from image 1. Keep output photorealistic and clean."
+    "Use image 1 (Original Image) only as the scene and expression reference: preserve its background, camera "
+    "framing, pose, hand gesture, and facial expression. Use image 2 (Generated Image) as the full character "
+    "identity source: transfer face identity, hairstyle, hair color/texture, skin tone, body shape, outfit, "
+    "accessories, and character style from image 2. Do not keep clothing or hairstyle from image 1. Keep the "
+    "expression from image 1 while keeping all other character attributes from image 2."
 )
 
 
@@ -332,6 +332,53 @@ def detect_face_and_create_mask(image_path: Path, output_path: Path, expansion: 
         return False, face_info
 
 
+def create_full_character_mask(image_path: Path, output_path: Path) -> Tuple[bool, Dict]:
+    """Create full-character alpha mask using MediaPipe selfie segmentation."""
+    mask_info = {'detected': False, 'method': None}
+    try:
+        import mediapipe as mp
+        bgr = cv2.imread(str(image_path))
+        if bgr is None:
+            logger.error(f"Could not read image: {image_path}")
+            return False, mask_info
+
+        h, w = bgr.shape[:2]
+        rgb = cv2.cvtColor(bgr, cv2.COLOR_BGR2RGB)
+        with mp.solutions.selfie_segmentation.SelfieSegmentation(model_selection=1) as segmenter:
+            result = segmenter.process(rgb)
+        seg = result.segmentation_mask if result else None
+        if seg is None:
+            logger.warning("Selfie segmentation failed; using full-frame mask")
+            mask = np.full((h, w), 255, dtype=np.uint8)
+            mask_info['method'] = 'fallback_full_frame'
+        else:
+            raw = (seg > 0.12).astype(np.uint8) * 255
+            kernel = np.ones((7, 7), np.uint8)
+            refined = cv2.morphologyEx(raw, cv2.MORPH_CLOSE, kernel, iterations=2)
+            refined = cv2.morphologyEx(refined, cv2.MORPH_OPEN, kernel, iterations=1)
+            mask = cv2.GaussianBlur(refined, (21, 21), 8)
+            coverage = float((refined > 0).sum()) / float(h * w)
+            if coverage < 0.05:
+                logger.warning("Character mask too small; using full-frame mask")
+                mask = np.full((h, w), 255, dtype=np.uint8)
+                mask_info['method'] = 'fallback_full_frame'
+            else:
+                mask_info['detected'] = True
+                mask_info['method'] = 'mediapipe_selfie_segmentation'
+
+        pil_img = Image.open(image_path).convert('RGB')
+        pil_mask = Image.fromarray(mask)
+        rgba = pil_img.copy()
+        rgba.putalpha(pil_mask)
+        output_path.parent.mkdir(parents=True, exist_ok=True)
+        rgba.save(str(output_path), 'PNG')
+        logger.info(f"Character mask created: {output_path}")
+        return True, mask_info
+    except Exception as exc:
+        logger.warning(f"Character mask creation failed: {exc}")
+        return False, mask_info
+
+
 def download_image(url: str, output_path: Path, retries: int = MAX_RETRIES) -> bool:
     output_path.parent.mkdir(parents=True, exist_ok=True)
     
@@ -509,6 +556,7 @@ def process_row(
     use_gemini_analysis: bool = False,
     gemini_model: str = DEFAULT_GEMINI_MODEL,
     gemini_timeout: int = GEMINI_TIMEOUT,
+    mask_mode: str = "character",
 ) -> Dict[str, Any]:
     """Process single CSV row and return detailed results"""
     logger.info(f"\n{'='*60}")
@@ -580,14 +628,20 @@ def process_row(
         
         # Face detection
         face_start = time.time()
-        logger.info("Detecting face and creating mask...")
+        logger.info("Creating mask...")
         gen_masked_path = input_dir / "generated.png"
-        mask_success, face_info = detect_face_and_create_mask(gen_path, gen_masked_path)
-        result['face_detection'] = face_info
-        
-        if not mask_success:
-            logger.warning("Face mask creation failed, using original image")
-            gen_masked_path = gen_path
+        if mask_mode == "face":
+            mask_success, mask_info = detect_face_and_create_mask(gen_path, gen_masked_path)
+            result['face_detection'] = mask_info
+            if not mask_success:
+                logger.warning("Face mask creation failed, using raw generated image")
+                gen_masked_path = gen_path
+        else:
+            mask_success, mask_info = create_full_character_mask(gen_path, gen_masked_path)
+            result['face_detection'] = mask_info
+            if not mask_success:
+                logger.warning("Character mask creation failed, using raw generated image")
+                gen_masked_path = gen_path
         result['timing']['face_detection_sec'] = round(time.time() - face_start, 2)
         
         # Upload
@@ -681,6 +735,7 @@ def main():
     parser.add_argument('--use-gemini-analysis', action='store_true', help='Use Gemini to analyze pose/scene and augment row prompt')
     parser.add_argument('--gemini-model', type=str, default=DEFAULT_GEMINI_MODEL, help=f'Gemini model name (default: {DEFAULT_GEMINI_MODEL})')
     parser.add_argument('--gemini-timeout', type=int, default=GEMINI_TIMEOUT, help=f'Gemini timeout in seconds (default: {GEMINI_TIMEOUT})')
+    parser.add_argument('--mask-mode', choices=['character', 'face'], default='character', help='Mask scope for generated image transfer (default: character)')
     parser.add_argument(
         '--minimal-csv',
         action=argparse.BooleanOptionalAction,
@@ -712,6 +767,7 @@ def main():
         apply_quality_preset(workflow_template, args.quality)
     if args.use_gemini_analysis:
         logger.info(f"Gemini analysis enabled (model={args.gemini_model})")
+    logger.info(f"Mask mode: {args.mask_mode}")
     
     end = args.end_row if args.end_row else len(df)
     results = []
@@ -751,6 +807,7 @@ def main():
             args.use_gemini_analysis,
             args.gemini_model,
             args.gemini_timeout,
+            args.mask_mode,
         )
         results.append(result)
         
