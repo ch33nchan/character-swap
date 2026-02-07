@@ -29,6 +29,8 @@ DOWNLOAD_TIMEOUT = 30
 COMFYUI_TIMEOUT = 600
 INPUT_DIR = "data/input"
 OUTPUT_DIR = "data/output"
+GEMINI_TIMEOUT = 45
+DEFAULT_GEMINI_MODEL = "gemini-3-flash-preview"
 
 QUALITY_WORKFLOW = {
     "fast": f"{DEFAULT_WORKFLOW_BASE}.json",
@@ -105,11 +107,76 @@ def extract_image_url(raw_value: Any) -> str:
     return text
 
 
-def build_row_prompt(edit_prompt: str) -> str:
+def build_row_prompt(edit_prompt: str, analysis: str = "") -> str:
     base = DEFAULT_ROW_PROMPT
+    if analysis:
+        base = f"{base}\nPose and scene analysis: {analysis.strip()}"
     if not edit_prompt:
         return base
     return f"{base}\nAdditional instruction: {edit_prompt.strip()}"
+
+
+def generate_pose_analysis_with_gemini(
+    original_url: str,
+    generated_url: str,
+    reference_angle_url: str,
+    front_angle_url: str,
+    edit_prompt: str,
+    gemini_model: str,
+    timeout: int = GEMINI_TIMEOUT,
+) -> str:
+    api_key = os.getenv("GEMINI_API_KEY")
+    if not api_key:
+        logger.warning("GEMINI_API_KEY not set; skipping Gemini analysis")
+        return ""
+
+    url = f"https://generativelanguage.googleapis.com/v1beta/models/{gemini_model}:generateContent?key={api_key}"
+    prompt = (
+        "You are generating strict image-edit constraints.\n"
+        "Return a single compact paragraph without markdown.\n"
+        "Task:\n"
+        "- Keep scene composition, pose, hand gesture, camera framing, and background from Original Image.\n"
+        "- Keep identity/body cues from Generated Image, helped by Reference Angle and Front Angle when present.\n"
+        "- Include explicit constraints to avoid scene drift.\n\n"
+        f"Original Image URL: {original_url}\n"
+        f"Generated Image URL: {generated_url}\n"
+        f"Reference Angle URL: {reference_angle_url or 'N/A'}\n"
+        f"Front Angle URL: {front_angle_url or 'N/A'}\n"
+        f"Edit Prompt: {edit_prompt or 'N/A'}\n"
+    )
+    payload = {
+        "contents": [
+            {
+                "role": "user",
+                "parts": [{"text": prompt}],
+            }
+        ],
+        "generationConfig": {
+            "temperature": 0.1,
+            "topP": 0.9,
+            "maxOutputTokens": 220,
+        },
+    }
+
+    try:
+        response = requests.post(url, json=payload, timeout=timeout)
+        response.raise_for_status()
+        data = response.json()
+        candidates = data.get("candidates", [])
+        if not candidates:
+            logger.warning("Gemini response had no candidates")
+            return ""
+        parts = candidates[0].get("content", {}).get("parts", [])
+        text_chunks = [p.get("text", "").strip() for p in parts if p.get("text")]
+        analysis = " ".join([chunk for chunk in text_chunks if chunk]).strip()
+        if not analysis:
+            logger.warning("Gemini returned empty analysis text")
+            return ""
+        logger.info("Gemini analysis generated")
+        return analysis
+    except Exception as exc:
+        logger.warning(f"Gemini analysis failed: {exc}")
+        return ""
 
 
 def get_image_metrics(image_path: Path) -> Dict[str, Any]:
@@ -433,7 +500,16 @@ def download_output(server_url: str, image_info: Dict, output_path: Path) -> boo
         return False
 
 
-def process_row(row_data: pd.Series, row_num: int, workflow_template: Dict, server_url: str, timeout: int = COMFYUI_TIMEOUT) -> Dict[str, Any]:
+def process_row(
+    row_data: pd.Series,
+    row_num: int,
+    workflow_template: Dict,
+    server_url: str,
+    timeout: int = COMFYUI_TIMEOUT,
+    use_gemini_analysis: bool = False,
+    gemini_model: str = DEFAULT_GEMINI_MODEL,
+    gemini_timeout: int = GEMINI_TIMEOUT,
+) -> Dict[str, Any]:
     """Process single CSV row and return detailed results"""
     logger.info(f"\n{'='*60}")
     logger.info(f"Row {row_num}")
@@ -450,6 +526,7 @@ def process_row(row_data: pd.Series, row_num: int, workflow_template: Dict, serv
         'generated_url': '',
         'original_url': '',
         'edit_prompt': '',
+        'analysis': '',
         'output_path': '',
         'timing': {
             'download_sec': 0,
@@ -471,6 +548,8 @@ def process_row(row_data: pd.Series, row_num: int, workflow_template: Dict, serv
             get_first_available_value(row_data, ["Generated Image", "Reference Angle", "Front Angle"])
         )
         original_url = extract_image_url(get_first_available_value(row_data, ["Original Image"]))
+        reference_angle_url = extract_image_url(get_first_available_value(row_data, ["Reference Angle"]))
+        front_angle_url = extract_image_url(get_first_available_value(row_data, ["Front Angle"]))
         edit_prompt = get_first_available_value(row_data, ["Edit Prompt", "edit prompt", "Prompt"])
         result['generated_url'] = generated_url
         result['original_url'] = original_url
@@ -525,12 +604,25 @@ def process_row(row_data: pd.Series, row_num: int, workflow_template: Dict, serv
         # Process
         process_start = time.time()
         logger.info("Preparing workflow...")
+        analysis = ""
+        if use_gemini_analysis:
+            analysis = generate_pose_analysis_with_gemini(
+                original_url=original_url,
+                generated_url=generated_url,
+                reference_angle_url=reference_angle_url,
+                front_angle_url=front_angle_url,
+                edit_prompt=edit_prompt,
+                gemini_model=gemini_model,
+                timeout=gemini_timeout,
+            )
+            result['analysis'] = analysis
+
         modified = modify_api_workflow(
             workflow_template,
             generated_img=gen_name,
             original_img=orig_name,
             output_prefix=f"{row_dir}_result",
-            row_prompt=build_row_prompt(edit_prompt),
+            row_prompt=build_row_prompt(edit_prompt, analysis),
         )
         
         logger.info("Executing face swap...")
@@ -586,6 +678,9 @@ def main():
     parser.add_argument('--gpu-ids', type=str, help='GPU IDs (e.g., 0,1,2,3)')
     parser.add_argument('--update-csv', action='store_true', help='Update CSV with results columns')
     parser.add_argument('--output-csv', type=str, help='Output CSV path (default: adds _results suffix)')
+    parser.add_argument('--use-gemini-analysis', action='store_true', help='Use Gemini to analyze pose/scene and augment row prompt')
+    parser.add_argument('--gemini-model', type=str, default=DEFAULT_GEMINI_MODEL, help=f'Gemini model name (default: {DEFAULT_GEMINI_MODEL})')
+    parser.add_argument('--gemini-timeout', type=int, default=GEMINI_TIMEOUT, help=f'Gemini timeout in seconds (default: {GEMINI_TIMEOUT})')
     parser.add_argument(
         '--minimal-csv',
         action=argparse.BooleanOptionalAction,
@@ -615,6 +710,8 @@ def main():
     logger.info(f"Nodes in workflow: {len(workflow_template)}")
     if args.quality:
         apply_quality_preset(workflow_template, args.quality)
+    if args.use_gemini_analysis:
+        logger.info(f"Gemini analysis enabled (model={args.gemini_model})")
     
     end = args.end_row if args.end_row else len(df)
     results = []
@@ -645,7 +742,16 @@ def main():
     
     for idx in range(args.start_row - 1, min(end, len(df))):
         row_num = idx + 1
-        result = process_row(df.iloc[idx], row_num, workflow_template, args.comfyui_url, args.timeout)
+        result = process_row(
+            df.iloc[idx],
+            row_num,
+            workflow_template,
+            args.comfyui_url,
+            args.timeout,
+            args.use_gemini_analysis,
+            args.gemini_model,
+            args.gemini_timeout,
+        )
         results.append(result)
         
         # Update DataFrame
@@ -661,6 +767,8 @@ def main():
                 df.at[idx, 'Swap_Output_Height'] = result.get('output_metrics', {}).get('height', 0)
                 df.at[idx, 'Swap_Face_Detected'] = result.get('face_detection', {}).get('detected', False)
                 df.at[idx, 'Swap_Face_Confidence'] = result.get('face_detection', {}).get('confidence', 0)
+                if 'Analysis' in df.columns:
+                    df.at[idx, 'Analysis'] = result.get('analysis', '')
     
     run_end = datetime.now()
     
@@ -706,7 +814,9 @@ def main():
             'start_row': args.start_row,
             'end_row': end,
             'gpu_ids': args.gpu_ids,
-            'timeout_sec': args.timeout
+            'timeout_sec': args.timeout,
+            'use_gemini_analysis': args.use_gemini_analysis,
+            'gemini_model': args.gemini_model if args.use_gemini_analysis else ""
         },
         'summary': {
             'total_rows': len(results),
