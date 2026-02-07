@@ -1,344 +1,302 @@
 {
-  "source_csv": "Master - Tech Solutioning - Char Const - Rerun with head_eye gaze_results.csv",
-  "output_csv": "sheet.csv",
+  "source_csv": "final2.csv",
+  "output_csv": "final2_with_new_image_urls.csv",
   "total_rows": 49,
-  "uploaded_count": 48,
+  "uploaded_count": 49,
   "details": [
     {
       "row": 1,
       "path": "data/output/row_0001/result.png",
       "blob_name": "face-swap-results/row_0001/result.png",
-      "azure_url": "https://content.dashtoon.ai/stability-images/face-swap-results/row_0001/result.png",
-      "formula": "=IMAGE(\"https://content.dashtoon.ai/stability-images/face-swap-results/row_0001/result.png\")"
+      "azure_url": "https://content.dashtoon.ai/stability-images/face-swap-results/row_0001/result.png"
     },
     {
       "row": 2,
       "path": "data/output/row_0002/result.png",
       "blob_name": "face-swap-results/row_0002/result.png",
-      "azure_url": "https://content.dashtoon.ai/stability-images/face-swap-results/row_0002/result.png",
-      "formula": "=IMAGE(\"https://content.dashtoon.ai/stability-images/face-swap-results/row_0002/result.png\")"
+      "azure_url": "https://content.dashtoon.ai/stability-images/face-swap-results/row_0002/result.png"
     },
     {
       "row": 3,
       "path": "data/output/row_0003/result.png",
       "blob_name": "face-swap-results/row_0003/result.png",
-      "azure_url": "https://content.dashtoon.ai/stability-images/face-swap-results/row_0003/result.png",
-      "formula": "=IMAGE(\"https://content.dashtoon.ai/stability-images/face-swap-results/row_0003/result.png\")"
+      "azure_url": "https://content.dashtoon.ai/stability-images/face-swap-results/row_0003/result.png"
     },
     {
       "row": 4,
       "path": "data/output/row_0004/result.png",
       "blob_name": "face-swap-results/row_0004/result.png",
-      "azure_url": "https://content.dashtoon.ai/stability-images/face-swap-results/row_0004/result.png",
-      "formula": "=IMAGE(\"https://content.dashtoon.ai/stability-images/face-swap-results/row_0004/result.png\")"
+      "azure_url": "https://content.dashtoon.ai/stability-images/face-swap-results/row_0004/result.png"
     },
     {
       "row": 5,
       "path": "data/output/row_0005/result.png",
       "blob_name": "face-swap-results/row_0005/result.png",
-      "azure_url": "https://content.dashtoon.ai/stability-images/face-swap-results/row_0005/result.png",
-      "formula": "=IMAGE(\"https://content.dashtoon.ai/stability-images/face-swap-results/row_0005/result.png\")"
+      "azure_url": "https://content.dashtoon.ai/stability-images/face-swap-results/row_0005/result.png"
     },
     {
       "row": 6,
       "path": "data/output/row_0006/result.png",
       "blob_name": "face-swap-results/row_0006/result.png",
-      "azure_url": "https://content.dashtoon.ai/stability-images/face-swap-results/row_0006/result.png",
-      "formula": "=IMAGE(\"https://content.dashtoon.ai/stability-images/face-swap-results/row_0006/result.png\")"
+      "azure_url": "https://content.dashtoon.ai/stability-images/face-swap-results/row_0006/result.png"
     },
     {
       "row": 7,
       "path": "data/output/row_0007/result.png",
       "blob_name": "face-swap-results/row_0007/result.png",
-      "azure_url": "https://content.dashtoon.ai/stability-images/face-swap-results/row_0007/result.png",
-      "formula": "=IMAGE(\"https://content.dashtoon.ai/stability-images/face-swap-results/row_0007/result.png\")"
+      "azure_url": "https://content.dashtoon.ai/stability-images/face-swap-results/row_0007/result.png"
     },
     {
       "row": 8,
       "path": "data/output/row_0008/result.png",
       "blob_name": "face-swap-results/row_0008/result.png",
-      "azure_url": "https://content.dashtoon.ai/stability-images/face-swap-results/row_0008/result.png",
-      "formula": "=IMAGE(\"https://content.dashtoon.ai/stability-images/face-swap-results/row_0008/result.png\")"
+      "azure_url": "https://content.dashtoon.ai/stability-images/face-swap-results/row_0008/result.png"
     },
     {
       "row": 9,
       "path": "data/output/row_0009/result.png",
       "blob_name": "face-swap-results/row_0009/result.png",
-      "azure_url": "https://content.dashtoon.ai/stability-images/face-swap-results/row_0009/result.png",
-      "formula": "=IMAGE(\"https://content.dashtoon.ai/stability-images/face-swap-results/row_0009/result.png\")"
+      "azure_url": "https://content.dashtoon.ai/stability-images/face-swap-results/row_0009/result.png"
     },
     {
       "row": 10,
       "path": "data/output/row_0010/result.png",
       "blob_name": "face-swap-results/row_0010/result.png",
-      "azure_url": "https://content.dashtoon.ai/stability-images/face-swap-results/row_0010/result.png",
-      "formula": "=IMAGE(\"https://content.dashtoon.ai/stability-images/face-swap-results/row_0010/result.png\")"
+      "azure_url": "https://content.dashtoon.ai/stability-images/face-swap-results/row_0010/result.png"
     },
     {
       "row": 11,
       "path": "data/output/row_0011/result.png",
       "blob_name": "face-swap-results/row_0011/result.png",
-      "azure_url": "https://content.dashtoon.ai/stability-images/face-swap-results/row_0011/result.png",
-      "formula": "=IMAGE(\"https://content.dashtoon.ai/stability-images/face-swap-results/row_0011/result.png\")"
+      "azure_url": "https://content.dashtoon.ai/stability-images/face-swap-results/row_0011/result.png"
     },
     {
       "row": 12,
       "path": "data/output/row_0012/result.png",
       "blob_name": "face-swap-results/row_0012/result.png",
-      "azure_url": "https://content.dashtoon.ai/stability-images/face-swap-results/row_0012/result.png",
-      "formula": "=IMAGE(\"https://content.dashtoon.ai/stability-images/face-swap-results/row_0012/result.png\")"
+      "azure_url": "https://content.dashtoon.ai/stability-images/face-swap-results/row_0012/result.png"
     },
     {
       "row": 13,
       "path": "data/output/row_0013/result.png",
       "blob_name": "face-swap-results/row_0013/result.png",
-      "azure_url": "https://content.dashtoon.ai/stability-images/face-swap-results/row_0013/result.png",
-      "formula": "=IMAGE(\"https://content.dashtoon.ai/stability-images/face-swap-results/row_0013/result.png\")"
+      "azure_url": "https://content.dashtoon.ai/stability-images/face-swap-results/row_0013/result.png"
     },
     {
       "row": 14,
       "path": "data/output/row_0014/result.png",
       "blob_name": "face-swap-results/row_0014/result.png",
-      "azure_url": "https://content.dashtoon.ai/stability-images/face-swap-results/row_0014/result.png",
-      "formula": "=IMAGE(\"https://content.dashtoon.ai/stability-images/face-swap-results/row_0014/result.png\")"
+      "azure_url": "https://content.dashtoon.ai/stability-images/face-swap-results/row_0014/result.png"
     },
     {
       "row": 15,
       "path": "data/output/row_0015/result.png",
       "blob_name": "face-swap-results/row_0015/result.png",
-      "azure_url": "https://content.dashtoon.ai/stability-images/face-swap-results/row_0015/result.png",
-      "formula": "=IMAGE(\"https://content.dashtoon.ai/stability-images/face-swap-results/row_0015/result.png\")"
+      "azure_url": "https://content.dashtoon.ai/stability-images/face-swap-results/row_0015/result.png"
     },
     {
       "row": 16,
       "path": "data/output/row_0016/result.png",
       "blob_name": "face-swap-results/row_0016/result.png",
-      "azure_url": "https://content.dashtoon.ai/stability-images/face-swap-results/row_0016/result.png",
-      "formula": "=IMAGE(\"https://content.dashtoon.ai/stability-images/face-swap-results/row_0016/result.png\")"
+      "azure_url": "https://content.dashtoon.ai/stability-images/face-swap-results/row_0016/result.png"
     },
     {
       "row": 17,
       "path": "data/output/row_0017/result.png",
       "blob_name": "face-swap-results/row_0017/result.png",
-      "azure_url": "https://content.dashtoon.ai/stability-images/face-swap-results/row_0017/result.png",
-      "formula": "=IMAGE(\"https://content.dashtoon.ai/stability-images/face-swap-results/row_0017/result.png\")"
+      "azure_url": "https://content.dashtoon.ai/stability-images/face-swap-results/row_0017/result.png"
     },
     {
       "row": 18,
       "path": "data/output/row_0018/result.png",
       "blob_name": "face-swap-results/row_0018/result.png",
-      "azure_url": "https://content.dashtoon.ai/stability-images/face-swap-results/row_0018/result.png",
-      "formula": "=IMAGE(\"https://content.dashtoon.ai/stability-images/face-swap-results/row_0018/result.png\")"
+      "azure_url": "https://content.dashtoon.ai/stability-images/face-swap-results/row_0018/result.png"
     },
     {
       "row": 19,
       "path": "data/output/row_0019/result.png",
       "blob_name": "face-swap-results/row_0019/result.png",
-      "azure_url": "https://content.dashtoon.ai/stability-images/face-swap-results/row_0019/result.png",
-      "formula": "=IMAGE(\"https://content.dashtoon.ai/stability-images/face-swap-results/row_0019/result.png\")"
+      "azure_url": "https://content.dashtoon.ai/stability-images/face-swap-results/row_0019/result.png"
     },
     {
       "row": 20,
       "path": "data/output/row_0020/result.png",
       "blob_name": "face-swap-results/row_0020/result.png",
-      "azure_url": "https://content.dashtoon.ai/stability-images/face-swap-results/row_0020/result.png",
-      "formula": "=IMAGE(\"https://content.dashtoon.ai/stability-images/face-swap-results/row_0020/result.png\")"
+      "azure_url": "https://content.dashtoon.ai/stability-images/face-swap-results/row_0020/result.png"
     },
     {
       "row": 21,
       "path": "data/output/row_0021/result.png",
       "blob_name": "face-swap-results/row_0021/result.png",
-      "azure_url": "https://content.dashtoon.ai/stability-images/face-swap-results/row_0021/result.png",
-      "formula": "=IMAGE(\"https://content.dashtoon.ai/stability-images/face-swap-results/row_0021/result.png\")"
+      "azure_url": "https://content.dashtoon.ai/stability-images/face-swap-results/row_0021/result.png"
     },
     {
       "row": 22,
       "path": "data/output/row_0022/result.png",
       "blob_name": "face-swap-results/row_0022/result.png",
-      "azure_url": "https://content.dashtoon.ai/stability-images/face-swap-results/row_0022/result.png",
-      "formula": "=IMAGE(\"https://content.dashtoon.ai/stability-images/face-swap-results/row_0022/result.png\")"
+      "azure_url": "https://content.dashtoon.ai/stability-images/face-swap-results/row_0022/result.png"
     },
     {
       "row": 23,
       "path": "data/output/row_0023/result.png",
       "blob_name": "face-swap-results/row_0023/result.png",
-      "azure_url": "https://content.dashtoon.ai/stability-images/face-swap-results/row_0023/result.png",
-      "formula": "=IMAGE(\"https://content.dashtoon.ai/stability-images/face-swap-results/row_0023/result.png\")"
+      "azure_url": "https://content.dashtoon.ai/stability-images/face-swap-results/row_0023/result.png"
     },
     {
       "row": 24,
       "path": "data/output/row_0024/result.png",
       "blob_name": "face-swap-results/row_0024/result.png",
-      "azure_url": "https://content.dashtoon.ai/stability-images/face-swap-results/row_0024/result.png",
-      "formula": "=IMAGE(\"https://content.dashtoon.ai/stability-images/face-swap-results/row_0024/result.png\")"
+      "azure_url": "https://content.dashtoon.ai/stability-images/face-swap-results/row_0024/result.png"
     },
     {
       "row": 25,
       "path": "data/output/row_0025/result.png",
       "blob_name": "face-swap-results/row_0025/result.png",
-      "azure_url": "https://content.dashtoon.ai/stability-images/face-swap-results/row_0025/result.png",
-      "formula": "=IMAGE(\"https://content.dashtoon.ai/stability-images/face-swap-results/row_0025/result.png\")"
+      "azure_url": "https://content.dashtoon.ai/stability-images/face-swap-results/row_0025/result.png"
     },
     {
       "row": 26,
       "path": "data/output/row_0026/result.png",
       "blob_name": "face-swap-results/row_0026/result.png",
-      "azure_url": "https://content.dashtoon.ai/stability-images/face-swap-results/row_0026/result.png",
-      "formula": "=IMAGE(\"https://content.dashtoon.ai/stability-images/face-swap-results/row_0026/result.png\")"
+      "azure_url": "https://content.dashtoon.ai/stability-images/face-swap-results/row_0026/result.png"
     },
     {
       "row": 27,
       "path": "data/output/row_0027/result.png",
       "blob_name": "face-swap-results/row_0027/result.png",
-      "azure_url": "https://content.dashtoon.ai/stability-images/face-swap-results/row_0027/result.png",
-      "formula": "=IMAGE(\"https://content.dashtoon.ai/stability-images/face-swap-results/row_0027/result.png\")"
+      "azure_url": "https://content.dashtoon.ai/stability-images/face-swap-results/row_0027/result.png"
     },
     {
       "row": 28,
       "path": "data/output/row_0028/result.png",
       "blob_name": "face-swap-results/row_0028/result.png",
-      "azure_url": "https://content.dashtoon.ai/stability-images/face-swap-results/row_0028/result.png",
-      "formula": "=IMAGE(\"https://content.dashtoon.ai/stability-images/face-swap-results/row_0028/result.png\")"
+      "azure_url": "https://content.dashtoon.ai/stability-images/face-swap-results/row_0028/result.png"
     },
     {
       "row": 29,
       "path": "data/output/row_0029/result.png",
       "blob_name": "face-swap-results/row_0029/result.png",
-      "azure_url": "https://content.dashtoon.ai/stability-images/face-swap-results/row_0029/result.png",
-      "formula": "=IMAGE(\"https://content.dashtoon.ai/stability-images/face-swap-results/row_0029/result.png\")"
+      "azure_url": "https://content.dashtoon.ai/stability-images/face-swap-results/row_0029/result.png"
     },
     {
       "row": 30,
       "path": "data/output/row_0030/result.png",
       "blob_name": "face-swap-results/row_0030/result.png",
-      "azure_url": "https://content.dashtoon.ai/stability-images/face-swap-results/row_0030/result.png",
-      "formula": "=IMAGE(\"https://content.dashtoon.ai/stability-images/face-swap-results/row_0030/result.png\")"
+      "azure_url": "https://content.dashtoon.ai/stability-images/face-swap-results/row_0030/result.png"
     },
     {
       "row": 31,
       "path": "data/output/row_0031/result.png",
       "blob_name": "face-swap-results/row_0031/result.png",
-      "azure_url": "https://content.dashtoon.ai/stability-images/face-swap-results/row_0031/result.png",
-      "formula": "=IMAGE(\"https://content.dashtoon.ai/stability-images/face-swap-results/row_0031/result.png\")"
+      "azure_url": "https://content.dashtoon.ai/stability-images/face-swap-results/row_0031/result.png"
+    },
+    {
+      "row": 32,
+      "path": "data/output/row_0032/result.png",
+      "blob_name": "face-swap-results/row_0032/result.png",
+      "azure_url": "https://content.dashtoon.ai/stability-images/face-swap-results/row_0032/result.png"
     },
     {
       "row": 33,
       "path": "data/output/row_0033/result.png",
       "blob_name": "face-swap-results/row_0033/result.png",
-      "azure_url": "https://content.dashtoon.ai/stability-images/face-swap-results/row_0033/result.png",
-      "formula": "=IMAGE(\"https://content.dashtoon.ai/stability-images/face-swap-results/row_0033/result.png\")"
+      "azure_url": "https://content.dashtoon.ai/stability-images/face-swap-results/row_0033/result.png"
     },
     {
       "row": 34,
       "path": "data/output/row_0034/result.png",
       "blob_name": "face-swap-results/row_0034/result.png",
-      "azure_url": "https://content.dashtoon.ai/stability-images/face-swap-results/row_0034/result.png",
-      "formula": "=IMAGE(\"https://content.dashtoon.ai/stability-images/face-swap-results/row_0034/result.png\")"
+      "azure_url": "https://content.dashtoon.ai/stability-images/face-swap-results/row_0034/result.png"
     },
     {
       "row": 35,
       "path": "data/output/row_0035/result.png",
       "blob_name": "face-swap-results/row_0035/result.png",
-      "azure_url": "https://content.dashtoon.ai/stability-images/face-swap-results/row_0035/result.png",
-      "formula": "=IMAGE(\"https://content.dashtoon.ai/stability-images/face-swap-results/row_0035/result.png\")"
+      "azure_url": "https://content.dashtoon.ai/stability-images/face-swap-results/row_0035/result.png"
     },
     {
       "row": 36,
       "path": "data/output/row_0036/result.png",
       "blob_name": "face-swap-results/row_0036/result.png",
-      "azure_url": "https://content.dashtoon.ai/stability-images/face-swap-results/row_0036/result.png",
-      "formula": "=IMAGE(\"https://content.dashtoon.ai/stability-images/face-swap-results/row_0036/result.png\")"
+      "azure_url": "https://content.dashtoon.ai/stability-images/face-swap-results/row_0036/result.png"
     },
     {
       "row": 37,
       "path": "data/output/row_0037/result.png",
       "blob_name": "face-swap-results/row_0037/result.png",
-      "azure_url": "https://content.dashtoon.ai/stability-images/face-swap-results/row_0037/result.png",
-      "formula": "=IMAGE(\"https://content.dashtoon.ai/stability-images/face-swap-results/row_0037/result.png\")"
+      "azure_url": "https://content.dashtoon.ai/stability-images/face-swap-results/row_0037/result.png"
     },
     {
       "row": 38,
       "path": "data/output/row_0038/result.png",
       "blob_name": "face-swap-results/row_0038/result.png",
-      "azure_url": "https://content.dashtoon.ai/stability-images/face-swap-results/row_0038/result.png",
-      "formula": "=IMAGE(\"https://content.dashtoon.ai/stability-images/face-swap-results/row_0038/result.png\")"
+      "azure_url": "https://content.dashtoon.ai/stability-images/face-swap-results/row_0038/result.png"
     },
     {
       "row": 39,
       "path": "data/output/row_0039/result.png",
       "blob_name": "face-swap-results/row_0039/result.png",
-      "azure_url": "https://content.dashtoon.ai/stability-images/face-swap-results/row_0039/result.png",
-      "formula": "=IMAGE(\"https://content.dashtoon.ai/stability-images/face-swap-results/row_0039/result.png\")"
+      "azure_url": "https://content.dashtoon.ai/stability-images/face-swap-results/row_0039/result.png"
     },
     {
       "row": 40,
       "path": "data/output/row_0040/result.png",
       "blob_name": "face-swap-results/row_0040/result.png",
-      "azure_url": "https://content.dashtoon.ai/stability-images/face-swap-results/row_0040/result.png",
-      "formula": "=IMAGE(\"https://content.dashtoon.ai/stability-images/face-swap-results/row_0040/result.png\")"
+      "azure_url": "https://content.dashtoon.ai/stability-images/face-swap-results/row_0040/result.png"
     },
     {
       "row": 41,
       "path": "data/output/row_0041/result.png",
       "blob_name": "face-swap-results/row_0041/result.png",
-      "azure_url": "https://content.dashtoon.ai/stability-images/face-swap-results/row_0041/result.png",
-      "formula": "=IMAGE(\"https://content.dashtoon.ai/stability-images/face-swap-results/row_0041/result.png\")"
+      "azure_url": "https://content.dashtoon.ai/stability-images/face-swap-results/row_0041/result.png"
     },
     {
       "row": 42,
       "path": "data/output/row_0042/result.png",
       "blob_name": "face-swap-results/row_0042/result.png",
-      "azure_url": "https://content.dashtoon.ai/stability-images/face-swap-results/row_0042/result.png",
-      "formula": "=IMAGE(\"https://content.dashtoon.ai/stability-images/face-swap-results/row_0042/result.png\")"
+      "azure_url": "https://content.dashtoon.ai/stability-images/face-swap-results/row_0042/result.png"
     },
     {
       "row": 43,
       "path": "data/output/row_0043/result.png",
       "blob_name": "face-swap-results/row_0043/result.png",
-      "azure_url": "https://content.dashtoon.ai/stability-images/face-swap-results/row_0043/result.png",
-      "formula": "=IMAGE(\"https://content.dashtoon.ai/stability-images/face-swap-results/row_0043/result.png\")"
+      "azure_url": "https://content.dashtoon.ai/stability-images/face-swap-results/row_0043/result.png"
     },
     {
       "row": 44,
       "path": "data/output/row_0044/result.png",
       "blob_name": "face-swap-results/row_0044/result.png",
-      "azure_url": "https://content.dashtoon.ai/stability-images/face-swap-results/row_0044/result.png",
-      "formula": "=IMAGE(\"https://content.dashtoon.ai/stability-images/face-swap-results/row_0044/result.png\")"
+      "azure_url": "https://content.dashtoon.ai/stability-images/face-swap-results/row_0044/result.png"
     },
     {
       "row": 45,
       "path": "data/output/row_0045/result.png",
       "blob_name": "face-swap-results/row_0045/result.png",
-      "azure_url": "https://content.dashtoon.ai/stability-images/face-swap-results/row_0045/result.png",
-      "formula": "=IMAGE(\"https://content.dashtoon.ai/stability-images/face-swap-results/row_0045/result.png\")"
+      "azure_url": "https://content.dashtoon.ai/stability-images/face-swap-results/row_0045/result.png"
     },
     {
       "row": 46,
       "path": "data/output/row_0046/result.png",
       "blob_name": "face-swap-results/row_0046/result.png",
-      "azure_url": "https://content.dashtoon.ai/stability-images/face-swap-results/row_0046/result.png",
-      "formula": "=IMAGE(\"https://content.dashtoon.ai/stability-images/face-swap-results/row_0046/result.png\")"
+      "azure_url": "https://content.dashtoon.ai/stability-images/face-swap-results/row_0046/result.png"
     },
     {
       "row": 47,
       "path": "data/output/row_0047/result.png",
       "blob_name": "face-swap-results/row_0047/result.png",
-      "azure_url": "https://content.dashtoon.ai/stability-images/face-swap-results/row_0047/result.png",
-      "formula": "=IMAGE(\"https://content.dashtoon.ai/stability-images/face-swap-results/row_0047/result.png\")"
+      "azure_url": "https://content.dashtoon.ai/stability-images/face-swap-results/row_0047/result.png"
     },
     {
       "row": 48,
       "path": "data/output/row_0048/result.png",
       "blob_name": "face-swap-results/row_0048/result.png",
-      "azure_url": "https://content.dashtoon.ai/stability-images/face-swap-results/row_0048/result.png",
-      "formula": "=IMAGE(\"https://content.dashtoon.ai/stability-images/face-swap-results/row_0048/result.png\")"
+      "azure_url": "https://content.dashtoon.ai/stability-images/face-swap-results/row_0048/result.png"
     },
     {
       "row": 49,
       "path": "data/output/row_0049/result.png",
       "blob_name": "face-swap-results/row_0049/result.png",
-      "azure_url": "https://content.dashtoon.ai/stability-images/face-swap-results/row_0049/result.png",
-      "formula": "=IMAGE(\"https://content.dashtoon.ai/stability-images/face-swap-results/row_0049/result.png\")"
+      "azure_url": "https://content.dashtoon.ai/stability-images/face-swap-results/row_0049/result.png"
     }
   ]
 }
