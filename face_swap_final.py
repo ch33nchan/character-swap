@@ -9,11 +9,12 @@ import argparse
 import json
 import logging
 import os
+import re
 import sys
 import time
 from datetime import datetime
 from pathlib import Path
-from typing import Dict, Optional, Tuple, Any
+from typing import Dict, Optional, Tuple, Any, Iterable
 
 import cv2
 import numpy as np
@@ -43,6 +44,14 @@ QUALITY_PRESETS = {
     "ultra": {"steps": 20, "denoise": 1.0, "cfg": 4, "lora_strength": 0.85, "megapixels": 8.3},
 }
 
+DEFAULT_ROW_PROMPT = (
+    "Use image 1 (Original Image) as the strict base for full scene composition: keep its background, "
+    "location, camera framing, pose, gesture, hand signs, body orientation, lighting, and perspective. "
+    "Transfer only character identity details from image 2 (Generated Image): face identity and body shape. "
+    "Do not move the subject to a new location, do not change gesture/pose from image 1, and do not alter "
+    "camera angle from image 1. Keep output photorealistic and clean."
+)
+
 
 def apply_quality_preset(workflow: Dict, quality: str) -> None:
     params = QUALITY_PRESETS.get(quality)
@@ -68,6 +77,39 @@ logging.basicConfig(
     ]
 )
 logger = logging.getLogger(__name__)
+
+def get_first_available_value(row_data: pd.Series, candidate_columns: Iterable[str]) -> str:
+    """Return first non-empty value from matching column names."""
+    normalized_map = {str(c).strip().lower(): c for c in row_data.index}
+    for candidate in candidate_columns:
+        key = normalized_map.get(candidate.strip().lower())
+        if key is None:
+            continue
+        value = row_data.get(key, "")
+        if pd.notna(value) and str(value).strip():
+            return str(value).strip()
+    return ""
+
+
+def extract_image_url(raw_value: Any) -> str:
+    """Extract URL from plain text or =IMAGE(\"url\") formula cells."""
+    if raw_value is None:
+        return ""
+    text = str(raw_value).strip()
+    if not text:
+        return ""
+    if text.startswith("=IMAGE("):
+        match = re.search(r'"([^"]+)"', text)
+        if match:
+            return match.group(1).strip()
+    return text
+
+
+def build_row_prompt(edit_prompt: str) -> str:
+    base = DEFAULT_ROW_PROMPT
+    if not edit_prompt:
+        return base
+    return f"{base}\nAdditional instruction: {edit_prompt.strip()}"
 
 
 def get_image_metrics(image_path: Path) -> Dict[str, Any]:
@@ -262,7 +304,13 @@ def upload_to_comfyui(server_url: str, image_path: Path) -> Optional[str]:
         return None
 
 
-def modify_api_workflow(api_workflow: Dict, generated_img: str, original_img: str, output_prefix: str) -> Dict:
+def modify_api_workflow(
+    api_workflow: Dict,
+    generated_img: str,
+    original_img: str,
+    output_prefix: str,
+    row_prompt: str
+) -> Dict:
     workflow = json.loads(json.dumps(api_workflow))
     
     if "151" in workflow:
@@ -276,6 +324,11 @@ def modify_api_workflow(api_workflow: Dict, generated_img: str, original_img: st
     if "9" in workflow:
         workflow["9"]["inputs"]["filename_prefix"] = output_prefix
         logger.info(f"Node 9: {output_prefix}")
+
+    if "107" in workflow and isinstance(workflow["107"], dict):
+        workflow["107"].setdefault("inputs", {})
+        workflow["107"]["inputs"]["text"] = row_prompt
+        logger.info("Node 107: updated row prompt")
     
     return workflow
 
@@ -396,6 +449,7 @@ def process_row(row_data: pd.Series, row_num: int, workflow_template: Dict, serv
         'timestamp': datetime.now().isoformat(),
         'generated_url': '',
         'original_url': '',
+        'edit_prompt': '',
         'output_path': '',
         'timing': {
             'download_sec': 0,
@@ -413,10 +467,14 @@ def process_row(row_data: pd.Series, row_num: int, workflow_template: Dict, serv
     total_start = time.time()
     
     try:
-        generated_url = row_data.get('Generated Image', '')
-        original_url = row_data.get('Original Image', '')
+        generated_url = extract_image_url(
+            get_first_available_value(row_data, ["Generated Image", "Reference Angle", "Front Angle"])
+        )
+        original_url = extract_image_url(get_first_available_value(row_data, ["Original Image"]))
+        edit_prompt = get_first_available_value(row_data, ["Edit Prompt", "edit prompt", "Prompt"])
         result['generated_url'] = generated_url
         result['original_url'] = original_url
+        result['edit_prompt'] = edit_prompt
         
         if not generated_url or not original_url:
             result['error'] = "Missing image URLs"
@@ -471,7 +529,8 @@ def process_row(row_data: pd.Series, row_num: int, workflow_template: Dict, serv
             workflow_template,
             generated_img=gen_name,
             original_img=orig_name,
-            output_prefix=f"{row_dir}_result"
+            output_prefix=f"{row_dir}_result",
+            row_prompt=build_row_prompt(edit_prompt),
         )
         
         logger.info("Executing face swap...")
@@ -527,6 +586,12 @@ def main():
     parser.add_argument('--gpu-ids', type=str, help='GPU IDs (e.g., 0,1,2,3)')
     parser.add_argument('--update-csv', action='store_true', help='Update CSV with results columns')
     parser.add_argument('--output-csv', type=str, help='Output CSV path (default: adds _results suffix)')
+    parser.add_argument(
+        '--minimal-csv',
+        action=argparse.BooleanOptionalAction,
+        default=True,
+        help='Write output CSV with only Original Image, Generated Image, new image (default: true)'
+    )
     parser.add_argument('--timeout', type=int, default=COMFYUI_TIMEOUT, help=f'ComfyUI wait timeout in seconds (default: {COMFYUI_TIMEOUT})')
     
     args = parser.parse_args()
@@ -557,22 +622,26 @@ def main():
     
     # Add new columns if updating CSV
     if args.update_csv:
-        if 'Swap_Status' not in df.columns:
-            df['Swap_Status'] = ''
-        if 'Swap_Output_Path' not in df.columns:
-            df['Swap_Output_Path'] = ''
-        if 'Swap_Time_Sec' not in df.columns:
-            df['Swap_Time_Sec'] = 0.0
-        if 'Swap_Output_Size_MB' not in df.columns:
-            df['Swap_Output_Size_MB'] = 0.0
-        if 'Swap_Output_Width' not in df.columns:
-            df['Swap_Output_Width'] = 0
-        if 'Swap_Output_Height' not in df.columns:
-            df['Swap_Output_Height'] = 0
-        if 'Swap_Face_Detected' not in df.columns:
-            df['Swap_Face_Detected'] = False
-        if 'Swap_Face_Confidence' not in df.columns:
-            df['Swap_Face_Confidence'] = 0.0
+        if args.minimal_csv:
+            if 'new image' not in df.columns:
+                df['new image'] = ''
+        else:
+            if 'Swap_Status' not in df.columns:
+                df['Swap_Status'] = ''
+            if 'Swap_Output_Path' not in df.columns:
+                df['Swap_Output_Path'] = ''
+            if 'Swap_Time_Sec' not in df.columns:
+                df['Swap_Time_Sec'] = 0.0
+            if 'Swap_Output_Size_MB' not in df.columns:
+                df['Swap_Output_Size_MB'] = 0.0
+            if 'Swap_Output_Width' not in df.columns:
+                df['Swap_Output_Width'] = 0
+            if 'Swap_Output_Height' not in df.columns:
+                df['Swap_Output_Height'] = 0
+            if 'Swap_Face_Detected' not in df.columns:
+                df['Swap_Face_Detected'] = False
+            if 'Swap_Face_Confidence' not in df.columns:
+                df['Swap_Face_Confidence'] = 0.0
     
     for idx in range(args.start_row - 1, min(end, len(df))):
         row_num = idx + 1
@@ -581,14 +650,17 @@ def main():
         
         # Update DataFrame
         if args.update_csv:
-            df.at[idx, 'Swap_Status'] = 'success' if result['success'] else f"failed: {result.get('error', 'unknown')}"
-            df.at[idx, 'Swap_Output_Path'] = result.get('output_path', '')
-            df.at[idx, 'Swap_Time_Sec'] = result['timing']['total_sec']
-            df.at[idx, 'Swap_Output_Size_MB'] = result.get('output_metrics', {}).get('file_size_mb', 0)
-            df.at[idx, 'Swap_Output_Width'] = result.get('output_metrics', {}).get('width', 0)
-            df.at[idx, 'Swap_Output_Height'] = result.get('output_metrics', {}).get('height', 0)
-            df.at[idx, 'Swap_Face_Detected'] = result.get('face_detection', {}).get('detected', False)
-            df.at[idx, 'Swap_Face_Confidence'] = result.get('face_detection', {}).get('confidence', 0)
+            if args.minimal_csv:
+                df.at[idx, 'new image'] = result.get('output_path', '') if result['success'] else ''
+            else:
+                df.at[idx, 'Swap_Status'] = 'success' if result['success'] else f"failed: {result.get('error', 'unknown')}"
+                df.at[idx, 'Swap_Output_Path'] = result.get('output_path', '')
+                df.at[idx, 'Swap_Time_Sec'] = result['timing']['total_sec']
+                df.at[idx, 'Swap_Output_Size_MB'] = result.get('output_metrics', {}).get('file_size_mb', 0)
+                df.at[idx, 'Swap_Output_Width'] = result.get('output_metrics', {}).get('width', 0)
+                df.at[idx, 'Swap_Output_Height'] = result.get('output_metrics', {}).get('height', 0)
+                df.at[idx, 'Swap_Face_Detected'] = result.get('face_detection', {}).get('detected', False)
+                df.at[idx, 'Swap_Face_Confidence'] = result.get('face_detection', {}).get('confidence', 0)
     
     run_end = datetime.now()
     
@@ -660,7 +732,14 @@ def main():
     # Save updated CSV
     if args.update_csv:
         output_csv = args.output_csv or args.csv.replace('.csv', '_results.csv')
-        df.to_csv(output_csv, index=False)
+        if args.minimal_csv:
+            for required_col in ['Original Image', 'Generated Image']:
+                if required_col not in df.columns:
+                    df[required_col] = ''
+            out_df = df[['Original Image', 'Generated Image', 'new image']].copy()
+            out_df.to_csv(output_csv, index=False)
+        else:
+            df.to_csv(output_csv, index=False)
         logger.info(f"Updated CSV saved to: {output_csv}")
 
 

@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
-Upload result images to Azure Blob and write minimal CSV (row + Swap_Image_Formula).
-Full run details stay in results.json (from face_swap_final.py); upload details in upload_results.json.
+Upload result images to Azure Blob and write minimal CSV:
+Original Image, Generated Image, new image
 Requires: pip install azure-storage-blob pandas
 """
 
@@ -43,16 +43,10 @@ def upload_image_to_azure(image_path: Path, blob_name: str) -> str:
         return ""
 
 
-def to_image_formula(url: str) -> str:
-    if url and url.startswith("http"):
-        return f'=IMAGE("{url}")'
-    return ""
-
-
 def main():
-    parser = argparse.ArgumentParser(description="Upload results to Azure; output minimal CSV (row, Swap_Image_Formula)")
-    parser.add_argument("--csv", required=True, help="Input CSV path (with Swap_Status etc.)")
-    parser.add_argument("--output-csv", help="Output CSV path (default: input_sheet.csv)")
+    parser = argparse.ArgumentParser(description="Upload results to Azure; output minimal CSV (Original Image, Generated Image, new image)")
+    parser.add_argument("--csv", required=True, help="Input CSV path")
+    parser.add_argument("--output-csv", help="Output CSV path (default: input_with_new_image.csv)")
     args = parser.parse_args()
     csv_path = args.csv
     output_dir = Path("data/output")
@@ -62,10 +56,13 @@ def main():
         return
 
     df = pd.read_csv(csv_path)
-    if "Swap_Image_Formula" not in df.columns:
-        df["Swap_Image_Formula"] = ""
-    if "Swap_Azure_URL" not in df.columns:
-        df["Swap_Azure_URL"] = ""
+    for required_col in ("Original Image", "Generated Image"):
+        if required_col not in df.columns:
+            print(f"ERROR: Missing required column: {required_col}")
+            return
+
+    out_df = df[["Original Image", "Generated Image"]].copy()
+    out_df["new image"] = ""
 
     upload_details = []
     success_count = 0
@@ -84,18 +81,16 @@ def main():
                     blob_name = f"{BLOB_PREFIX}/row_{row_num:04d}/result.png"
                     azure_url = upload_image_to_azure(result_path, blob_name)
                     if azure_url:
-                        df.at[idx, "Swap_Azure_URL"] = azure_url
-                        df.at[idx, "Swap_Image_Formula"] = to_image_formula(azure_url)
+                        out_df.at[idx, "new image"] = azure_url
                         success_count += 1
-                        upload_details.append({"row": row_num, "path": str(result_path), "blob_name": blob_name, "azure_url": azure_url, "formula": to_image_formula(azure_url)})
+                        upload_details.append({"row": row_num, "path": str(result_path), "blob_name": blob_name, "azure_url": azure_url})
             except Exception as e:
                 print(f"\nError: {e}")
         print(f"\nUploaded {success_count}/{total} images")
     else:
         print(f"WARNING: {output_dir} not found, skipping uploads")
 
-    output_csv = args.output_csv or csv_path.replace(".csv", "_sheet.csv")
-    out_df = pd.DataFrame({"row": range(1, len(df) + 1), "Swap_Image_Formula": df["Swap_Image_Formula"].values})
+    output_csv = args.output_csv or csv_path.replace(".csv", "_with_new_image.csv")
     out_df.to_csv(output_csv, index=False)
 
     results_json_path = Path(csv_path).resolve().parent / "upload_results.json"
