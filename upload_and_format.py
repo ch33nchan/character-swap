@@ -69,9 +69,18 @@ def main():
 
     if output_dir.exists():
         row_dirs = sorted([d for d in output_dir.iterdir() if d.is_dir()])
-        total = len(row_dirs)
-        print(f"Uploading {total} images from {output_dir}...")
-        for i, row_dir in enumerate(row_dirs, 1):
+        allowed_rows = set(range(1, len(out_df) + 1))
+        filtered_row_dirs = []
+        for row_dir in row_dirs:
+            try:
+                row_num = int(row_dir.name.split("_")[1])
+            except Exception:
+                continue
+            if row_num in allowed_rows:
+                filtered_row_dirs.append(row_dir)
+        total = len(filtered_row_dirs)
+        print(f"Uploading {total} images from {output_dir} for CSV rows 1..{len(out_df)}...")
+        for i, row_dir in enumerate(filtered_row_dirs, 1):
             try:
                 row_num = int(row_dir.name.split("_")[1])
                 idx = row_num - 1
