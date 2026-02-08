@@ -29,7 +29,7 @@ class LoRATrainingPipeline:
     """Complete pipeline for training character expression LoRA"""
     
     def __init__(self, work_dir: str = "lora_training", character_name: str = "CHARNAME", trigger_word: Optional[str] = None):
-        self.work_dir = Path(work_dir)
+        self.work_dir = Path(work_dir).resolve()
         self.dataset_dir = self.work_dir / "dataset"
         self.images_dir = self.dataset_dir / "images"
         self.config_dir = self.work_dir / "config"
@@ -273,7 +273,7 @@ class LoRATrainingPipeline:
     
     def create_training_config(self, steps: int = 1500, learning_rate: float = 0.0004,
                               batch_size: int = 1, lora_rank: int = 16,
-                              model_path: str = None, use_local_model: bool = True,
+                              model_path: str = None, use_local_model: bool = False,
                               quantize: bool = True):
         """
         Step 3: Create training configuration
@@ -284,8 +284,8 @@ class LoRATrainingPipeline:
         
         self.config_dir.mkdir(parents=True, exist_ok=True)
         
-        # Determine model path (default: FLUX.2-klein-9B for character swap alignment)
-        default_hf_model = "black-forest-labs/FLUX.2-klein-9B"
+        # Determine model path (default: FLUX.1-dev for broader toolkit compatibility)
+        default_hf_model = "black-forest-labs/FLUX.1-dev"
         if use_local_model and model_path is None:
             comfyui_model = Path.home() / "ComfyUI" / "models" / "unet" / "flux-2-klein-9b.safetensors"
             if comfyui_model.exists():
@@ -312,7 +312,7 @@ class LoRATrainingPipeline:
                 'name': 'character_expression_lora',
                 'process': [{
                     'type': 'sd_trainer',
-                    'training_folder': str(self.output_dir),
+                    'training_folder': str(self.output_dir.resolve()),
                     'device': 'cuda:0',
                     
                     'model': {
@@ -328,7 +328,7 @@ class LoRATrainingPipeline:
                     },
                     
                     'datasets': [{
-                        'folder_path': str(self.images_dir),
+                        'folder_path': str(self.images_dir.resolve()),
                         'caption_ext': 'txt',
                         'caption_dropout_rate': 0.05,
                         'shuffle_tokens': False,
@@ -649,23 +649,22 @@ Examples:
     
     elif args.command == 'train':
         config_path = pipeline.config_dir / 'character_lora.yaml'
-        if not config_path.exists() or args.use_hf:
-            hf_model = "black-forest-labs/FLUX.2-klein-9B"
-            use_quantize = not getattr(args, "no_quantize", False)
-            if args.use_hf and use_quantize:
-                use_quantize = False
-                logger.info("Disabling quantize for HF model (avoids meta tensor error)")
-            pipeline.create_training_config(
-                steps=args.steps,
-                learning_rate=args.lr,
-                batch_size=args.batch_size,
-                lora_rank=args.lora_rank,
-                model_path=(hf_model if args.use_hf else args.model_path),
-                use_local_model=not args.use_hf,
-                quantize=use_quantize
-            )
-            if args.use_hf:
-                logger.info("Config written with HuggingFace model: %s", hf_model)
+        hf_model = "black-forest-labs/FLUX.1-dev"
+        use_quantize = not getattr(args, "no_quantize", False)
+        if args.use_hf and use_quantize:
+            use_quantize = False
+            logger.info("Disabling quantize for HF model (avoids meta tensor error)")
+        pipeline.create_training_config(
+            steps=args.steps,
+            learning_rate=args.lr,
+            batch_size=args.batch_size,
+            lora_rank=args.lora_rank,
+            model_path=(hf_model if args.use_hf else args.model_path),
+            use_local_model=False if (args.use_hf or args.model_path) else True,
+            quantize=use_quantize
+        )
+        if args.use_hf:
+            logger.info("Config written with HuggingFace model: %s", hf_model)
         success = pipeline.train(gpu_id=args.gpu_id, gpu_ids=args.gpu_ids, config_path=str(config_path))
         
         if success:
