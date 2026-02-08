@@ -213,7 +213,21 @@ def _parse_verifier_json(text: str) -> Dict[str, Any]:
     obj = re.search(r"\{.*\}", text, flags=re.DOTALL)
     if obj:
         return json.loads(obj.group(0))
-    raise ValueError(f"no JSON object in verifier response: {text[:160]}")
+    lower = text.lower()
+    passed_match = re.search(r"\bpassed\b[^a-zA-Z0-9]*(true|false|yes|no)", lower)
+    score_match = re.search(r"\bscore\b[^0-9\-]*([0-9]+(?:\.[0-9]+)?)", lower)
+    reason_match = re.search(r"\breason\b[^:]*:\s*(.+)$", text, flags=re.IGNORECASE | re.DOTALL)
+    if passed_match or score_match or reason_match:
+        passed_raw = (passed_match.group(1) if passed_match else "false").strip()
+        passed = passed_raw in {"true", "yes"}
+        score = float(score_match.group(1)) if score_match else 0.0
+        if score > 1.0:
+            score = score / 100.0
+        score = max(0.0, min(1.0, score))
+        reason = reason_match.group(1).strip() if reason_match else text[:200]
+        return {"passed": passed, "score": score, "reason": reason}
+    # Last-resort fallback keeps verifier running without hard-failing parse.
+    return {"passed": False, "score": 0.0, "reason": text[:200]}
 
 
 def verify_output_with_gemini(
