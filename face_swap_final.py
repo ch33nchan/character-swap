@@ -561,7 +561,9 @@ def modify_api_workflow(
     base_image: str,
     reference_image: str,
     output_prefix: str,
-    row_prompt: str
+    row_prompt: str,
+    lora_name: str = "",
+    lora_strength: Optional[float] = None,
 ) -> Dict:
     workflow = json.loads(json.dumps(api_workflow))
     
@@ -581,6 +583,15 @@ def modify_api_workflow(
         workflow["107"].setdefault("inputs", {})
         workflow["107"]["inputs"]["text"] = row_prompt
         logger.info("Node 107: updated row prompt")
+
+    if "161" in workflow and isinstance(workflow["161"], dict):
+        workflow["161"].setdefault("inputs", {})
+        if lora_name:
+            workflow["161"]["inputs"]["lora_name"] = lora_name
+            logger.info(f"Node 161: lora_name={lora_name}")
+        if lora_strength is not None:
+            workflow["161"]["inputs"]["strength_model"] = float(lora_strength)
+            logger.info(f"Node 161: strength_model={float(lora_strength)}")
     
     return workflow
 
@@ -697,6 +708,9 @@ def process_row(
     mask_mode: str = "character",
     use_gemini_verifier: bool = False,
     verifier_threshold: float = 0.75,
+    lora_name: str = "",
+    lora_strength: Optional[float] = None,
+    lora_trigger: str = "",
 ) -> Dict[str, Any]:
     """Process single CSV row and return detailed results"""
     logger.info(f"\n{'='*60}")
@@ -822,7 +836,13 @@ def process_row(
             base_image=base_name,
             reference_image=reference_name,
             output_prefix=f"{row_dir}_result",
-            row_prompt=build_row_prompt(edit_prompt, analysis),
+            row_prompt=(
+                f"{build_row_prompt(edit_prompt, analysis)}\nCharacter token: {lora_trigger}"
+                if lora_trigger
+                else build_row_prompt(edit_prompt, analysis)
+            ),
+            lora_name=lora_name,
+            lora_strength=lora_strength,
         )
         
         logger.info("Executing face swap...")
@@ -906,6 +926,9 @@ def main():
     parser.add_argument('--use-gemini-verifier', action='store_true', help='Verify output against intended transfer rule using Gemini')
     parser.add_argument('--verifier-threshold', type=float, default=0.75, help='Verifier minimum score for pass (default: 0.75)')
     parser.add_argument('--mask-mode', choices=['character', 'face'], default='character', help='Mask scope for generated image transfer (default: character)')
+    parser.add_argument('--lora-path', default='', help='LoRA filename in ComfyUI models/loras (e.g., character_expression_lora.safetensors)')
+    parser.add_argument('--lora-strength', type=float, default=None, help='Override LoRA strength for workflow node 161')
+    parser.add_argument('--lora-trigger', default='', help='Trigger token appended to row prompt (e.g., mychar)')
     parser.add_argument(
         '--minimal-csv',
         action=argparse.BooleanOptionalAction,
@@ -940,6 +963,13 @@ def main():
     if args.use_gemini_verifier:
         logger.info(f"Gemini verifier enabled (model={args.gemini_model}, threshold={args.verifier_threshold})")
     logger.info(f"Mask mode: {args.mask_mode}")
+    if args.lora_path or args.lora_strength is not None:
+        logger.info(
+            "LoRA override enabled (path=%s, strength=%s, trigger=%s)",
+            args.lora_path or "<workflow-default>",
+            args.lora_strength if args.lora_strength is not None else "<workflow-default>",
+            args.lora_trigger or "<none>",
+        )
     
     end = args.end_row if args.end_row else len(df)
     results = []
@@ -988,6 +1018,9 @@ def main():
             args.mask_mode,
             args.use_gemini_verifier,
             args.verifier_threshold,
+            args.lora_path,
+            args.lora_strength,
+            args.lora_trigger,
         )
         results.append(result)
         
@@ -1059,7 +1092,10 @@ def main():
             'use_gemini_analysis': args.use_gemini_analysis,
             'use_gemini_verifier': args.use_gemini_verifier,
             'gemini_model': args.gemini_model if (args.use_gemini_analysis or args.use_gemini_verifier) else "",
-            'verifier_threshold': args.verifier_threshold if args.use_gemini_verifier else 0.0
+            'verifier_threshold': args.verifier_threshold if args.use_gemini_verifier else 0.0,
+            'lora_path': args.lora_path,
+            'lora_strength': args.lora_strength,
+            'lora_trigger': args.lora_trigger,
         },
         'summary': {
             'total_rows': len(results),
