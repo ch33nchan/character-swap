@@ -49,11 +49,11 @@ QUALITY_PRESETS = {
 }
 
 DEFAULT_ROW_PROMPT = (
-    "Use image 1 (Original Image) only as the scene and expression reference: preserve its background, camera "
-    "framing, pose, hand gesture, and facial expression. Use image 2 (Generated Image) as the full character "
-    "identity source: transfer face identity, hairstyle, hair color/texture, skin tone, body shape, outfit, "
-    "accessories, and character style from image 2. Do not keep clothing or hairstyle from image 1. Keep the "
-    "expression from image 1 while keeping all other character attributes from image 2."
+    "Image 1 is the strict base (Original Image): preserve exact pose, hand posture, camera framing, background, "
+    "and facial expression from image 1. Image 2 is the identity/style source (Generated Image): transfer face "
+    "identity, hairstyle, hair color/texture, skin tone, body shape, outfit, accessories, and style from image 2. "
+    "Do not stitch face from image 1 onto image 2 body. Keep expression from image 1 only, while all character "
+    "identity/attire should come from image 2."
 )
 
 VERIFIER_RULE = (
@@ -558,20 +558,20 @@ def upload_to_comfyui(server_url: str, image_path: Path) -> Optional[str]:
 
 def modify_api_workflow(
     api_workflow: Dict,
-    generated_img: str,
-    original_img: str,
+    base_image: str,
+    reference_image: str,
     output_prefix: str,
     row_prompt: str
 ) -> Dict:
     workflow = json.loads(json.dumps(api_workflow))
     
     if "151" in workflow:
-        workflow["151"]["inputs"]["image"] = generated_img
-        logger.info(f"Node 151: {generated_img}")
+        workflow["151"]["inputs"]["image"] = base_image
+        logger.info(f"Node 151 (base image): {base_image}")
     
     if "121" in workflow:
-        workflow["121"]["inputs"]["image"] = original_img  
-        logger.info(f"Node 121: {original_img}")
+        workflow["121"]["inputs"]["image"] = reference_image
+        logger.info(f"Node 121 (reference image): {reference_image}")
     
     if "9" in workflow:
         workflow["9"]["inputs"]["filename_prefix"] = output_prefix
@@ -774,29 +774,29 @@ def process_row(
         
         # Face detection
         face_start = time.time()
-        logger.info("Creating mask...")
-        gen_masked_path = input_dir / "generated.png"
+        logger.info("Creating mask on original base image...")
+        orig_masked_path = input_dir / "original_masked.png"
         if mask_mode == "face":
-            mask_success, mask_info = detect_face_and_create_mask(gen_path, gen_masked_path)
+            mask_success, mask_info = detect_face_and_create_mask(orig_path, orig_masked_path)
             result['face_detection'] = mask_info
             if not mask_success:
-                logger.warning("Face mask creation failed, using raw generated image")
-                gen_masked_path = gen_path
+                logger.warning("Face mask creation failed on original image, using raw original image")
+                orig_masked_path = orig_path
         else:
-            mask_success, mask_info = create_full_character_mask(gen_path, gen_masked_path)
+            mask_success, mask_info = create_full_character_mask(orig_path, orig_masked_path)
             result['face_detection'] = mask_info
             if not mask_success:
-                logger.warning("Character mask creation failed, using raw generated image")
-                gen_masked_path = gen_path
+                logger.warning("Character mask creation failed on original image, using raw original image")
+                orig_masked_path = orig_path
         result['timing']['face_detection_sec'] = round(time.time() - face_start, 2)
         
         # Upload
         upload_start = time.time()
         logger.info("Uploading...")
-        gen_name = upload_to_comfyui(server_url, gen_masked_path)
-        orig_name = upload_to_comfyui(server_url, orig_path)
+        base_name = upload_to_comfyui(server_url, orig_masked_path)
+        reference_name = upload_to_comfyui(server_url, gen_path)
         
-        if not gen_name or not orig_name:
+        if not base_name or not reference_name:
             result['error'] = "Failed to upload images"
             return result
         result['timing']['upload_sec'] = round(time.time() - upload_start, 2)
@@ -819,8 +819,8 @@ def process_row(
 
         modified = modify_api_workflow(
             workflow_template,
-            generated_img=gen_name,
-            original_img=orig_name,
+            base_image=base_name,
+            reference_image=reference_name,
             output_prefix=f"{row_dir}_result",
             row_prompt=build_row_prompt(edit_prompt, analysis),
         )
