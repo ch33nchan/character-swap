@@ -199,6 +199,23 @@ def _encode_image_inline_part(image_path: Path) -> Optional[Dict[str, Any]]:
         return None
 
 
+def _parse_verifier_json(text: str) -> Dict[str, Any]:
+    text = (text or "").strip()
+    if not text:
+        raise ValueError("empty verifier response")
+    try:
+        return json.loads(text)
+    except Exception:
+        pass
+    fenced = re.search(r"```(?:json)?\s*(\{.*?\})\s*```", text, flags=re.DOTALL | re.IGNORECASE)
+    if fenced:
+        return json.loads(fenced.group(1))
+    obj = re.search(r"\{.*\}", text, flags=re.DOTALL)
+    if obj:
+        return json.loads(obj.group(0))
+    raise ValueError(f"no JSON object in verifier response: {text[:160]}")
+
+
 def verify_output_with_gemini(
     original_path: Path,
     generated_path: Path,
@@ -230,7 +247,12 @@ def verify_output_with_gemini(
 
     payload = {
         "contents": [{"role": "user", "parts": parts}],
-        "generationConfig": {"temperature": 0.0, "topP": 0.9, "maxOutputTokens": 120},
+        "generationConfig": {
+            "temperature": 0.0,
+            "topP": 0.9,
+            "maxOutputTokens": 120,
+            "response_mime_type": "application/json",
+        },
     }
     try:
         response = requests.post(url, json=payload, timeout=timeout)
@@ -244,7 +266,7 @@ def verify_output_with_gemini(
             for p in candidates[0].get("content", {}).get("parts", [])
             if p.get("text")
         ).strip()
-        parsed = json.loads(text)
+        parsed = _parse_verifier_json(text)
         return {
             "enabled": True,
             "passed": bool(parsed.get("passed", False)),
