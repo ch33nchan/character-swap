@@ -230,6 +230,26 @@ def _parse_verifier_json(text: str) -> Dict[str, Any]:
     return {"passed": False, "score": 0.0, "reason": text[:200]}
 
 
+def _parse_verifier_kv(text: str) -> Optional[Dict[str, Any]]:
+    raw = (text or "").strip()
+    if not raw:
+        return None
+    compact = " ".join(raw.split())
+    passed_match = re.search(r"passed\s*=\s*(true|false|yes|no)", compact, flags=re.IGNORECASE)
+    score_match = re.search(r"score\s*=\s*([0-9]+(?:\.[0-9]+)?)", compact, flags=re.IGNORECASE)
+    reason_match = re.search(r"reason\s*=\s*(.+)$", compact, flags=re.IGNORECASE)
+    if not (passed_match or score_match or reason_match):
+        return None
+    passed_raw = (passed_match.group(1).lower() if passed_match else "false")
+    passed = passed_raw in {"true", "yes"}
+    score = float(score_match.group(1)) if score_match else 0.0
+    if score > 1.0:
+        score = score / 100.0
+    score = max(0.0, min(1.0, score))
+    reason = reason_match.group(1).strip() if reason_match else compact[:200]
+    return {"passed": passed, "score": score, "reason": reason}
+
+
 def verify_output_with_gemini(
     original_path: Path,
     generated_path: Path,
@@ -250,7 +270,9 @@ def verify_output_with_gemini(
         "3) Output Image\n\n"
         f"{VERIFIER_RULE}\n"
         f"Edit prompt context: {edit_prompt or 'N/A'}\n\n"
-        "Return ONLY compact JSON with keys: passed (boolean), score (0-1), reason (short string)."
+        "Return EXACTLY one line in this format only:\n"
+        "passed=<true|false>|score=<0-1>|reason=<short reason>\n"
+        "Do not include markdown, preface, or extra text."
     )
     parts: List[Dict[str, Any]] = [{"text": instruction}]
     for label, path in [("Original Image", original_path), ("Generated Image", generated_path), ("Output Image", output_path)]:
@@ -265,7 +287,6 @@ def verify_output_with_gemini(
             "temperature": 0.0,
             "topP": 0.9,
             "maxOutputTokens": 120,
-            "response_mime_type": "application/json",
         },
     }
     try:
@@ -280,7 +301,7 @@ def verify_output_with_gemini(
             for p in candidates[0].get("content", {}).get("parts", [])
             if p.get("text")
         ).strip()
-        parsed = _parse_verifier_json(text)
+        parsed = _parse_verifier_kv(text) or _parse_verifier_json(text)
         return {
             "enabled": True,
             "passed": bool(parsed.get("passed", False)),
