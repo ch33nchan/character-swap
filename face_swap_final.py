@@ -242,7 +242,12 @@ def _parse_verifier_kv(text: str) -> Optional[Dict[str, Any]]:
         return None
     passed_raw = (passed_match.group(1).lower() if passed_match else "false")
     passed = passed_raw in {"true", "yes"}
-    score = float(score_match.group(1)) if score_match else 0.0
+    if score_match:
+        score = float(score_match.group(1))
+    elif passed_match:
+        score = 1.0 if passed else 0.0
+    else:
+        score = 0.0
     if score > 1.0:
         score = score / 100.0
     score = max(0.0, min(1.0, score))
