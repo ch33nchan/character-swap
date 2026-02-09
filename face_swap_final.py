@@ -708,6 +708,7 @@ def process_row(
     mask_mode: str = "character",
     use_gemini_verifier: bool = False,
     verifier_threshold: float = 0.75,
+    verifier_max_attempts: int = 1,
     lora_name: str = "",
     lora_strength: Optional[float] = None,
     lora_trigger: str = "",
@@ -830,71 +831,110 @@ def process_row(
                 timeout=gemini_timeout,
             )
             result['analysis'] = analysis
-
-        modified = modify_api_workflow(
-            workflow_template,
-            base_image=base_name,
-            reference_image=reference_name,
-            output_prefix=f"{row_dir}_result",
-            row_prompt=(
-                f"{build_row_prompt(edit_prompt, analysis)}\nCharacter token: {lora_trigger}"
-                if lora_trigger
-                else build_row_prompt(edit_prompt, analysis)
-            ),
-            lora_name=lora_name,
-            lora_strength=lora_strength,
+        max_attempts = max(1, int(verifier_max_attempts if use_gemini_verifier else 1))
+        best_attempt_path: Optional[Path] = None
+        best_verification = {"enabled": use_gemini_verifier, "passed": False, "score": 0.0, "reason": ""}
+        last_error = ""
+        row_prompt = (
+            f"{build_row_prompt(edit_prompt, analysis)}\nCharacter token: {lora_trigger}"
+            if lora_trigger
+            else build_row_prompt(edit_prompt, analysis)
         )
-        
-        logger.info("Executing face swap...")
-        client_id = str(int(time.time() * 1000))
-        prompt_id = queue_workflow(server_url, modified, client_id)
-        
-        if not prompt_id:
-            result['error'] = "Failed to queue workflow"
+
+        for attempt_idx in range(1, max_attempts + 1):
+            modified = modify_api_workflow(
+                workflow_template,
+                base_image=base_name,
+                reference_image=reference_name,
+                output_prefix=f"{row_dir}_result_attempt{attempt_idx}",
+                row_prompt=row_prompt,
+                lora_name=lora_name,
+                lora_strength=lora_strength,
+            )
+
+            logger.info("Executing face swap (attempt %d/%d)...", attempt_idx, max_attempts)
+            client_id = str(int(time.time() * 1000))
+            prompt_id = queue_workflow(server_url, modified, client_id)
+            if not prompt_id:
+                last_error = "Failed to queue workflow"
+                continue
+            if not wait_for_completion(server_url, prompt_id, timeout=timeout):
+                last_error = "Workflow execution failed or timed out"
+                continue
+
+            logger.info("Downloading results (attempt %d/%d)...", attempt_idx, max_attempts)
+            images = get_output_images(server_url, prompt_id)
+            if not images:
+                last_error = "No output images returned"
+                continue
+
+            attempt_path = output_dir / f"result_attempt{attempt_idx}.png"
+            if not download_output(server_url, images[0], attempt_path):
+                last_error = "Failed to download result"
+                continue
+
+            if use_gemini_verifier:
+                verification = verify_output_with_gemini(
+                    original_path=orig_path,
+                    generated_path=gen_path,
+                    output_path=attempt_path,
+                    edit_prompt=edit_prompt,
+                    gemini_model=gemini_model,
+                    timeout=gemini_timeout,
+                )
+                if verification.get("enabled", False):
+                    verification["passed"] = (
+                        verification.get("passed", False)
+                        and float(verification.get("score", 0.0)) >= verifier_threshold
+                    )
+                logger.info(
+                    "Verifier (attempt %d/%d): passed=%s score=%.3f reason=%s",
+                    attempt_idx,
+                    max_attempts,
+                    verification.get("passed", False),
+                    float(verification.get("score", 0.0)),
+                    verification.get("reason", ""),
+                )
+
+                if float(verification.get("score", 0.0)) > float(best_verification.get("score", 0.0)):
+                    best_verification = verification
+                    best_attempt_path = attempt_path
+                elif best_attempt_path is None:
+                    best_verification = verification
+                    best_attempt_path = attempt_path
+
+                if verification.get("passed", False):
+                    best_verification = verification
+                    best_attempt_path = attempt_path
+                    break
+            else:
+                best_attempt_path = attempt_path
+                break
+
+        if best_attempt_path is None:
+            result['error'] = last_error or "All attempts failed"
             return result
-        
-        if not wait_for_completion(server_url, prompt_id, timeout=timeout):
-            result['error'] = "Workflow execution failed or timed out"
-            return result
-        
-        logger.info("Downloading results...")
-        images = get_output_images(server_url, prompt_id)
-        if not images:
-            result['error'] = "No output images returned"
-            return result
-        
+
         result_path = output_dir / "result.png"
-        if not download_output(server_url, images[0], result_path):
-            result['error'] = "Failed to download result"
-            return result
-        
+        try:
+            if best_attempt_path != result_path:
+                result_path.write_bytes(best_attempt_path.read_bytes())
+        except Exception as exc:
+            logger.warning(f"Failed to copy best attempt to canonical result path: {exc}")
+            result_path = best_attempt_path
+
         result['timing']['processing_sec'] = round(time.time() - process_start, 2)
-        
-        # Get output metrics
         result['output_path'] = str(result_path)
         result['output_metrics'] = get_image_metrics(result_path)
-
         if use_gemini_verifier:
-            verification = verify_output_with_gemini(
-                original_path=orig_path,
-                generated_path=gen_path,
-                output_path=result_path,
-                edit_prompt=edit_prompt,
-                gemini_model=gemini_model,
-                timeout=gemini_timeout,
-            )
-            if verification.get("enabled", False):
-                verification["passed"] = (
-                    verification.get("passed", False)
-                    and float(verification.get("score", 0.0)) >= verifier_threshold
+            result['verification'] = best_verification
+            if not best_verification.get("passed", False):
+                logger.warning(
+                    "Row %d did not pass verifier after %d attempts; using best score %.3f",
+                    row_num,
+                    max_attempts,
+                    float(best_verification.get("score", 0.0)),
                 )
-            result['verification'] = verification
-            logger.info(
-                "Verifier: passed=%s score=%.3f reason=%s",
-                verification.get("passed", False),
-                float(verification.get("score", 0.0)),
-                verification.get("reason", ""),
-            )
         
         result['success'] = True
         logger.info(f"SUCCESS: {result_path}")
@@ -925,6 +965,7 @@ def main():
     parser.add_argument('--gemini-timeout', type=int, default=GEMINI_TIMEOUT, help=f'Gemini timeout in seconds (default: {GEMINI_TIMEOUT})')
     parser.add_argument('--use-gemini-verifier', action='store_true', help='Verify output against intended transfer rule using Gemini')
     parser.add_argument('--verifier-threshold', type=float, default=0.75, help='Verifier minimum score for pass (default: 0.75)')
+    parser.add_argument('--verifier-max-attempts', type=int, default=1, help='Regenerate each row up to this many times until verifier passes (default: 1)')
     parser.add_argument('--mask-mode', choices=['character', 'face'], default='character', help='Mask scope for generated image transfer (default: character)')
     parser.add_argument('--lora-path', default='', help='LoRA filename in ComfyUI models/loras (e.g., character_expression_lora.safetensors)')
     parser.add_argument('--lora-strength', type=float, default=None, help='Override LoRA strength for workflow node 161')
@@ -1018,6 +1059,7 @@ def main():
             args.mask_mode,
             args.use_gemini_verifier,
             args.verifier_threshold,
+            args.verifier_max_attempts,
             args.lora_path,
             args.lora_strength,
             args.lora_trigger,
@@ -1093,6 +1135,7 @@ def main():
             'use_gemini_verifier': args.use_gemini_verifier,
             'gemini_model': args.gemini_model if (args.use_gemini_analysis or args.use_gemini_verifier) else "",
             'verifier_threshold': args.verifier_threshold if args.use_gemini_verifier else 0.0,
+            'verifier_max_attempts': args.verifier_max_attempts if args.use_gemini_verifier else 1,
             'lora_path': args.lora_path,
             'lora_strength': args.lora_strength,
             'lora_trigger': args.lora_trigger,
