@@ -2,6 +2,7 @@
 """
 Upload result images to Azure Blob and write minimal CSV:
 Swapped Image, Reference Angle, Front Angle, new image
+Backward compatible with older CSVs that use Generated Image.
 Requires: pip install azure-storage-blob pandas
 """
 
@@ -56,14 +57,21 @@ def main():
         return
 
     df = pd.read_csv(csv_path)
-    if "Swapped Image" not in df.columns:
-        print("ERROR: Missing required column: Swapped Image")
+    source_image_col = None
+    if "Swapped Image" in df.columns:
+        source_image_col = "Swapped Image"
+    elif "Generated Image" in df.columns:
+        source_image_col = "Generated Image"
+    if source_image_col is None:
+        print("ERROR: Missing required column: Swapped Image or Generated Image")
         return
     if "Reference Angle" not in df.columns:
         df["Reference Angle"] = ""
     if "Front Angle" not in df.columns:
         df["Front Angle"] = ""
-    out_df = df[["Swapped Image", "Reference Angle", "Front Angle"]].copy()
+    out_df = df[[source_image_col, "Reference Angle", "Front Angle"]].copy()
+    if source_image_col != "Swapped Image":
+        out_df = out_df.rename(columns={source_image_col: "Swapped Image"})
     out_df["new image"] = ""
 
     upload_details = []
