@@ -1,0 +1,2982 @@
+{
+  "run_info": {
+    "start_time": "2026-02-08T21:46:09.235891",
+    "end_time": "2026-02-08T22:16:49.654554",
+    "duration_sec": 1840.418663,
+    "csv_file": "Master - Tech Solutioning - Char Const - Rerun with head_eye gaze.csv",
+    "workflow_file": "Flux2 Klein 9b Face Swap(API).json",
+    "quality": "fast",
+    "comfyui_url": "http://localhost:8189",
+    "start_row": 1,
+    "end_row": 49,
+    "gpu_ids": null,
+    "timeout_sec": 600,
+    "use_gemini_analysis": true,
+    "use_gemini_verifier": false,
+    "gemini_model": "gemini-3-flash-preview",
+    "verifier_threshold": 0.0,
+    "verifier_max_attempts": 1,
+    "lora_path": "character_expression_lora.safetensors",
+    "lora_strength": 1.0,
+    "lora_trigger": "mychar",
+    "base_image_source": "generated",
+    "results_json": "LORA_.json"
+  },
+  "summary": {
+    "total_rows": 49,
+    "successful": 49,
+    "failed": 0,
+    "verified_passed": 0,
+    "success_rate": 100.0,
+    "total_time_sec": 1840.36,
+    "avg_time_per_row_sec": 37.56,
+    "timing_breakdown": {
+      "avg_download_sec": 0.46,
+      "avg_face_detection_sec": 2.8,
+      "avg_upload_sec": 0.18,
+      "avg_processing_sec": 33.25
+    }
+  },
+  "results": [
+    {
+      "row": 1,
+      "success": true,
+      "timestamp": "2026-02-08T21:46:09.236445",
+      "generated_url": "https://dev-content.dashtoon.ai/stability-images/d494f44e-6a95-4697-a3e9-f898c241fd46.png",
+      "original_url": "https://content.dashtoon.ai/user-uploaded-files/ee6e6b48-efc7-4ea3-ad0f-7853f2747a22.png",
+      "edit_prompt": "Edit ONLY the character's visual appearance in Image 1. DO NOT change pose, position, or composition.\n\nCRITICAL - NEVER CHANGE (from Image 1):\n- Character's EXACT body pose, arm positions, leg positions, head tilt, body angle\n- Character's EXACT position in the frame (where they are standing/sitting)\n- Background, scene, environment - must be PIXEL PERFECT same\n- Camera angle, framing, composition, crop\n- Lighting and shadows\n- Composition\n\nSWAP ONLY these visual features FROM Image 2:\n- Face shape and facial features\n- Hair color, style, and length\n- Clothing appearance (colors, patterns, open/closed state of clothes eg: jacket open vs closed, style)\n- Visible accessories (jewelry, glasses, hats, etc.)\n\n- Facial expression fix: Set both eyes to look directly upward, open the mouth to expose upper teeth with a tense, concerned expression, and tilt the head slightly to match an upward-looking orientation.\nThink of it like a costume change on the EXACT same character pose. The silhouette and position should be IDENTICAL to Image 1.\n\nOutput: Image 1 with ONLY the character's visual appearance changed to match Image 2. Pose and composition UNCHANGED.",
+      "analysis": "Maintain the exact scene composition,",
+      "verification": {
+        "enabled": false,
+        "passed": false,
+        "score": 0.0,
+        "reason": ""
+      },
+      "output_path": "data/output/row_0001/result.png",
+      "timing": {
+        "download_sec": 0.16,
+        "face_detection_sec": 3.19,
+        "upload_sec": 0.13,
+        "processing_sec": 32.12,
+        "total_sec": 36.26
+      },
+      "face_detection": {
+        "detected": true,
+        "method": "mediapipe_selfie_segmentation"
+      },
+      "input_metrics": {
+        "generated": {
+          "width": 1536,
+          "height": 2752,
+          "file_size_bytes": 5561517,
+          "file_size_mb": 5.3,
+          "megapixels": 4.23,
+          "brightness": 103.6,
+          "contrast": 59.19,
+          "mode": "RGB"
+        },
+        "original": {
+          "width": 1536,
+          "height": 2752,
+          "file_size_bytes": 5821653,
+          "file_size_mb": 5.55,
+          "megapixels": 4.23,
+          "brightness": 87.13,
+          "contrast": 61.17,
+          "mode": "RGB"
+        }
+      },
+      "output_metrics": {
+        "width": 1072,
+        "height": 1936,
+        "file_size_bytes": 2540855,
+        "file_size_mb": 2.42,
+        "megapixels": 2.08,
+        "brightness": 103.48,
+        "contrast": 59.19,
+        "mode": "RGB"
+      },
+      "error": null
+    },
+    {
+      "row": 2,
+      "success": true,
+      "timestamp": "2026-02-08T21:46:45.495996",
+      "generated_url": "https://dev-content.dashtoon.ai/stability-images/efc45287-396f-48f7-93a1-ccde56371d69.png",
+      "original_url": "https://content.dashtoon.ai/user-uploaded-files/a0cbc434-9529-4588-a357-e6b7f712c562.png",
+      "edit_prompt": "Edit ONLY the character's visual appearance in Image 1. DO NOT change pose, position, or composition.\n\nCRITICAL - NEVER CHANGE (from Image 1):\n- Character's EXACT body pose, arm positions, leg positions, head tilt, body angle\n- Character's EXACT position in the frame (where they are standing/sitting)\n- Background, scene, environment - must be PIXEL PERFECT same\n- Camera angle, framing, composition, crop\n- Lighting and shadows\n- Composition\n\nSWAP ONLY these visual features FROM Image 2:\n- Face shape and facial features\n- Hair color, style, and length\n- Clothing appearance (colors, patterns, open/closed state of clothes eg: jacket open vs closed, style)\n- Visible accessories (jewelry, glasses, hats, etc.)\n\n- Facial expression fix: Adjust eye gaze to look directly forward at the camera, close the mouth to a slightly pursed closed state, straighten the head to face directly forward without tilting or turning left, and set the expression to a concerned serious neutral look.\nThink of it like a costume change on the EXACT same character pose. The silhouette and position should be IDENTICAL to Image 1.\n\nOutput: Image 1 with ONLY the character's visual appearance changed to match Image 2. Pose and composition UNCHANGED.",
+      "analysis": "Maintain the exact scene composition, body pose,",
+      "verification": {
+        "enabled": false,
+        "passed": false,
+        "score": 0.0,
+        "reason": ""
+      },
+      "output_path": "data/output/row_0002/result.png",
+      "timing": {
+        "download_sec": 0.14,
+        "face_detection_sec": 3.08,
+        "upload_sec": 0.12,
+        "processing_sec": 32.11,
+        "total_sec": 42.91
+      },
+      "face_detection": {
+        "detected": true,
+        "method": "mediapipe_selfie_segmentation"
+      },
+      "input_metrics": {
+        "generated": {
+          "width": 1536,
+          "height": 2752,
+          "file_size_bytes": 5574016,
+          "file_size_mb": 5.32,
+          "megapixels": 4.23,
+          "brightness": 82.98,
+          "contrast": 74.04,
+          "mode": "RGB"
+        },
+        "original": {
+          "width": 1536,
+          "height": 2752,
+          "file_size_bytes": 5870725,
+          "file_size_mb": 5.6,
+          "megapixels": 4.23,
+          "brightness": 88.2,
+          "contrast": 77.0,
+          "mode": "RGB"
+        }
+      },
+      "output_metrics": {
+        "width": 1072,
+        "height": 1936,
+        "file_size_bytes": 2699665,
+        "file_size_mb": 2.57,
+        "megapixels": 2.08,
+        "brightness": 82.33,
+        "contrast": 74.03,
+        "mode": "RGB"
+      },
+      "error": null
+    },
+    {
+      "row": 3,
+      "success": true,
+      "timestamp": "2026-02-08T21:47:28.409726",
+      "generated_url": "https://dev-content.dashtoon.ai/stability-images/19fedcb9-f62a-4c83-b7a9-4c8019a42e4d.png",
+      "original_url": "https://content.dashtoon.ai/user-uploaded-files/001400c3-b0f4-4a06-85ed-98648c54ac44.png",
+      "edit_prompt": "Edit ONLY the character's visual appearance in Image 1. DO NOT change pose, position, or composition.\n\nCRITICAL - NEVER CHANGE (from Image 1):\n- Character's EXACT body pose, arm positions, leg positions, head tilt, body angle\n- Character's EXACT position in the frame (where they are standing/sitting)\n- Background, scene, environment - must be PIXEL PERFECT same\n- Camera angle, framing, composition, crop\n- Lighting and shadows\n- Composition\n\nSWAP ONLY these visual features FROM Image 2:\n- Face shape and facial features\n- Hair color, style, and length\n- Clothing appearance (colors, patterns, open/closed state of clothes eg: jacket open vs closed, style)\n- Visible accessories (jewelry, glasses, hats, etc.)\n\n- Facial expression fix: adjust eyes to look directly at the camera, turn head to face forward, change expression to a confident closed-mouth red-lipstick smirk, close mouth into the slight upturned smile and remove the concerned look\nThink of it like a costume change on the EXACT same character pose. The silhouette and position should be IDENTICAL to Image 1.\n\nOutput: Image 1 with ONLY the character's visual appearance changed to match Image 2. Pose and composition UNCHANGED.",
+      "analysis": "Maintain the exact scene composition, body pose",
+      "verification": {
+        "enabled": false,
+        "passed": false,
+        "score": 0.0,
+        "reason": ""
+      },
+      "output_path": "data/output/row_0003/result.png",
+      "timing": {
+        "download_sec": 0.15,
+        "face_detection_sec": 2.76,
+        "upload_sec": 0.15,
+        "processing_sec": 32.0,
+        "total_sec": 35.84
+      },
+      "face_detection": {
+        "detected": true,
+        "method": "mediapipe_selfie_segmentation"
+      },
+      "input_metrics": {
+        "generated": {
+          "width": 1536,
+          "height": 2752,
+          "file_size_bytes": 5608758,
+          "file_size_mb": 5.35,
+          "megapixels": 4.23,
+          "brightness": 106.81,
+          "contrast": 65.77,
+          "mode": "RGB"
+        },
+        "original": {
+          "width": 1536,
+          "height": 2752,
+          "file_size_bytes": 7161233,
+          "file_size_mb": 6.83,
+          "megapixels": 4.23,
+          "brightness": 93.36,
+          "contrast": 70.12,
+          "mode": "RGBA"
+        }
+      },
+      "output_metrics": {
+        "width": 1072,
+        "height": 1936,
+        "file_size_bytes": 2510807,
+        "file_size_mb": 2.39,
+        "megapixels": 2.08,
+        "brightness": 107.39,
+        "contrast": 67.1,
+        "mode": "RGB"
+      },
+      "error": null
+    },
+    {
+      "row": 4,
+      "success": true,
+      "timestamp": "2026-02-08T21:48:04.253851",
+      "generated_url": "https://dev-content.dashtoon.ai/stability-images/2be1155a-cf19-4f23-99c6-99b963df1bef.png",
+      "original_url": "https://content.dashtoon.ai/user-uploaded-files/8ce17d1b-90ef-4362-bd10-e5545aae55ab.png",
+      "edit_prompt": "Edit ONLY the character's visual appearance in Image 1. DO NOT change pose, position, or composition.\n\nCRITICAL - NEVER CHANGE (from Image 1):\n- Character's EXACT body pose, arm positions, leg positions, head tilt, body angle\n- Character's EXACT position in the frame (where they are standing/sitting)\n- Background, scene, environment - must be PIXEL PERFECT same\n- Camera angle, framing, composition, crop\n- Lighting and shadows\n- Composition\n\nSWAP ONLY these visual features FROM Image 2:\n- Face shape and facial features\n- Hair color, style, and length\n- Clothing appearance (colors, patterns, open/closed state of clothes eg: jacket open vs closed, style)\n- Visible accessories (jewelry, glasses, hats, etc.)\n\n- Facial expression fix: Smooth the furrowed forehead to eliminate the worried brow, adjust the facial expression to a serious, concerned look with eyes staring directly at the camera, and set the mouth to a slightly open neutral concerned state without tense facial lines.\nThink of it like a costume change on the EXACT same character pose. The silhouette and position should be IDENTICAL to Image 1.\n\nOutput: Image 1 with ONLY the character's visual appearance changed to match Image 2. Pose and composition UNCHANGED.",
+      "analysis": "Maintain the exact scene composition, body pose,",
+      "verification": {
+        "enabled": false,
+        "passed": false,
+        "score": 0.0,
+        "reason": ""
+      },
+      "output_path": "data/output/row_0004/result.png",
+      "timing": {
+        "download_sec": 0.16,
+        "face_detection_sec": 2.71,
+        "upload_sec": 0.11,
+        "processing_sec": 32.3,
+        "total_sec": 36.14
+      },
+      "face_detection": {
+        "detected": true,
+        "method": "mediapipe_selfie_segmentation"
+      },
+      "input_metrics": {
+        "generated": {
+          "width": 1536,
+          "height": 2752,
+          "file_size_bytes": 5800578,
+          "file_size_mb": 5.53,
+          "megapixels": 4.23,
+          "brightness": 98.33,
+          "contrast": 60.29,
+          "mode": "RGB"
+        },
+        "original": {
+          "width": 1536,
+          "height": 2752,
+          "file_size_bytes": 5473681,
+          "file_size_mb": 5.22,
+          "megapixels": 4.23,
+          "brightness": 77.32,
+          "contrast": 63.99,
+          "mode": "RGB"
+        }
+      },
+      "output_metrics": {
+        "width": 1072,
+        "height": 1936,
+        "file_size_bytes": 2705717,
+        "file_size_mb": 2.58,
+        "megapixels": 2.08,
+        "brightness": 97.84,
+        "contrast": 60.02,
+        "mode": "RGB"
+      },
+      "error": null
+    },
+    {
+      "row": 5,
+      "success": true,
+      "timestamp": "2026-02-08T21:48:40.395827",
+      "generated_url": "https://dev-content.dashtoon.ai/stability-images/918f9989-a873-4982-967f-d1418a1ae0ae.png",
+      "original_url": "https://content.dashtoon.ai/user-uploaded-files/98dc93c8-94d5-43fc-882d-85c4d6f06c0f.png",
+      "edit_prompt": "Edit ONLY the character's visual appearance in Image 1. DO NOT change pose, position, or composition.\n\nCRITICAL - NEVER CHANGE (from Image 1):\n- Character's EXACT body pose, arm positions, leg positions, head tilt, body angle\n- Character's EXACT position in the frame (where they are standing/sitting)\n- Background, scene, environment - must be PIXEL PERFECT same\n- Camera angle, framing, composition, crop\n- Lighting and shadows\n- Composition\n\nSWAP ONLY these visual features FROM Image 2:\n- Face shape and facial features\n- Hair color, style, and length\n- Clothing appearance (colors, patterns, open/closed state of clothes eg: jacket open vs closed, style)\n- Visible accessories (jewelry, glasses, hats, etc.)\n\n- Facial expression fix: Adjust eye gaze to look slightly toward the viewer's left, tilt the head slightly toward the viewer's right, and refine the facial expression to match a concerned shouting look with this corrected eye direction.\nThink of it like a costume change on the EXACT same character pose. The silhouette and position should be IDENTICAL to Image 1.\n\nOutput: Image 1 with ONLY the character's visual appearance changed to match Image 2. Pose and composition UNCHANGED.",
+      "analysis": "Maintain the exact scene composition, camera",
+      "verification": {
+        "enabled": false,
+        "passed": false,
+        "score": 0.0,
+        "reason": ""
+      },
+      "output_path": "data/output/row_0005/result.png",
+      "timing": {
+        "download_sec": 0.14,
+        "face_detection_sec": 2.73,
+        "upload_sec": 0.12,
+        "processing_sec": 32.03,
+        "total_sec": 35.87
+      },
+      "face_detection": {
+        "detected": true,
+        "method": "mediapipe_selfie_segmentation"
+      },
+      "input_metrics": {
+        "generated": {
+          "width": 1536,
+          "height": 2752,
+          "file_size_bytes": 5505178,
+          "file_size_mb": 5.25,
+          "megapixels": 4.23,
+          "brightness": 112.57,
+          "contrast": 75.94,
+          "mode": "RGB"
+        },
+        "original": {
+          "width": 1536,
+          "height": 2752,
+          "file_size_bytes": 5775180,
+          "file_size_mb": 5.51,
+          "megapixels": 4.23,
+          "brightness": 110.62,
+          "contrast": 75.6,
+          "mode": "RGB"
+        }
+      },
+      "output_metrics": {
+        "width": 1072,
+        "height": 1936,
+        "file_size_bytes": 2592433,
+        "file_size_mb": 2.47,
+        "megapixels": 2.08,
+        "brightness": 112.36,
+        "contrast": 76.57,
+        "mode": "RGB"
+      },
+      "error": null
+    },
+    {
+      "row": 6,
+      "success": true,
+      "timestamp": "2026-02-08T21:49:16.263069",
+      "generated_url": "https://dev-content.dashtoon.ai/stability-images/3ea474a5-0ed8-4e88-8e70-11ee35eb1ba4.png",
+      "original_url": "https://content.dashtoon.ai/user-uploaded-files/0f3fd7a7-a84e-424f-b942-f57f62f8b391.png",
+      "edit_prompt": "Edit ONLY the character's visual appearance in Image 1. DO NOT change pose, position, or composition.\n\nCRITICAL - NEVER CHANGE (from Image 1):\n- Character's EXACT body pose, arm positions, leg positions, head tilt, body angle\n- Character's EXACT position in the frame (where they are standing/sitting)\n- Background, scene, environment - must be PIXEL PERFECT same\n- Camera angle, framing, composition, crop\n- Lighting and shadows\n- Composition\n\nSWAP ONLY these visual features FROM Image 2:\n- Face shape and facial features\n- Hair color, style, and length\n- Clothing appearance (colors, patterns, open/closed state of clothes eg: jacket open vs closed, style)\n- Visible accessories (jewelry, glasses, hats, etc.)\n\n- Facial expression fix: Restore long wavy red hair, tilt the head slightly, open the mouth slightly to show upper teeth, adjust the expression to a concerned look, replace the red choker/long necklace with an ornate gold collar necklace, and change the coat to dark leopard-print faux fur.\nThink of it like a costume change on the EXACT same character pose. The silhouette and position should be IDENTICAL to Image 1.\n\nOutput: Image 1 with ONLY the character's visual appearance changed to match Image 2. Pose and composition UNCHANGED.",
+      "analysis": "Maintain the exact scene composition, body pose,",
+      "verification": {
+        "enabled": false,
+        "passed": false,
+        "score": 0.0,
+        "reason": ""
+      },
+      "output_path": "data/output/row_0006/result.png",
+      "timing": {
+        "download_sec": 0.13,
+        "face_detection_sec": 2.74,
+        "upload_sec": 0.11,
+        "processing_sec": 32.24,
+        "total_sec": 36.03
+      },
+      "face_detection": {
+        "detected": true,
+        "method": "mediapipe_selfie_segmentation"
+      },
+      "input_metrics": {
+        "generated": {
+          "width": 1536,
+          "height": 2752,
+          "file_size_bytes": 5522492,
+          "file_size_mb": 5.27,
+          "megapixels": 4.23,
+          "brightness": 109.69,
+          "contrast": 55.07,
+          "mode": "RGB"
+        },
+        "original": {
+          "width": 1536,
+          "height": 2752,
+          "file_size_bytes": 5967448,
+          "file_size_mb": 5.69,
+          "megapixels": 4.23,
+          "brightness": 88.8,
+          "contrast": 66.29,
+          "mode": "RGB"
+        }
+      },
+      "output_metrics": {
+        "width": 1072,
+        "height": 1936,
+        "file_size_bytes": 2474144,
+        "file_size_mb": 2.36,
+        "megapixels": 2.08,
+        "brightness": 109.44,
+        "contrast": 54.87,
+        "mode": "RGB"
+      },
+      "error": null
+    },
+    {
+      "row": 7,
+      "success": true,
+      "timestamp": "2026-02-08T21:49:52.289307",
+      "generated_url": "https://dev-content.dashtoon.ai/stability-images/074cb533-ae83-486d-92a9-76023d7ee364.png",
+      "original_url": "https://content.dashtoon.ai/user-uploaded-files/8ad15355-d4a2-481e-b2f5-8a3bf473020b.png",
+      "edit_prompt": "Edit ONLY the character's visual appearance in Image 1. DO NOT change pose, position, or composition.\n\nCRITICAL - NEVER CHANGE (from Image 1):\n- Character's EXACT body pose, arm positions, leg positions, head tilt, body angle\n- Character's EXACT position in the frame (where they are standing/sitting)\n- Background, scene, environment - must be PIXEL PERFECT same\n- Camera angle, framing, composition, crop\n- Lighting and shadows\n- Composition\n\nSWAP ONLY these visual features FROM Image 2:\n- Face shape and facial features\n- Hair color, style, and length\n- Clothing appearance (colors, patterns, open/closed state of clothes eg: jacket open vs closed, style)\n- Visible accessories (jewelry, glasses, hats, etc.)\n\n- Facial expression fix: Adjust eye gaze to look directly at the camera, straighten head to face forward without turning left, deepen brow furrows to show a more concerned expression, and adjust mouth to a slightly open concerned speaking shape.\nThink of it like a costume change on the EXACT same character pose. The silhouette and position should be IDENTICAL to Image 1.\n\nOutput: Image 1 with ONLY the character's visual appearance changed to match Image 2. Pose and composition UNCHANGED.",
+      "analysis": "Maintain the exact scene composition,",
+      "verification": {
+        "enabled": false,
+        "passed": false,
+        "score": 0.0,
+        "reason": ""
+      },
+      "output_path": "data/output/row_0007/result.png",
+      "timing": {
+        "download_sec": 0.25,
+        "face_detection_sec": 2.65,
+        "upload_sec": 0.12,
+        "processing_sec": 32.2,
+        "total_sec": 35.99
+      },
+      "face_detection": {
+        "detected": true,
+        "method": "mediapipe_selfie_segmentation"
+      },
+      "input_metrics": {
+        "generated": {
+          "width": 1536,
+          "height": 2752,
+          "file_size_bytes": 5413975,
+          "file_size_mb": 5.16,
+          "megapixels": 4.23,
+          "brightness": 104.74,
+          "contrast": 73.13,
+          "mode": "RGB"
+        },
+        "original": {
+          "width": 1536,
+          "height": 2752,
+          "file_size_bytes": 5510117,
+          "file_size_mb": 5.25,
+          "megapixels": 4.23,
+          "brightness": 73.03,
+          "contrast": 65.77,
+          "mode": "RGB"
+        }
+      },
+      "output_metrics": {
+        "width": 1072,
+        "height": 1936,
+        "file_size_bytes": 2532340,
+        "file_size_mb": 2.42,
+        "megapixels": 2.08,
+        "brightness": 104.53,
+        "contrast": 72.79,
+        "mode": "RGB"
+      },
+      "error": null
+    },
+    {
+      "row": 8,
+      "success": true,
+      "timestamp": "2026-02-08T21:50:28.282302",
+      "generated_url": "https://dev-content.dashtoon.ai/stability-images/896e1570-a2c2-4804-8426-5ea0d5d8223f.png",
+      "original_url": "https://content.dashtoon.ai/user-uploaded-files/9fc0d2a6-094a-47f8-9be6-5daf188f4f2a.png",
+      "edit_prompt": "Edit ONLY the character's visual appearance in Image 1. DO NOT change pose, position, or composition.\n\nCRITICAL - NEVER CHANGE (from Image 1):\n- Character's EXACT body pose, arm positions, leg positions, head tilt, body angle\n- Character's EXACT position in the frame (where they are standing/sitting)\n- Background, scene, environment - must be PIXEL PERFECT same\n- Camera angle, framing, composition, crop\n- Lighting and shadows\n- Composition\n\nSWAP ONLY these visual features FROM Image 2:\n- Face shape and facial features\n- Hair color, style, and length\n- Clothing appearance (colors, patterns, open/closed state of clothes eg: jacket open vs closed, style)\n- Visible accessories (jewelry, glasses, hats, etc.)\n\n- Facial expression fix: furrow the eyebrows to create a concerned expression, tilt the head slightly, adjust the closed mouth to have a slight downturn, remove the blue beanie and restore the brown hair with loose strands falling to the face\nThink of it like a costume change on the EXACT same character pose. The silhouette and position should be IDENTICAL to Image 1.\n\nOutput: Image 1 with ONLY the character's visual appearance changed to match Image 2. Pose and composition UNCHANGED.",
+      "analysis": "Maintain the exact scene composition, camera framing,",
+      "verification": {
+        "enabled": false,
+        "passed": false,
+        "score": 0.0,
+        "reason": ""
+      },
+      "output_path": "data/output/row_0008/result.png",
+      "timing": {
+        "download_sec": 0.13,
+        "face_detection_sec": 2.72,
+        "upload_sec": 0.14,
+        "processing_sec": 32.47,
+        "total_sec": 36.23
+      },
+      "face_detection": {
+        "detected": true,
+        "method": "mediapipe_selfie_segmentation"
+      },
+      "input_metrics": {
+        "generated": {
+          "width": 1536,
+          "height": 2752,
+          "file_size_bytes": 5505000,
+          "file_size_mb": 5.25,
+          "megapixels": 4.23,
+          "brightness": 111.51,
+          "contrast": 64.61,
+          "mode": "RGB"
+        },
+        "original": {
+          "width": 1536,
+          "height": 2752,
+          "file_size_bytes": 7223151,
+          "file_size_mb": 6.89,
+          "megapixels": 4.23,
+          "brightness": 110.75,
+          "contrast": 76.24,
+          "mode": "RGBA"
+        }
+      },
+      "output_metrics": {
+        "width": 1072,
+        "height": 1936,
+        "file_size_bytes": 2483825,
+        "file_size_mb": 2.37,
+        "megapixels": 2.08,
+        "brightness": 111.9,
+        "contrast": 63.99,
+        "mode": "RGB"
+      },
+      "error": null
+    },
+    {
+      "row": 9,
+      "success": true,
+      "timestamp": "2026-02-08T21:51:04.516435",
+      "generated_url": "https://dev-content.dashtoon.ai/stability-images/9165a732-b2e6-4f5b-8897-4d07682d0734.png",
+      "original_url": "https://content.dashtoon.ai/user-uploaded-files/b6206347-fcbb-445b-a6cb-2bf353e1bd74.png",
+      "edit_prompt": "Edit ONLY the character's visual appearance in Image 1. DO NOT change pose, position, or composition.\n\nCRITICAL - NEVER CHANGE (from Image 1):\n- Character's EXACT body pose, arm positions, leg positions, head tilt, body angle\n- Character's EXACT position in the frame (where they are standing/sitting)\n- Background, scene, environment - must be PIXEL PERFECT same\n- Camera angle, framing, composition, crop\n- Lighting and shadows\n- Composition\n\nSWAP ONLY these visual features FROM Image 2:\n- Face shape and facial features\n- Hair color, style, and length\n- Clothing appearance (colors, patterns, open/closed state of clothes eg: jacket open vs closed, style)\n- Visible accessories (jewelry, glasses, hats, etc.)\n\n- Facial expression fix: Adjust eye gaze to look directly at the camera, tilt the head to the person's right, open the mouth to show upper teeth, apply bright red lipstick, and set the expression to a speaking, concerned look.\nThink of it like a costume change on the EXACT same character pose. The silhouette and position should be IDENTICAL to Image 1.\n\nOutput: Image 1 with ONLY the character's visual appearance changed to match Image 2. Pose and composition UNCHANGED.",
+      "analysis": "Maintain the exact scene composition, camera",
+      "verification": {
+        "enabled": false,
+        "passed": false,
+        "score": 0.0,
+        "reason": ""
+      },
+      "output_path": "data/output/row_0009/result.png",
+      "timing": {
+        "download_sec": 0.23,
+        "face_detection_sec": 2.72,
+        "upload_sec": 0.12,
+        "processing_sec": 32.42,
+        "total_sec": 35.88
+      },
+      "face_detection": {
+        "detected": true,
+        "method": "mediapipe_selfie_segmentation"
+      },
+      "input_metrics": {
+        "generated": {
+          "width": 1536,
+          "height": 2752,
+          "file_size_bytes": 5666486,
+          "file_size_mb": 5.4,
+          "megapixels": 4.23,
+          "brightness": 96.61,
+          "contrast": 56.98,
+          "mode": "RGB"
+        },
+        "original": {
+          "width": 1536,
+          "height": 2752,
+          "file_size_bytes": 5415823,
+          "file_size_mb": 5.16,
+          "megapixels": 4.23,
+          "brightness": 72.88,
+          "contrast": 59.71,
+          "mode": "RGB"
+        }
+      },
+      "output_metrics": {
+        "width": 1072,
+        "height": 1936,
+        "file_size_bytes": 2726149,
+        "file_size_mb": 2.6,
+        "megapixels": 2.08,
+        "brightness": 96.94,
+        "contrast": 56.7,
+        "mode": "RGB"
+      },
+      "error": null
+    },
+    {
+      "row": 10,
+      "success": true,
+      "timestamp": "2026-02-08T21:51:40.397841",
+      "generated_url": "https://dev-content.dashtoon.ai/stability-images/d99c40d5-bf17-4c56-997c-65aa2df568c5.png",
+      "original_url": "https://content.dashtoon.ai/user-uploaded-files/58b6deb0-696c-4fab-ad55-146d7997591b.png",
+      "edit_prompt": "Edit ONLY the character's visual appearance in Image 1. DO NOT change pose, position, or composition.\n\nCRITICAL - NEVER CHANGE (from Image 1):\n- Character's EXACT body pose, arm positions, leg positions, head tilt, body angle\n- Character's EXACT position in the frame (where they are standing/sitting)\n- Background, scene, environment - must be PIXEL PERFECT same\n- Camera angle, framing, composition, crop\n- Lighting and shadows\n- Composition\n\nSWAP ONLY these visual features FROM Image 2:\n- Face shape and facial features\n- Hair color, style, and length\n- Clothing appearance (colors, patterns, open/closed state of clothes eg: jacket open vs closed, style)\n- Visible accessories (jewelry, glasses, hats, etc.)\n\n- Facial expression fix: Adjust eye gaze to look downwards instead of straight ahead, shift facial expression to show concerned focus looking down, and adjust the mouth to a slightly open concerned shape with the head tilted slightly down.\nThink of it like a costume change on the EXACT same character pose. The silhouette and position should be IDENTICAL to Image 1.\n\nOutput: Image 1 with ONLY the character's visual appearance changed to match Image 2. Pose and composition UNCHANGED.",
+      "analysis": "Maintain the exact scene composition, background",
+      "verification": {
+        "enabled": false,
+        "passed": false,
+        "score": 0.0,
+        "reason": ""
+      },
+      "output_path": "data/output/row_0010/result.png",
+      "timing": {
+        "download_sec": 0.17,
+        "face_detection_sec": 2.68,
+        "upload_sec": 0.13,
+        "processing_sec": 32.21,
+        "total_sec": 36.99
+      },
+      "face_detection": {
+        "detected": true,
+        "method": "mediapipe_selfie_segmentation"
+      },
+      "input_metrics": {
+        "generated": {
+          "width": 1536,
+          "height": 2752,
+          "file_size_bytes": 5344187,
+          "file_size_mb": 5.1,
+          "megapixels": 4.23,
+          "brightness": 85.29,
+          "contrast": 71.03,
+          "mode": "RGB"
+        },
+        "original": {
+          "width": 1536,
+          "height": 2752,
+          "file_size_bytes": 6994680,
+          "file_size_mb": 6.67,
+          "megapixels": 4.23,
+          "brightness": 81.49,
+          "contrast": 75.84,
+          "mode": "RGBA"
+        }
+      },
+      "output_metrics": {
+        "width": 1072,
+        "height": 1936,
+        "file_size_bytes": 2548673,
+        "file_size_mb": 2.43,
+        "megapixels": 2.08,
+        "brightness": 85.5,
+        "contrast": 71.26,
+        "mode": "RGB"
+      },
+      "error": null
+    },
+    {
+      "row": 11,
+      "success": true,
+      "timestamp": "2026-02-08T21:52:17.387780",
+      "generated_url": "https://dev-content.dashtoon.ai/stability-images/112934bd-048d-49de-a2d7-804d4cd67ac2.png",
+      "original_url": "https://content.dashtoon.ai/user-uploaded-files/00482712-8df4-4c0c-b404-cfbd3f4acb0c.png",
+      "edit_prompt": "Edit ONLY the character's visual appearance in Image 1. DO NOT change pose, position, or composition.\n\nCRITICAL - NEVER CHANGE (from Image 1):\n- Character's EXACT body pose, arm positions, leg positions, head tilt, body angle\n- Character's EXACT position in the frame (where they are standing/sitting)\n- Background, scene, environment - must be PIXEL PERFECT same\n- Camera angle, framing, composition, crop\n- Lighting and shadows\n- Composition\n\nSWAP ONLY these visual features FROM Image 2:\n- Face shape and facial features\n- Hair color, style, and length\n- Clothing appearance (colors, patterns, open/closed state of clothes eg: jacket open vs closed, style)\n- Visible accessories (jewelry, glasses, hats, etc.)\n\n- Facial expression fix: Set eye gaze to look directly at the camera, turn head to face forward, adjust mouth to be slightly open with red lipstick in a concerned downturned shape, and refine the brow to have a furrowed concerned expression.\nThink of it like a costume change on the EXACT same character pose. The silhouette and position should be IDENTICAL to Image 1.\n\nOutput: Image 1 with ONLY the character's visual appearance changed to match Image 2. Pose and composition UNCHANGED.",
+      "analysis": "Maintain the exact scene composition,",
+      "verification": {
+        "enabled": false,
+        "passed": false,
+        "score": 0.0,
+        "reason": ""
+      },
+      "output_path": "data/output/row_0011/result.png",
+      "timing": {
+        "download_sec": 0.15,
+        "face_detection_sec": 2.7,
+        "upload_sec": 0.13,
+        "processing_sec": 32.17,
+        "total_sec": 35.52
+      },
+      "face_detection": {
+        "detected": true,
+        "method": "mediapipe_selfie_segmentation"
+      },
+      "input_metrics": {
+        "generated": {
+          "width": 1536,
+          "height": 2752,
+          "file_size_bytes": 5508626,
+          "file_size_mb": 5.25,
+          "megapixels": 4.23,
+          "brightness": 100.87,
+          "contrast": 61.45,
+          "mode": "RGB"
+        },
+        "original": {
+          "width": 1536,
+          "height": 2752,
+          "file_size_bytes": 5942803,
+          "file_size_mb": 5.67,
+          "megapixels": 4.23,
+          "brightness": 99.06,
+          "contrast": 66.11,
+          "mode": "RGB"
+        }
+      },
+      "output_metrics": {
+        "width": 1072,
+        "height": 1936,
+        "file_size_bytes": 2552010,
+        "file_size_mb": 2.43,
+        "megapixels": 2.08,
+        "brightness": 100.6,
+        "contrast": 61.11,
+        "mode": "RGB"
+      },
+      "error": null
+    },
+    {
+      "row": 12,
+      "success": true,
+      "timestamp": "2026-02-08T21:52:52.913351",
+      "generated_url": "https://dev-content.dashtoon.ai/stability-images/998a847c-6529-4e9d-9c12-dbc46145dd1c.png",
+      "original_url": "https://content.dashtoon.ai/user-uploaded-files/a81a389c-ebde-480f-8896-67ef10ec4fcc.png",
+      "edit_prompt": "Edit ONLY the character's visual appearance in Image 1. DO NOT change pose, position, or composition.\n\nCRITICAL - NEVER CHANGE (from Image 1):\n- Character's EXACT body pose, arm positions, leg positions, head tilt, body angle\n- Character's EXACT position in the frame (where they are standing/sitting)\n- Background, scene, environment - must be PIXEL PERFECT same\n- Camera angle, framing, composition, crop\n- Lighting and shadows\n- Composition\n\nSWAP ONLY these visual features FROM Image 2:\n- Face shape and facial features\n- Hair color, style, and length\n- Clothing appearance (colors, patterns, open/closed state of clothes eg: jacket open vs closed, style)\n- Visible accessories (jewelry, glasses, hats, etc.)\n\n- Facial expression fix: Turn head slightly to the left, set facial expression to a concerned intense look, adjust mouth to be slightly open showing upper teeth, and keep eyes looking directly at the camera while matching the angled head position.\nThink of it like a costume change on the EXACT same character pose. The silhouette and position should be IDENTICAL to Image 1.\n\nOutput: Image 1 with ONLY the character's visual appearance changed to match Image 2. Pose and composition UNCHANGED.",
+      "analysis": "Maintain the exact scene composition, camera framing,",
+      "verification": {
+        "enabled": false,
+        "passed": false,
+        "score": 0.0,
+        "reason": ""
+      },
+      "output_path": "data/output/row_0012/result.png",
+      "timing": {
+        "download_sec": 0.15,
+        "face_detection_sec": 2.75,
+        "upload_sec": 0.14,
+        "processing_sec": 32.55,
+        "total_sec": 35.98
+      },
+      "face_detection": {
+        "detected": true,
+        "method": "mediapipe_selfie_segmentation"
+      },
+      "input_metrics": {
+        "generated": {
+          "width": 1536,
+          "height": 2752,
+          "file_size_bytes": 5559020,
+          "file_size_mb": 5.3,
+          "megapixels": 4.23,
+          "brightness": 82.7,
+          "contrast": 52.51,
+          "mode": "RGB"
+        },
+        "original": {
+          "width": 1536,
+          "height": 2752,
+          "file_size_bytes": 7647956,
+          "file_size_mb": 7.29,
+          "megapixels": 4.23,
+          "brightness": 70.27,
+          "contrast": 61.54,
+          "mode": "RGBA"
+        }
+      },
+      "output_metrics": {
+        "width": 1072,
+        "height": 1936,
+        "file_size_bytes": 2469599,
+        "file_size_mb": 2.36,
+        "megapixels": 2.08,
+        "brightness": 83.28,
+        "contrast": 52.71,
+        "mode": "RGB"
+      },
+      "error": null
+    },
+    {
+      "row": 13,
+      "success": true,
+      "timestamp": "2026-02-08T21:53:28.894356",
+      "generated_url": "https://dev-content.dashtoon.ai/stability-images/5571edd0-56e2-4e99-b9ee-ff9089907cd5.png",
+      "original_url": "https://content.dashtoon.ai/user-uploaded-files/2ed7f09e-a68c-4f02-9ba4-5a1495c62c6f.png",
+      "edit_prompt": "Edit ONLY the character's visual appearance in Image 1. DO NOT change pose, position, or composition.\n\nCRITICAL - NEVER CHANGE (from Image 1):\n- Character's EXACT body pose, arm positions, leg positions, head tilt, body angle\n- Character's EXACT position in the frame (where they are standing/sitting)\n- Background, scene, environment - must be PIXEL PERFECT same\n- Camera angle, framing, composition, crop\n- Lighting and shadows\n- Composition\n\nSWAP ONLY these visual features FROM Image 2:\n- Face shape and facial features\n- Hair color, style, and length\n- Clothing appearance (colors, patterns, open/closed state of clothes eg: jacket open vs closed, style)\n- Visible accessories (jewelry, glasses, hats, etc.)\n\n- Facial expression fix: Adjust eye gaze to look towards the viewer's left, turn head slightly towards the viewer's right, set mouth to be open showing upper teeth with a concerned speaking expression\nThink of it like a costume change on the EXACT same character pose. The silhouette and position should be IDENTICAL to Image 1.\n\nOutput: Image 1 with ONLY the character's visual appearance changed to match Image 2. Pose and composition UNCHANGED.",
+      "analysis": "Maintain the exact scene composition, background",
+      "verification": {
+        "enabled": false,
+        "passed": false,
+        "score": 0.0,
+        "reason": ""
+      },
+      "output_path": "data/output/row_0013/result.png",
+      "timing": {
+        "download_sec": 0.14,
+        "face_detection_sec": 2.72,
+        "upload_sec": 0.13,
+        "processing_sec": 32.33,
+        "total_sec": 35.84
+      },
+      "face_detection": {
+        "detected": true,
+        "method": "mediapipe_selfie_segmentation"
+      },
+      "input_metrics": {
+        "generated": {
+          "width": 1536,
+          "height": 2752,
+          "file_size_bytes": 5679612,
+          "file_size_mb": 5.42,
+          "megapixels": 4.23,
+          "brightness": 101.68,
+          "contrast": 55.62,
+          "mode": "RGB"
+        },
+        "original": {
+          "width": 1536,
+          "height": 2752,
+          "file_size_bytes": 6304505,
+          "file_size_mb": 6.01,
+          "megapixels": 4.23,
+          "brightness": 90.82,
+          "contrast": 64.0,
+          "mode": "RGB"
+        }
+      },
+      "output_metrics": {
+        "width": 1072,
+        "height": 1936,
+        "file_size_bytes": 2566962,
+        "file_size_mb": 2.45,
+        "megapixels": 2.08,
+        "brightness": 102.03,
+        "contrast": 55.33,
+        "mode": "RGB"
+      },
+      "error": null
+    },
+    {
+      "row": 14,
+      "success": true,
+      "timestamp": "2026-02-08T21:54:04.732354",
+      "generated_url": "https://dev-content.dashtoon.ai/stability-images/d2223ee1-197d-4efb-961e-fa92ff9b2660.png",
+      "original_url": "https://content.dashtoon.ai/user-uploaded-files/e6f9e324-d551-45da-80ae-e25c2d788180.png",
+      "edit_prompt": "Edit ONLY the character's visual appearance in Image 1. DO NOT change pose, position, or composition.\n\nCRITICAL - NEVER CHANGE (from Image 1):\n- Character's EXACT body pose, arm positions, leg positions, head tilt, body angle\n- Character's EXACT position in the frame (where they are standing/sitting)\n- Background, scene, environment - must be PIXEL PERFECT same\n- Camera angle, framing, composition, crop\n- Lighting and shadows\n- Composition\n\nSWAP ONLY these visual features FROM Image 2:\n- Face shape and facial features\n- Hair color, style, and length\n- Clothing appearance (colors, patterns, open/closed state of clothes eg: jacket open vs closed, style)\n- Visible accessories (jewelry, glasses, hats, etc.)\n\n- Facial expression fix: Replace the blue beanie with dark brown hair pulled back with loose strands framing the face, adjust eye gaze to look toward the viewer's left, shift head to turn slightly toward the viewer's left, adjust mouth to be slightly open showing upper teeth, and set facial expression to concerned.\nThink of it like a costume change on the EXACT same character pose. The silhouette and position should be IDENTICAL to Image 1.\n\nOutput: Image 1 with ONLY the character's visual appearance changed to match Image 2. Pose and composition UNCHANGED.",
+      "analysis": "Maintain the exact scene composition, body pose",
+      "verification": {
+        "enabled": false,
+        "passed": false,
+        "score": 0.0,
+        "reason": ""
+      },
+      "output_path": "data/output/row_0014/result.png",
+      "timing": {
+        "download_sec": 0.14,
+        "face_detection_sec": 2.7,
+        "upload_sec": 0.14,
+        "processing_sec": 32.31,
+        "total_sec": 35.84
+      },
+      "face_detection": {
+        "detected": true,
+        "method": "mediapipe_selfie_segmentation"
+      },
+      "input_metrics": {
+        "generated": {
+          "width": 1536,
+          "height": 2752,
+          "file_size_bytes": 5679308,
+          "file_size_mb": 5.42,
+          "megapixels": 4.23,
+          "brightness": 108.71,
+          "contrast": 61.98,
+          "mode": "RGB"
+        },
+        "original": {
+          "width": 1536,
+          "height": 2752,
+          "file_size_bytes": 7086672,
+          "file_size_mb": 6.76,
+          "megapixels": 4.23,
+          "brightness": 94.85,
+          "contrast": 77.57,
+          "mode": "RGBA"
+        }
+      },
+      "output_metrics": {
+        "width": 1072,
+        "height": 1936,
+        "file_size_bytes": 2614094,
+        "file_size_mb": 2.49,
+        "megapixels": 2.08,
+        "brightness": 109.27,
+        "contrast": 61.38,
+        "mode": "RGB"
+      },
+      "error": null
+    },
+    {
+      "row": 15,
+      "success": true,
+      "timestamp": "2026-02-08T21:54:40.572007",
+      "generated_url": "https://dev-content.dashtoon.ai/stability-images/e0d1196c-49ae-46fa-b72d-b585dddb356f.png",
+      "original_url": "https://content.dashtoon.ai/user-uploaded-files/a1b42634-ffa3-4a16-9e78-5f1be3e69903.png",
+      "edit_prompt": "Edit ONLY the character's visual appearance in Image 1. DO NOT change pose, position, or composition.\n\nCRITICAL - NEVER CHANGE (from Image 1):\n- Character's EXACT body pose, arm positions, leg positions, head tilt, body angle\n- Character's EXACT position in the frame (where they are standing/sitting)\n- Background, scene, environment - must be PIXEL PERFECT same\n- Camera angle, framing, composition, crop\n- Lighting and shadows\n- Composition\n\nSWAP ONLY these visual features FROM Image 2:\n- Face shape and facial features\n- Hair color, style, and length\n- Clothing appearance (colors, patterns, open/closed state of clothes eg: jacket open vs closed, style)\n- Visible accessories (jewelry, glasses, hats, etc.)\n\n- Facial expression fix: Adjust the head to tilt slightly backward, widen the mouth fully to show teeth and tongue in an aggressive shouting state, and ensure the eyes are wide open looking fully to the left in an angry expression.\nThink of it like a costume change on the EXACT same character pose. The silhouette and position should be IDENTICAL to Image 1.\n\nOutput: Image 1 with ONLY the character's visual appearance changed to match Image 2. Pose and composition UNCHANGED.",
+      "analysis": "Constraint 3: Identity Swap.* Use the",
+      "verification": {
+        "enabled": false,
+        "passed": false,
+        "score": 0.0,
+        "reason": ""
+      },
+      "output_path": "data/output/row_0015/result.png",
+      "timing": {
+        "download_sec": 0.15,
+        "face_detection_sec": 2.74,
+        "upload_sec": 0.14,
+        "processing_sec": 32.37,
+        "total_sec": 35.8
+      },
+      "face_detection": {
+        "detected": true,
+        "method": "mediapipe_selfie_segmentation"
+      },
+      "input_metrics": {
+        "generated": {
+          "width": 1536,
+          "height": 2752,
+          "file_size_bytes": 5858937,
+          "file_size_mb": 5.59,
+          "megapixels": 4.23,
+          "brightness": 117.65,
+          "contrast": 64.19,
+          "mode": "RGB"
+        },
+        "original": {
+          "width": 1536,
+          "height": 2752,
+          "file_size_bytes": 7672223,
+          "file_size_mb": 7.32,
+          "megapixels": 4.23,
+          "brightness": 99.99,
+          "contrast": 70.45,
+          "mode": "RGBA"
+        }
+      },
+      "output_metrics": {
+        "width": 1072,
+        "height": 1936,
+        "file_size_bytes": 2698048,
+        "file_size_mb": 2.57,
+        "megapixels": 2.08,
+        "brightness": 117.27,
+        "contrast": 64.58,
+        "mode": "RGB"
+      },
+      "error": null
+    },
+    {
+      "row": 16,
+      "success": true,
+      "timestamp": "2026-02-08T21:55:16.376092",
+      "generated_url": "https://dev-content.dashtoon.ai/stability-images/cbbdbb33-023d-4121-bf31-114a02fd34ca.png",
+      "original_url": "https://content.dashtoon.ai/user-uploaded-files/03d56a11-2e72-4f62-9dc0-007a95c912c5.png",
+      "edit_prompt": "Edit ONLY the character's visual appearance in Image 1. DO NOT change pose, position, or composition.\n\nCRITICAL - NEVER CHANGE (from Image 1):\n- Character's EXACT body pose, arm positions, leg positions, head tilt, body angle\n- Character's EXACT position in the frame (where they are standing/sitting)\n- Background, scene, environment - must be PIXEL PERFECT same\n- Camera angle, framing, composition, crop\n- Lighting and shadows\n- Composition\n\nSWAP ONLY these visual features FROM Image 2:\n- Face shape and facial features\n- Hair color, style, and length\n- Clothing appearance (colors, patterns, open/closed state of clothes eg: jacket open vs closed, style)\n- Visible accessories (jewelry, glasses, hats, etc.)\n\n- Facial expression fix: Rotate head to face forward towards the camera, adjust eye gaze to look toward the viewer's left, maintain the wide open shouting mouth expression aligned with the forward-facing head.\nThink of it like a costume change on the EXACT same character pose. The silhouette and position should be IDENTICAL to Image 1.\n\nOutput: Image 1 with ONLY the character's visual appearance changed to match Image 2. Pose and composition UNCHANGED.",
+      "analysis": "Maintain the exact scene composition,",
+      "verification": {
+        "enabled": false,
+        "passed": false,
+        "score": 0.0,
+        "reason": ""
+      },
+      "output_path": "data/output/row_0016/result.png",
+      "timing": {
+        "download_sec": 0.7,
+        "face_detection_sec": 2.71,
+        "upload_sec": 0.13,
+        "processing_sec": 32.25,
+        "total_sec": 36.34
+      },
+      "face_detection": {
+        "detected": true,
+        "method": "mediapipe_selfie_segmentation"
+      },
+      "input_metrics": {
+        "generated": {
+          "width": 1536,
+          "height": 2752,
+          "file_size_bytes": 5467344,
+          "file_size_mb": 5.21,
+          "megapixels": 4.23,
+          "brightness": 75.27,
+          "contrast": 57.49,
+          "mode": "RGB"
+        },
+        "original": {
+          "width": 1536,
+          "height": 2752,
+          "file_size_bytes": 5632599,
+          "file_size_mb": 5.37,
+          "megapixels": 4.23,
+          "brightness": 76.78,
+          "contrast": 60.56,
+          "mode": "RGB"
+        }
+      },
+      "output_metrics": {
+        "width": 1072,
+        "height": 1936,
+        "file_size_bytes": 2507170,
+        "file_size_mb": 2.39,
+        "megapixels": 2.08,
+        "brightness": 74.66,
+        "contrast": 57.73,
+        "mode": "RGB"
+      },
+      "error": null
+    },
+    {
+      "row": 17,
+      "success": true,
+      "timestamp": "2026-02-08T21:55:52.718164",
+      "generated_url": "https://dev-content.dashtoon.ai/stability-images/9998a075-6b0a-4e08-ad2d-0491f21e79fb.png",
+      "original_url": "https://content.dashtoon.ai/user-uploaded-files/771e9f39-478c-4b72-a5e0-07dc0afb3c7e.png",
+      "edit_prompt": "Edit ONLY the character's visual appearance in Image 1. DO NOT change pose, position, or composition.\n\nCRITICAL - NEVER CHANGE (from Image 1):\n- Character's EXACT body pose, arm positions, leg positions, head tilt, body angle\n- Character's EXACT position in the frame (where they are standing/sitting)\n- Background, scene, environment - must be PIXEL PERFECT same\n- Camera angle, framing, composition, crop\n- Lighting and shadows\n- Composition\n\nSWAP ONLY these visual features FROM Image 2:\n- Face shape and facial features\n- Hair color, style, and length\n- Clothing appearance (colors, patterns, open/closed state of clothes eg: jacket open vs closed, style)\n- Visible accessories (jewelry, glasses, hats, etc.)\n\n- Facial expression fix: adjust head to face directly forward, shift eye gaze to look straight at the camera, and adjust mouth to open showing upper teeth with a firm, assertive expression\nThink of it like a costume change on the EXACT same character pose. The silhouette and position should be IDENTICAL to Image 1.\n\nOutput: Image 1 with ONLY the character's visual appearance changed to match Image 2. Pose and composition UNCHANGED.",
+      "analysis": "Maintain the exact scene composition,",
+      "verification": {
+        "enabled": false,
+        "passed": false,
+        "score": 0.0,
+        "reason": ""
+      },
+      "output_path": "data/output/row_0017/result.png",
+      "timing": {
+        "download_sec": 0.13,
+        "face_detection_sec": 2.72,
+        "upload_sec": 0.13,
+        "processing_sec": 32.35,
+        "total_sec": 35.67
+      },
+      "face_detection": {
+        "detected": true,
+        "method": "mediapipe_selfie_segmentation"
+      },
+      "input_metrics": {
+        "generated": {
+          "width": 1536,
+          "height": 2752,
+          "file_size_bytes": 5744036,
+          "file_size_mb": 5.48,
+          "megapixels": 4.23,
+          "brightness": 106.99,
+          "contrast": 61.79,
+          "mode": "RGB"
+        },
+        "original": {
+          "width": 1536,
+          "height": 2752,
+          "file_size_bytes": 6534468,
+          "file_size_mb": 6.23,
+          "megapixels": 4.23,
+          "brightness": 86.09,
+          "contrast": 69.75,
+          "mode": "RGB"
+        }
+      },
+      "output_metrics": {
+        "width": 1072,
+        "height": 1936,
+        "file_size_bytes": 2639869,
+        "file_size_mb": 2.52,
+        "megapixels": 2.08,
+        "brightness": 106.93,
+        "contrast": 61.26,
+        "mode": "RGB"
+      },
+      "error": null
+    },
+    {
+      "row": 18,
+      "success": true,
+      "timestamp": "2026-02-08T21:56:28.392834",
+      "generated_url": "https://dev-content.dashtoon.ai/stability-images/eb278417-5bc6-4db3-a293-62e07c03f04f.png",
+      "original_url": "https://content.dashtoon.ai/user-uploaded-files/2b09ea8f-b082-4fc4-9bd2-7db6ddab72e7.png",
+      "edit_prompt": "Edit ONLY the character's visual appearance in Image 1. DO NOT change pose, position, or composition.\n\nCRITICAL - NEVER CHANGE (from Image 1):\n- Character's EXACT body pose, arm positions, leg positions, head tilt, body angle\n- Character's EXACT position in the frame (where they are standing/sitting)\n- Background, scene, environment - must be PIXEL PERFECT same\n- Camera angle, framing, composition, crop\n- Lighting and shadows\n- Composition\n\nSWAP ONLY these visual features FROM Image 2:\n- Face shape and facial features\n- Hair color, style, and length\n- Clothing appearance (colors, patterns, open/closed state of clothes eg: jacket open vs closed, style)\n- Visible accessories (jewelry, glasses, hats, etc.)\n\n- Facial expression fix: tilt head slightly to the person's right, close the mouth into a slightly pursed, serious confrontational shape, ensure eyes maintain direct gaze at the camera\nThink of it like a costume change on the EXACT same character pose. The silhouette and position should be IDENTICAL to Image 1.\n\nOutput: Image 1 with ONLY the character's visual appearance changed to match Image 2. Pose and composition UNCHANGED.",
+      "analysis": "Maintain the exact scene composition, camera framing",
+      "verification": {
+        "enabled": false,
+        "passed": false,
+        "score": 0.0,
+        "reason": ""
+      },
+      "output_path": "data/output/row_0018/result.png",
+      "timing": {
+        "download_sec": 0.17,
+        "face_detection_sec": 2.7,
+        "upload_sec": 0.14,
+        "processing_sec": 32.34,
+        "total_sec": 35.86
+      },
+      "face_detection": {
+        "detected": true,
+        "method": "mediapipe_selfie_segmentation"
+      },
+      "input_metrics": {
+        "generated": {
+          "width": 1536,
+          "height": 2752,
+          "file_size_bytes": 5777072,
+          "file_size_mb": 5.51,
+          "megapixels": 4.23,
+          "brightness": 97.16,
+          "contrast": 66.12,
+          "mode": "RGB"
+        },
+        "original": {
+          "width": 1536,
+          "height": 2752,
+          "file_size_bytes": 7549709,
+          "file_size_mb": 7.2,
+          "megapixels": 4.23,
+          "brightness": 81.75,
+          "contrast": 69.91,
+          "mode": "RGBA"
+        }
+      },
+      "output_metrics": {
+        "width": 1072,
+        "height": 1936,
+        "file_size_bytes": 2669070,
+        "file_size_mb": 2.55,
+        "megapixels": 2.08,
+        "brightness": 97.23,
+        "contrast": 66.35,
+        "mode": "RGB"
+      },
+      "error": null
+    },
+    {
+      "row": 19,
+      "success": true,
+      "timestamp": "2026-02-08T21:57:04.251670",
+      "generated_url": "https://dev-content.dashtoon.ai/stability-images/da8f5b7b-e713-4310-be19-6fe399ef9a09.png",
+      "original_url": "https://content.dashtoon.ai/user-uploaded-files/bc7d29d8-7903-48cf-8b2c-700b4b0965ab.png",
+      "edit_prompt": "Edit ONLY the character's visual appearance in Image 1. DO NOT change pose, position, or composition.\n\nCRITICAL - NEVER CHANGE (from Image 1):\n- Character's EXACT body pose, arm positions, leg positions, head tilt, body angle\n- Character's EXACT position in the frame (where they are standing/sitting)\n- Background, scene, environment - must be PIXEL PERFECT same\n- Camera angle, framing, composition, crop\n- Lighting and shadows\n- Composition\n\nSWAP ONLY these visual features FROM Image 2:\n- Face shape and facial features\n- Hair color, style, and length\n- Clothing appearance (colors, patterns, open/closed state of clothes eg: jacket open vs closed, style)\n- Visible accessories (jewelry, glasses, hats, etc.)\n\n- Facial expression fix: adjust eye gaze to look toward the right (not directly at camera), keep head straight (no tilt), and ensure the mouth is open wide in a shouting expression with visible teeth\nThink of it like a costume change on the EXACT same character pose. The silhouette and position should be IDENTICAL to Image 1.\n\nOutput: Image 1 with ONLY the character's visual appearance changed to match Image 2. Pose and composition UNCHANGED.",
+      "analysis": "Maintain the exact scene composition, background, lighting",
+      "verification": {
+        "enabled": false,
+        "passed": false,
+        "score": 0.0,
+        "reason": ""
+      },
+      "output_path": "data/output/row_0019/result.png",
+      "timing": {
+        "download_sec": 0.17,
+        "face_detection_sec": 2.75,
+        "upload_sec": 0.15,
+        "processing_sec": 32.41,
+        "total_sec": 35.88
+      },
+      "face_detection": {
+        "detected": true,
+        "method": "mediapipe_selfie_segmentation"
+      },
+      "input_metrics": {
+        "generated": {
+          "width": 1536,
+          "height": 2752,
+          "file_size_bytes": 5703873,
+          "file_size_mb": 5.44,
+          "megapixels": 4.23,
+          "brightness": 86.32,
+          "contrast": 47.63,
+          "mode": "RGB"
+        },
+        "original": {
+          "width": 1553,
+          "height": 2752,
+          "file_size_bytes": 7261057,
+          "file_size_mb": 6.92,
+          "megapixels": 4.27,
+          "brightness": 92.27,
+          "contrast": 56.06,
+          "mode": "RGBA"
+        }
+      },
+      "output_metrics": {
+        "width": 1072,
+        "height": 1936,
+        "file_size_bytes": 2604309,
+        "file_size_mb": 2.48,
+        "megapixels": 2.08,
+        "brightness": 86.18,
+        "contrast": 46.87,
+        "mode": "RGB"
+      },
+      "error": null
+    },
+    {
+      "row": 20,
+      "success": true,
+      "timestamp": "2026-02-08T21:57:40.136460",
+      "generated_url": "https://dev-content.dashtoon.ai/stability-images/eed48c38-09d5-48f8-a67c-7c8dc69f2c09.png",
+      "original_url": "https://content.dashtoon.ai/user-uploaded-files/93c52c7f-7c4d-4a49-9ee7-0f459eddf298.png",
+      "edit_prompt": "Edit ONLY the character's visual appearance in Image 1. DO NOT change pose, position, or composition.\n\nCRITICAL - NEVER CHANGE (from Image 1):\n- Character's EXACT body pose, arm positions, leg positions, head tilt, body angle\n- Character's EXACT position in the frame (where they are standing/sitting)\n- Background, scene, environment - must be PIXEL PERFECT same\n- Camera angle, framing, composition, crop\n- Lighting and shadows\n- Composition\n\nSWAP ONLY these visual features FROM Image 2:\n- Face shape and facial features\n- Hair color, style, and length\n- Clothing appearance (colors, patterns, open/closed state of clothes eg: jacket open vs closed, style)\n- Visible accessories (jewelry, glasses, hats, etc.)\n\n- Facial expression fix: turn head fully left to face the car window, set eyes to look left into the car, adjust mouth to be slightly open in a concerned, urgent speaking expression\nThink of it like a costume change on the EXACT same character pose. The silhouette and position should be IDENTICAL to Image 1.\n\nOutput: Image 1 with ONLY the character's visual appearance changed to match Image 2. Pose and composition UNCHANGED.",
+      "analysis": "Maintain the exact scene composition, background,",
+      "verification": {
+        "enabled": false,
+        "passed": false,
+        "score": 0.0,
+        "reason": ""
+      },
+      "output_path": "data/output/row_0020/result.png",
+      "timing": {
+        "download_sec": 2.3,
+        "face_detection_sec": 2.67,
+        "upload_sec": 0.13,
+        "processing_sec": 32.56,
+        "total_sec": 38.09
+      },
+      "face_detection": {
+        "detected": true,
+        "method": "mediapipe_selfie_segmentation"
+      },
+      "input_metrics": {
+        "generated": {
+          "width": 1536,
+          "height": 2752,
+          "file_size_bytes": 5507548,
+          "file_size_mb": 5.25,
+          "megapixels": 4.23,
+          "brightness": 56.16,
+          "contrast": 48.27,
+          "mode": "RGB"
+        },
+        "original": {
+          "width": 1550,
+          "height": 2752,
+          "file_size_bytes": 6374810,
+          "file_size_mb": 6.08,
+          "megapixels": 4.27,
+          "brightness": 63.22,
+          "contrast": 58.29,
+          "mode": "RGBA"
+        }
+      },
+      "output_metrics": {
+        "width": 1072,
+        "height": 1936,
+        "file_size_bytes": 2491153,
+        "file_size_mb": 2.38,
+        "megapixels": 2.08,
+        "brightness": 52.74,
+        "contrast": 47.48,
+        "mode": "RGB"
+      },
+      "error": null
+    },
+    {
+      "row": 21,
+      "success": true,
+      "timestamp": "2026-02-08T21:58:18.226014",
+      "generated_url": "https://dev-content.dashtoon.ai/stability-images/9965b5e9-1212-44b9-a19f-5c1895a8e85a.png",
+      "original_url": "https://content.dashtoon.ai/user-uploaded-files/8ab58312-19c2-48a2-baa6-54cf20966b92.png",
+      "edit_prompt": "Edit ONLY the character's visual appearance in Image 1. DO NOT change pose, position, or composition.\n\nCRITICAL - NEVER CHANGE (from Image 1):\n- Character's EXACT body pose, arm positions, leg positions, head tilt, body angle\n- Character's EXACT position in the frame (where they are standing/sitting)\n- Background, scene, environment - must be PIXEL PERFECT same\n- Camera angle, framing, composition, crop\n- Lighting and shadows\n- Composition\n\nSWAP ONLY these visual features FROM Image 2:\n- Face shape and facial features\n- Hair color, style, and length\n- Clothing appearance (colors, patterns, open/closed state of clothes eg: jacket open vs closed, style)\n- Visible accessories (jewelry, glasses, hats, etc.)\n\n- Facial expression fix: adjust eye gaze to look toward the viewer's left, turn the head to face more toward the viewer's left, set the mouth to an open speaking position with a concerned expression instead of a surprised look\nThink of it like a costume change on the EXACT same character pose. The silhouette and position should be IDENTICAL to Image 1.\n\nOutput: Image 1 with ONLY the character's visual appearance changed to match Image 2. Pose and composition UNCHANGED.",
+      "analysis": "Maintain the exact scene composition,",
+      "verification": {
+        "enabled": false,
+        "passed": false,
+        "score": 0.0,
+        "reason": ""
+      },
+      "output_path": "data/output/row_0021/result.png",
+      "timing": {
+        "download_sec": 0.13,
+        "face_detection_sec": 2.68,
+        "upload_sec": 0.12,
+        "processing_sec": 32.55,
+        "total_sec": 35.87
+      },
+      "face_detection": {
+        "detected": true,
+        "method": "mediapipe_selfie_segmentation"
+      },
+      "input_metrics": {
+        "generated": {
+          "width": 1536,
+          "height": 2752,
+          "file_size_bytes": 5320414,
+          "file_size_mb": 5.07,
+          "megapixels": 4.23,
+          "brightness": 59.76,
+          "contrast": 55.21,
+          "mode": "RGB"
+        },
+        "original": {
+          "width": 1556,
+          "height": 2752,
+          "file_size_bytes": 5455825,
+          "file_size_mb": 5.2,
+          "megapixels": 4.28,
+          "brightness": 72.5,
+          "contrast": 71.08,
+          "mode": "RGBA"
+        }
+      },
+      "output_metrics": {
+        "width": 1072,
+        "height": 1936,
+        "file_size_bytes": 2407146,
+        "file_size_mb": 2.3,
+        "megapixels": 2.08,
+        "brightness": 59.68,
+        "contrast": 54.52,
+        "mode": "RGB"
+      },
+      "error": null
+    },
+    {
+      "row": 22,
+      "success": true,
+      "timestamp": "2026-02-08T21:58:54.095619",
+      "generated_url": "https://dev-content.dashtoon.ai/stability-images/b94a25e9-b097-4332-9eb1-fefe0ae3adb6.png",
+      "original_url": "https://content.dashtoon.ai/user-uploaded-files/6f55926d-fb13-45c8-8526-156b33f61e20.png",
+      "edit_prompt": "Edit ONLY the character's visual appearance in Image 1. DO NOT change pose, position, or composition.\n\nCRITICAL - NEVER CHANGE (from Image 1):\n- Character's EXACT body pose, arm positions, leg positions, head tilt, body angle\n- Character's EXACT position in the frame (where they are standing/sitting)\n- Background, scene, environment - must be PIXEL PERFECT same\n- Camera angle, framing, composition, crop\n- Lighting and shadows\n- Composition\n\nSWAP ONLY these visual features FROM Image 2:\n- Face shape and facial features\n- Hair color, style, and length\n- Clothing appearance (colors, patterns, open/closed state of clothes eg: jacket open vs closed, style)\n- Visible accessories (jewelry, glasses, hats, etc.)\n\n- Facial expression fix: tilt the head slightly, keep eyes closed looking downwards, adjust the mouth to be open in a smile showing upper teeth, and align the head orientation to match the tilted pose\nThink of it like a costume change on the EXACT same character pose. The silhouette and position should be IDENTICAL to Image 1.\n\nOutput: Image 1 with ONLY the character's visual appearance changed to match Image 2. Pose and composition UNCHANGED.",
+      "analysis": "Maintain the exact scene composition, camera framing,",
+      "verification": {
+        "enabled": false,
+        "passed": false,
+        "score": 0.0,
+        "reason": ""
+      },
+      "output_path": "data/output/row_0022/result.png",
+      "timing": {
+        "download_sec": 0.14,
+        "face_detection_sec": 2.74,
+        "upload_sec": 0.12,
+        "processing_sec": 32.1,
+        "total_sec": 35.49
+      },
+      "face_detection": {
+        "detected": true,
+        "method": "mediapipe_selfie_segmentation"
+      },
+      "input_metrics": {
+        "generated": {
+          "width": 1536,
+          "height": 2752,
+          "file_size_bytes": 5517900,
+          "file_size_mb": 5.26,
+          "megapixels": 4.23,
+          "brightness": 71.23,
+          "contrast": 57.64,
+          "mode": "RGB"
+        },
+        "original": {
+          "width": 1565,
+          "height": 2752,
+          "file_size_bytes": 5646494,
+          "file_size_mb": 5.38,
+          "megapixels": 4.31,
+          "brightness": 69.99,
+          "contrast": 69.5,
+          "mode": "RGBA"
+        }
+      },
+      "output_metrics": {
+        "width": 1072,
+        "height": 1936,
+        "file_size_bytes": 2543084,
+        "file_size_mb": 2.43,
+        "megapixels": 2.08,
+        "brightness": 70.66,
+        "contrast": 56.71,
+        "mode": "RGB"
+      },
+      "error": null
+    },
+    {
+      "row": 23,
+      "success": true,
+      "timestamp": "2026-02-08T21:59:29.588563",
+      "generated_url": "https://dev-content.dashtoon.ai/stability-images/53af219d-d925-4d4b-88b2-87aa1c650849.png",
+      "original_url": "https://content.dashtoon.ai/user-uploaded-files/cad6e0da-f607-4d3d-821a-36dfb9340a6b.png",
+      "edit_prompt": "Edit ONLY the character's visual appearance in Image 1. DO NOT change pose, position, or composition.\n\nCRITICAL - NEVER CHANGE (from Image 1):\n- Character's EXACT body pose, arm positions, leg positions, head tilt, body angle\n- Character's EXACT position in the frame (where they are standing/sitting)\n- Background, scene, environment - must be PIXEL PERFECT same\n- Camera angle, framing, composition, crop\n- Lighting and shadows\n- Composition\n\nSWAP ONLY these visual features FROM Image 2:\n- Face shape and facial features\n- Hair color, style, and length\n- Clothing appearance (colors, patterns, open/closed state of clothes eg: jacket open vs closed, style)\n- Visible accessories (jewelry, glasses, hats, etc.)\n\n- Facial expression fix: Replace red hair with dark brown hair styled in a braid over the shoulder, change gray shirt to bright pink, adjust eye gaze to look upward and to the left, and tilt head slightly to match the upward-focused pose.\nThink of it like a costume change on the EXACT same character pose. The silhouette and position should be IDENTICAL to Image 1.\n\nOutput: Image 1 with ONLY the character's visual appearance changed to match Image 2. Pose and composition UNCHANGED.",
+      "analysis": "Maintain the exact scene composition, camera",
+      "verification": {
+        "enabled": false,
+        "passed": false,
+        "score": 0.0,
+        "reason": ""
+      },
+      "output_path": "data/output/row_0023/result.png",
+      "timing": {
+        "download_sec": 0.13,
+        "face_detection_sec": 2.58,
+        "upload_sec": 0.13,
+        "processing_sec": 32.18,
+        "total_sec": 35.4
+      },
+      "face_detection": {
+        "detected": true,
+        "method": "mediapipe_selfie_segmentation"
+      },
+      "input_metrics": {
+        "generated": {
+          "width": 1536,
+          "height": 2752,
+          "file_size_bytes": 5328657,
+          "file_size_mb": 5.08,
+          "megapixels": 4.23,
+          "brightness": 61.35,
+          "contrast": 56.78,
+          "mode": "RGB"
+        },
+        "original": {
+          "width": 1568,
+          "height": 2752,
+          "file_size_bytes": 6058095,
+          "file_size_mb": 5.78,
+          "megapixels": 4.32,
+          "brightness": 56.47,
+          "contrast": 60.51,
+          "mode": "RGBA"
+        }
+      },
+      "output_metrics": {
+        "width": 1072,
+        "height": 1936,
+        "file_size_bytes": 2566320,
+        "file_size_mb": 2.45,
+        "megapixels": 2.08,
+        "brightness": 60.11,
+        "contrast": 56.98,
+        "mode": "RGB"
+      },
+      "error": null
+    },
+    {
+      "row": 24,
+      "success": true,
+      "timestamp": "2026-02-08T22:00:04.984676",
+      "generated_url": "https://dev-content.dashtoon.ai/stability-images/d753ef61-04c0-4ae1-818a-3daae88804d4.png",
+      "original_url": "https://content.dashtoon.ai/user-uploaded-files/72714614-bd49-4abe-8590-897402b73c05.png",
+      "edit_prompt": "Edit ONLY the character's visual appearance in Image 1. DO NOT change pose, position, or composition.\n\nCRITICAL - NEVER CHANGE (from Image 1):\n- Character's EXACT body pose, arm positions, leg positions, head tilt, body angle\n- Character's EXACT position in the frame (where they are standing/sitting)\n- Background, scene, environment - must be PIXEL PERFECT same\n- Camera angle, framing, composition, crop\n- Lighting and shadows\n- Composition\n\nSWAP ONLY these visual features FROM Image 2:\n- Face shape and facial features\n- Hair color, style, and length\n- Clothing appearance (colors, patterns, open/closed state of clothes eg: jacket open vs closed, style)\n- Visible accessories (jewelry, glasses, hats, etc.)\n\n- Facial expression fix: Replace brown messy hair with dark sleek styled hair, adjust eye gaze to look towards the right, open mouth slightly to a speaking position, set facial expression to a concerned speaking look, and adjust head to be slightly turned to the right.\nThink of it like a costume change on the EXACT same character pose. The silhouette and position should be IDENTICAL to Image 1.\n\nOutput: Image 1 with ONLY the character's visual appearance changed to match Image 2. Pose and composition UNCHANGED.",
+      "analysis": "Maintain the exact background, lighting",
+      "verification": {
+        "enabled": false,
+        "passed": false,
+        "score": 0.0,
+        "reason": ""
+      },
+      "output_path": "data/output/row_0024/result.png",
+      "timing": {
+        "download_sec": 0.14,
+        "face_detection_sec": 2.56,
+        "upload_sec": 0.12,
+        "processing_sec": 32.33,
+        "total_sec": 35.54
+      },
+      "face_detection": {
+        "detected": true,
+        "method": "mediapipe_selfie_segmentation"
+      },
+      "input_metrics": {
+        "generated": {
+          "width": 1536,
+          "height": 2752,
+          "file_size_bytes": 5403207,
+          "file_size_mb": 5.15,
+          "megapixels": 4.23,
+          "brightness": 62.82,
+          "contrast": 56.93,
+          "mode": "RGB"
+        },
+        "original": {
+          "width": 1550,
+          "height": 2752,
+          "file_size_bytes": 5710232,
+          "file_size_mb": 5.45,
+          "megapixels": 4.27,
+          "brightness": 73.76,
+          "contrast": 64.2,
+          "mode": "RGBA"
+        }
+      },
+      "output_metrics": {
+        "width": 1072,
+        "height": 1936,
+        "file_size_bytes": 2454347,
+        "file_size_mb": 2.34,
+        "megapixels": 2.08,
+        "brightness": 62.7,
+        "contrast": 57.0,
+        "mode": "RGB"
+      },
+      "error": null
+    },
+    {
+      "row": 25,
+      "success": true,
+      "timestamp": "2026-02-08T22:00:40.522462",
+      "generated_url": "https://dev-content.dashtoon.ai/stability-images/9f217d8e-599b-4cef-97d4-a6365b889ec6.png",
+      "original_url": "https://content.dashtoon.ai/user-uploaded-files/34586101-dacf-49c4-843f-41907a1a9dc3.png",
+      "edit_prompt": "Edit ONLY the character's visual appearance in Image 1. DO NOT change pose, position, or composition.\n\nCRITICAL - NEVER CHANGE (from Image 1):\n- Character's EXACT body pose, arm positions, leg positions, head tilt, body angle\n- Character's EXACT position in the frame (where they are standing/sitting)\n- Background, scene, environment - must be PIXEL PERFECT same\n- Camera angle, framing, composition, crop\n- Lighting and shadows\n- Composition\n\nSWAP ONLY these visual features FROM Image 2:\n- Face shape and facial features\n- Hair color, style, and length\n- Clothing appearance (colors, patterns, open/closed state of clothes eg: jacket open vs closed, style)\n- Visible accessories (jewelry, glasses, hats, etc.)\n\n- Facial expression fix: adjust the mouth to be slightly open, reduce facial tension to a calm serious expression, ensure the head is straight facing forward without tilt, and keep eyes looking directly at the camera\nThink of it like a costume change on the EXACT same character pose. The silhouette and position should be IDENTICAL to Image 1.\n\nOutput: Image 1 with ONLY the character's visual appearance changed to match Image 2. Pose and composition UNCHANGED.",
+      "analysis": "Maintain the exact scene composition, body pose",
+      "verification": {
+        "enabled": false,
+        "passed": false,
+        "score": 0.0,
+        "reason": ""
+      },
+      "output_path": "data/output/row_0025/result.png",
+      "timing": {
+        "download_sec": 1.14,
+        "face_detection_sec": 2.69,
+        "upload_sec": 0.12,
+        "processing_sec": 32.09,
+        "total_sec": 36.85
+      },
+      "face_detection": {
+        "detected": true,
+        "method": "mediapipe_selfie_segmentation"
+      },
+      "input_metrics": {
+        "generated": {
+          "width": 1536,
+          "height": 2752,
+          "file_size_bytes": 5299837,
+          "file_size_mb": 5.05,
+          "megapixels": 4.23,
+          "brightness": 64.14,
+          "contrast": 42.27,
+          "mode": "RGB"
+        },
+        "original": {
+          "width": 1553,
+          "height": 2752,
+          "file_size_bytes": 5180968,
+          "file_size_mb": 4.94,
+          "megapixels": 4.27,
+          "brightness": 48.8,
+          "contrast": 45.94,
+          "mode": "RGBA"
+        }
+      },
+      "output_metrics": {
+        "width": 1072,
+        "height": 1936,
+        "file_size_bytes": 2355150,
+        "file_size_mb": 2.25,
+        "megapixels": 2.08,
+        "brightness": 65.34,
+        "contrast": 41.91,
+        "mode": "RGB"
+      },
+      "error": null
+    },
+    {
+      "row": 26,
+      "success": true,
+      "timestamp": "2026-02-08T22:01:17.370739",
+      "generated_url": "https://dev-content.dashtoon.ai/stability-images/a1c401ca-eceb-48f0-83c8-497539555367.png",
+      "original_url": "https://content.dashtoon.ai/user-uploaded-files/b69c155f-311d-4866-b634-33ed11100d7f.png",
+      "edit_prompt": "Edit ONLY the character's visual appearance in Image 1. DO NOT change pose, position, or composition.\n\nCRITICAL - NEVER CHANGE (from Image 1):\n- Character's EXACT body pose, arm positions, leg positions, head tilt, body angle\n- Character's EXACT position in the frame (where they are standing/sitting)\n- Background, scene, environment - must be PIXEL PERFECT same\n- Camera angle, framing, composition, crop\n- Lighting and shadows\n- Composition\n\nSWAP ONLY these visual features FROM Image 2:\n- Face shape and facial features\n- Hair color, style, and length\n- Clothing appearance (colors, patterns, open/closed state of clothes eg: jacket open vs closed, style)\n- Visible accessories (jewelry, glasses, hats, etc.)\n\n- Facial expression fix: adjust mouth to be slightly open showing upper teeth, turn head slightly more toward the left, shift the visible eye to gaze toward the right (toward the pink arm), and set the expression to a concerned speaking look\nThink of it like a costume change on the EXACT same character pose. The silhouette and position should be IDENTICAL to Image 1.\n\nOutput: Image 1 with ONLY the character's visual appearance changed to match Image 2. Pose and composition UNCHANGED.",
+      "analysis": "Maintain the exact scene composition,",
+      "verification": {
+        "enabled": false,
+        "passed": false,
+        "score": 0.0,
+        "reason": ""
+      },
+      "output_path": "data/output/row_0026/result.png",
+      "timing": {
+        "download_sec": 1.49,
+        "face_detection_sec": 2.65,
+        "upload_sec": 0.12,
+        "processing_sec": 32.05,
+        "total_sec": 36.69
+      },
+      "face_detection": {
+        "detected": true,
+        "method": "mediapipe_selfie_segmentation"
+      },
+      "input_metrics": {
+        "generated": {
+          "width": 1536,
+          "height": 2752,
+          "file_size_bytes": 5393866,
+          "file_size_mb": 5.14,
+          "megapixels": 4.23,
+          "brightness": 99.97,
+          "contrast": 57.7,
+          "mode": "RGB"
+        },
+        "original": {
+          "width": 1565,
+          "height": 2752,
+          "file_size_bytes": 5772234,
+          "file_size_mb": 5.5,
+          "megapixels": 4.31,
+          "brightness": 92.69,
+          "contrast": 62.15,
+          "mode": "RGBA"
+        }
+      },
+      "output_metrics": {
+        "width": 1072,
+        "height": 1936,
+        "file_size_bytes": 2516674,
+        "file_size_mb": 2.4,
+        "megapixels": 2.08,
+        "brightness": 99.32,
+        "contrast": 56.95,
+        "mode": "RGB"
+      },
+      "error": null
+    },
+    {
+      "row": 27,
+      "success": true,
+      "timestamp": "2026-02-08T22:01:54.061099",
+      "generated_url": "https://dev-content.dashtoon.ai/stability-images/5306dfaf-1dde-41f6-8ecb-4492f7c2c5b8.png",
+      "original_url": "https://content.dashtoon.ai/user-uploaded-files/f04975c6-e26f-4481-9ed8-aad844624479.png",
+      "edit_prompt": "Edit ONLY the character's visual appearance in Image 1. DO NOT change pose, position, or composition.\n\nCRITICAL - NEVER CHANGE (from Image 1):\n- Character's EXACT body pose, arm positions, leg positions, head tilt, body angle\n- Character's EXACT position in the frame (where they are standing/sitting)\n- Background, scene, environment - must be PIXEL PERFECT same\n- Camera angle, framing, composition, crop\n- Lighting and shadows\n- Composition\n\nSWAP ONLY these visual features FROM Image 2:\n- Face shape and facial features\n- Hair color, style, and length\n- Clothing appearance (colors, patterns, open/closed state of clothes eg: jacket open vs closed, style)\n- Visible accessories (jewelry, glasses, hats, etc.)\n\n- Facial expression fix: Turn head slightly to the viewer's left, shift eye gaze to look slightly toward the viewer's right, and adjust mouth to a closed, pressed concerned expression.\nThink of it like a costume change on the EXACT same character pose. The silhouette and position should be IDENTICAL to Image 1.\n\nOutput: Image 1 with ONLY the character's visual appearance changed to match Image 2. Pose and composition UNCHANGED.",
+      "analysis": "Maintain the exact scene composition, body pose,",
+      "verification": {
+        "enabled": false,
+        "passed": false,
+        "score": 0.0,
+        "reason": ""
+      },
+      "output_path": "data/output/row_0027/result.png",
+      "timing": {
+        "download_sec": 0.14,
+        "face_detection_sec": 2.68,
+        "upload_sec": 0.13,
+        "processing_sec": 32.37,
+        "total_sec": 35.81
+      },
+      "face_detection": {
+        "detected": true,
+        "method": "mediapipe_selfie_segmentation"
+      },
+      "input_metrics": {
+        "generated": {
+          "width": 1536,
+          "height": 2752,
+          "file_size_bytes": 5539262,
+          "file_size_mb": 5.28,
+          "megapixels": 4.23,
+          "brightness": 90.07,
+          "contrast": 72.72,
+          "mode": "RGB"
+        },
+        "original": {
+          "width": 1583,
+          "height": 2752,
+          "file_size_bytes": 5756602,
+          "file_size_mb": 5.49,
+          "megapixels": 4.36,
+          "brightness": 64.98,
+          "contrast": 52.64,
+          "mode": "RGBA"
+        }
+      },
+      "output_metrics": {
+        "width": 1072,
+        "height": 1936,
+        "file_size_bytes": 2637581,
+        "file_size_mb": 2.52,
+        "megapixels": 2.08,
+        "brightness": 89.77,
+        "contrast": 71.94,
+        "mode": "RGB"
+      },
+      "error": null
+    },
+    {
+      "row": 28,
+      "success": true,
+      "timestamp": "2026-02-08T22:02:29.871574",
+      "generated_url": "https://dev-content.dashtoon.ai/stability-images/6111ace1-ff56-4b38-acd5-a6774448ddb8.png",
+      "original_url": "https://content.dashtoon.ai/user-uploaded-files/8a9fdc5a-f918-4ecf-bfa9-6275dc2406a2.png",
+      "edit_prompt": "Edit ONLY the character's visual appearance in Image 1. DO NOT change pose, position, or composition.\n\nCRITICAL - NEVER CHANGE (from Image 1):\n- Character's EXACT body pose, arm positions, leg positions, head tilt, body angle\n- Character's EXACT position in the frame (where they are standing/sitting)\n- Background, scene, environment - must be PIXEL PERFECT same\n- Camera angle, framing, composition, crop\n- Lighting and shadows\n- Composition\n\nSWAP ONLY these visual features FROM Image 2:\n- Face shape and facial features\n- Hair color, style, and length\n- Clothing appearance (colors, patterns, open/closed state of clothes eg: jacket open vs closed, style)\n- Visible accessories (jewelry, glasses, hats, etc.)\n\n- Facial expression fix: turn head to look towards the right (towards the car), adjust eye gaze to match the rightward direction, set expression to concerned with mouth slightly open\nThink of it like a costume change on the EXACT same character pose. The silhouette and position should be IDENTICAL to Image 1.\n\nOutput: Image 1 with ONLY the character's visual appearance changed to match Image 2. Pose and composition UNCHANGED.",
+      "analysis": "Maintain the exact scene composition, background",
+      "verification": {
+        "enabled": false,
+        "passed": false,
+        "score": 0.0,
+        "reason": ""
+      },
+      "output_path": "data/output/row_0028/result.png",
+      "timing": {
+        "download_sec": 0.17,
+        "face_detection_sec": 2.71,
+        "upload_sec": 0.12,
+        "processing_sec": 32.38,
+        "total_sec": 35.76
+      },
+      "face_detection": {
+        "detected": true,
+        "method": "mediapipe_selfie_segmentation"
+      },
+      "input_metrics": {
+        "generated": {
+          "width": 1536,
+          "height": 2752,
+          "file_size_bytes": 5412041,
+          "file_size_mb": 5.16,
+          "megapixels": 4.23,
+          "brightness": 46.52,
+          "contrast": 34.77,
+          "mode": "RGB"
+        },
+        "original": {
+          "width": 1536,
+          "height": 2752,
+          "file_size_bytes": 5610079,
+          "file_size_mb": 5.35,
+          "megapixels": 4.23,
+          "brightness": 47.59,
+          "contrast": 37.08,
+          "mode": "RGB"
+        }
+      },
+      "output_metrics": {
+        "width": 1072,
+        "height": 1936,
+        "file_size_bytes": 2642595,
+        "file_size_mb": 2.52,
+        "megapixels": 2.08,
+        "brightness": 42.24,
+        "contrast": 35.06,
+        "mode": "RGB"
+      },
+      "error": null
+    },
+    {
+      "row": 29,
+      "success": true,
+      "timestamp": "2026-02-08T22:03:05.636417",
+      "generated_url": "https://dev-content.dashtoon.ai/stability-images/2ac76df0-c77a-4100-8234-8eeaaa5730a4.png",
+      "original_url": "https://content.dashtoon.ai/user-uploaded-files/1ef6ab02-58cc-42b4-a66c-dc6a3a148b0b.png",
+      "edit_prompt": "Edit ONLY the character's visual appearance in Image 1. DO NOT change pose, position, or composition.\n\nCRITICAL - NEVER CHANGE (from Image 1):\n- Character's EXACT body pose, arm positions, leg positions, head tilt, body angle\n- Character's EXACT position in the frame (where they are standing/sitting)\n- Background, scene, environment - must be PIXEL PERFECT same\n- Camera angle, framing, composition, crop\n- Lighting and shadows\n- Composition\n\nSWAP ONLY these visual features FROM Image 2:\n- Face shape and facial features\n- Hair color, style, and length\n- Clothing appearance (colors, patterns, open/closed state of clothes eg: jacket open vs closed, style)\n- Visible accessories (jewelry, glasses, hats, etc.)\n\n- Facial expression fix: Rotate the head to turn towards its right, angling the face to the left side of the frame, adjust eye gaze to look towards the right side of the frame away from the camera, replace blonde hair with dark brown tied-back hair, and set the mouth to a closed, slightly downturned concerned shape\nThink of it like a costume change on the EXACT same character pose. The silhouette and position should be IDENTICAL to Image 1.\n\nOutput: Image 1 with ONLY the character's visual appearance changed to match Image 2. Pose and composition UNCHANGED.",
+      "analysis": "Maintain the exact scene composition, background",
+      "verification": {
+        "enabled": false,
+        "passed": false,
+        "score": 0.0,
+        "reason": ""
+      },
+      "output_path": "data/output/row_0029/result.png",
+      "timing": {
+        "download_sec": 0.43,
+        "face_detection_sec": 2.71,
+        "upload_sec": 0.13,
+        "processing_sec": 32.19,
+        "total_sec": 35.83
+      },
+      "face_detection": {
+        "detected": true,
+        "method": "mediapipe_selfie_segmentation"
+      },
+      "input_metrics": {
+        "generated": {
+          "width": 1536,
+          "height": 2752,
+          "file_size_bytes": 5545312,
+          "file_size_mb": 5.29,
+          "megapixels": 4.23,
+          "brightness": 57.51,
+          "contrast": 35.51,
+          "mode": "RGB"
+        },
+        "original": {
+          "width": 1536,
+          "height": 2752,
+          "file_size_bytes": 5868744,
+          "file_size_mb": 5.6,
+          "megapixels": 4.23,
+          "brightness": 58.47,
+          "contrast": 38.99,
+          "mode": "RGB"
+        }
+      },
+      "output_metrics": {
+        "width": 1072,
+        "height": 1936,
+        "file_size_bytes": 2713553,
+        "file_size_mb": 2.59,
+        "megapixels": 2.08,
+        "brightness": 54.54,
+        "contrast": 36.04,
+        "mode": "RGB"
+      },
+      "error": null
+    },
+    {
+      "row": 30,
+      "success": true,
+      "timestamp": "2026-02-08T22:03:41.467817",
+      "generated_url": "https://dev-content.dashtoon.ai/stability-images/4fe8920a-40e4-4c64-98ea-c4b65c0328ca.png",
+      "original_url": "https://content.dashtoon.ai/user-uploaded-files/6072b022-2faf-4851-b29e-330eb03d6e50.png",
+      "edit_prompt": "Edit ONLY the character's visual appearance in Image 1. DO NOT change pose, position, or composition.\n\nCRITICAL - NEVER CHANGE (from Image 1):\n- Character's EXACT body pose, arm positions, leg positions, head tilt, body angle\n- Character's EXACT position in the frame (where they are standing/sitting)\n- Background, scene, environment - must be PIXEL PERFECT same\n- Camera angle, framing, composition, crop\n- Lighting and shadows\n- Composition\n\nSWAP ONLY these visual features FROM Image 2:\n- Face shape and facial features\n- Hair color, style, and length\n- Clothing appearance (colors, patterns, open/closed state of clothes eg: jacket open vs closed, style)\n- Visible accessories (jewelry, glasses, hats, etc.)\n\n- Facial expression fix: Adjust eye gaze to look to the left, turn head to face left, change expression from surprised to a calm speaking look, and adjust mouth to be slightly open, not wide open.\nThink of it like a costume change on the EXACT same character pose. The silhouette and position should be IDENTICAL to Image 1.\n\nOutput: Image 1 with ONLY the character's visual appearance changed to match Image 2. Pose and composition UNCHANGED.",
+      "analysis": "Maintain the exact scene composition,",
+      "verification": {
+        "enabled": false,
+        "passed": false,
+        "score": 0.0,
+        "reason": ""
+      },
+      "output_path": "data/output/row_0030/result.png",
+      "timing": {
+        "download_sec": 0.28,
+        "face_detection_sec": 2.69,
+        "upload_sec": 0.59,
+        "processing_sec": 38.23,
+        "total_sec": 46.09
+      },
+      "face_detection": {
+        "detected": true,
+        "method": "mediapipe_selfie_segmentation"
+      },
+      "input_metrics": {
+        "generated": {
+          "width": 1536,
+          "height": 2752,
+          "file_size_bytes": 5559772,
+          "file_size_mb": 5.3,
+          "megapixels": 4.23,
+          "brightness": 82.47,
+          "contrast": 69.76,
+          "mode": "RGB"
+        },
+        "original": {
+          "width": 4320,
+          "height": 7680,
+          "file_size_bytes": 58545016,
+          "file_size_mb": 55.83,
+          "megapixels": 33.18,
+          "brightness": 94.05,
+          "contrast": 73.03,
+          "mode": "RGBA"
+        }
+      },
+      "output_metrics": {
+        "width": 1072,
+        "height": 1936,
+        "file_size_bytes": 2532328,
+        "file_size_mb": 2.42,
+        "megapixels": 2.08,
+        "brightness": 82.88,
+        "contrast": 69.24,
+        "mode": "RGB"
+      },
+      "error": null
+    },
+    {
+      "row": 31,
+      "success": true,
+      "timestamp": "2026-02-08T22:04:27.558680",
+      "generated_url": "https://dev-content.dashtoon.ai/stability-images/bc5cf529-3eec-4221-9598-51524675cb55.png",
+      "original_url": "https://content.dashtoon.ai/user-uploaded-files/80998f95-3955-4652-99e3-d9972ad799ae.png",
+      "edit_prompt": "Edit ONLY the character's visual appearance in Image 1. DO NOT change pose, position, or composition.\n\nCRITICAL - NEVER CHANGE (from Image 1):\n- Character's EXACT body pose, arm positions, leg positions, head tilt, body angle\n- Character's EXACT position in the frame (where they are standing/sitting)\n- Background, scene, environment - must be PIXEL PERFECT same\n- Camera angle, framing, composition, crop\n- Lighting and shadows\n- Composition\n\nSWAP ONLY these visual features FROM Image 2:\n- Face shape and facial features\n- Hair color, style, and length\n- Clothing appearance (colors, patterns, open/closed state of clothes eg: jacket open vs closed, style)\n- Visible accessories (jewelry, glasses, hats, etc.)\n\n- Facial expression fix: Close the mouth to a fully closed, concerned neutral state, adjust eye gaze to look up towards the viewer's upper right, tilt the head slightly and turn it more towards the viewer's left, and change the hair to a longer ponytail style.\nThink of it like a costume change on the EXACT same character pose. The silhouette and position should be IDENTICAL to Image 1.\n\nOutput: Image 1 with ONLY the character's visual appearance changed to match Image 2. Pose and composition UNCHANGED.",
+      "analysis": "Maintain the exact scene composition, background, lighting",
+      "verification": {
+        "enabled": false,
+        "passed": false,
+        "score": 0.0,
+        "reason": ""
+      },
+      "output_path": "data/output/row_0031/result.png",
+      "timing": {
+        "download_sec": 0.27,
+        "face_detection_sec": 2.61,
+        "upload_sec": 0.49,
+        "processing_sec": 38.48,
+        "total_sec": 43.3
+      },
+      "face_detection": {
+        "detected": true,
+        "method": "mediapipe_selfie_segmentation"
+      },
+      "input_metrics": {
+        "generated": {
+          "width": 1536,
+          "height": 2752,
+          "file_size_bytes": 5299347,
+          "file_size_mb": 5.05,
+          "megapixels": 4.23,
+          "brightness": 87.44,
+          "contrast": 68.48,
+          "mode": "RGB"
+        },
+        "original": {
+          "width": 4320,
+          "height": 7680,
+          "file_size_bytes": 48409050,
+          "file_size_mb": 46.17,
+          "megapixels": 33.18,
+          "brightness": 87.27,
+          "contrast": 69.59,
+          "mode": "RGBA"
+        }
+      },
+      "output_metrics": {
+        "width": 1072,
+        "height": 1936,
+        "file_size_bytes": 2429671,
+        "file_size_mb": 2.32,
+        "megapixels": 2.08,
+        "brightness": 86.93,
+        "contrast": 68.09,
+        "mode": "RGB"
+      },
+      "error": null
+    },
+    {
+      "row": 32,
+      "success": true,
+      "timestamp": "2026-02-08T22:05:10.864118",
+      "generated_url": "https://storage.googleapis.com/creative-tech-experiments/char-const-workflow-remix/kid_three_quarter_right.png",
+      "original_url": "https://content.dashtoon.ai/user-uploaded-files/8f3d0d69-28c5-485c-8ff0-8f2c4df3e9a8.png",
+      "edit_prompt": "Edit ONLY the character's visual appearance in Image 1. DO NOT change pose, position, or composition.\n\nCRITICAL - NEVER CHANGE (from Image 1):\n- Character's EXACT body pose, arm positions, leg positions, head tilt, body angle\n- Character's EXACT position in the frame (where they are standing/sitting)\n- Background, scene, environment - must be PIXEL PERFECT same\n- Camera angle, framing, composition, crop\n- Lighting and shadows\n- Composition\n\nSWAP ONLY these visual features FROM Image 2:\n- Face shape and facial features\n- Hair color, style, and length\n- Clothing appearance (colors, patterns, open/closed state of clothes eg: jacket open vs closed, style)\n- Visible accessories (jewelry, glasses, hats, etc.)\n\n- Facial expression fix: tilt the head sharply backwards so the face angles upward, tightly close the eyelids to show a pained/strained expression, add red blood staining to the right side of the forehead and cheek, and adjust the oxygen mask to fit the tilted head position\nThink of it like a costume change on the EXACT same character pose. The silhouette and position should be IDENTICAL to Image 1.\n\nOutput: Image 1 with ONLY the character's visual appearance changed to match Image 2. Pose and composition UNCHANGED.",
+      "analysis": "Maintain the exact scene composition, body pose,",
+      "verification": {
+        "enabled": false,
+        "passed": false,
+        "score": 0.0,
+        "reason": ""
+      },
+      "output_path": "data/output/row_0032/result.png",
+      "timing": {
+        "download_sec": 5.35,
+        "face_detection_sec": 7.82,
+        "upload_sec": 0.58,
+        "processing_sec": 41.17,
+        "total_sec": 56.72
+      },
+      "face_detection": {
+        "detected": true,
+        "method": "mediapipe_selfie_segmentation"
+      },
+      "input_metrics": {
+        "generated": {
+          "width": 3072,
+          "height": 5504,
+          "file_size_bytes": 17673462,
+          "file_size_mb": 16.85,
+          "megapixels": 16.91,
+          "brightness": 190.27,
+          "contrast": 61.79,
+          "mode": "RGB"
+        },
+        "original": {
+          "width": 4320,
+          "height": 7680,
+          "file_size_bytes": 52235128,
+          "file_size_mb": 49.82,
+          "megapixels": 33.18,
+          "brightness": 120.22,
+          "contrast": 74.37,
+          "mode": "RGBA"
+        }
+      },
+      "output_metrics": {
+        "width": 1072,
+        "height": 1936,
+        "file_size_bytes": 2256082,
+        "file_size_mb": 2.15,
+        "megapixels": 2.08,
+        "brightness": 188.05,
+        "contrast": 60.87,
+        "mode": "RGB"
+      },
+      "error": null
+    },
+    {
+      "row": 33,
+      "success": true,
+      "timestamp": "2026-02-08T22:06:07.586430",
+      "generated_url": "https://dev-content.dashtoon.ai/stability-images/eba3e669-cd91-4e32-b2a3-fc6846df0058.png",
+      "original_url": "https://dev-content.dashtoon.ai/user-uploaded-files/b26d4a10-382c-42d4-a7d6-5d9c731f4002.png",
+      "edit_prompt": "Edit ONLY the character's visual appearance in Image 1. DO NOT change pose, position, or composition.\n\nCRITICAL - NEVER CHANGE (from Image 1):\n- Character's EXACT body pose, arm positions, leg positions, head tilt, body angle\n- Character's EXACT position in the frame (where they are standing/sitting)\n- Background, scene, environment - must be PIXEL PERFECT same\n- Camera angle, framing, composition, crop\n- Lighting and shadows\n- Composition\n\nSWAP ONLY these visual features FROM Image 2:\n- Face shape and facial features\n- Hair color, style, and length\n- Clothing appearance (colors, patterns, open/closed state of clothes eg: jacket open vs closed, style)\n- Visible accessories (jewelry, glasses, hats, etc.)\n\n- Facial expression fix: adjust eye gaze to look down away from the camera, tilt the head slightly downwards, replace the smiling expression with a serious neutral one, and close the mouth completely to remove the smile\nThink of it like a costume change on the EXACT same character pose. The silhouette and position should be IDENTICAL to Image 1.\n\nOutput: Image 1 with ONLY the character's visual appearance changed to match Image 2. Pose and composition UNCHANGED.",
+      "analysis": "Maintain the exact scene composition, body pose,",
+      "verification": {
+        "enabled": false,
+        "passed": false,
+        "score": 0.0,
+        "reason": ""
+      },
+      "output_path": "data/output/row_0033/result.png",
+      "timing": {
+        "download_sec": 0.38,
+        "face_detection_sec": 2.68,
+        "upload_sec": 0.1,
+        "processing_sec": 32.33,
+        "total_sec": 35.82
+      },
+      "face_detection": {
+        "detected": true,
+        "method": "mediapipe_selfie_segmentation"
+      },
+      "input_metrics": {
+        "generated": {
+          "width": 1536,
+          "height": 2752,
+          "file_size_bytes": 5694459,
+          "file_size_mb": 5.43,
+          "megapixels": 4.23,
+          "brightness": 49.15,
+          "contrast": 43.23,
+          "mode": "RGB"
+        },
+        "original": {
+          "width": 608,
+          "height": 1080,
+          "file_size_bytes": 492092,
+          "file_size_mb": 0.47,
+          "megapixels": 0.66,
+          "brightness": 45.72,
+          "contrast": 46.75,
+          "mode": "RGB"
+        }
+      },
+      "output_metrics": {
+        "width": 1072,
+        "height": 1936,
+        "file_size_bytes": 2580334,
+        "file_size_mb": 2.46,
+        "megapixels": 2.08,
+        "brightness": 49.19,
+        "contrast": 43.4,
+        "mode": "RGB"
+      },
+      "error": null
+    },
+    {
+      "row": 34,
+      "success": true,
+      "timestamp": "2026-02-08T22:06:43.409715",
+      "generated_url": "https://dev-content.dashtoon.ai/stability-images/14c080e1-f15e-4a52-936d-7a8db8882e28.png",
+      "original_url": "https://dev-content.dashtoon.ai/user-uploaded-files/65b621ef-1694-4153-9056-f9f05ed3a96e.png",
+      "edit_prompt": "Edit ONLY the character's visual appearance in Image 1. DO NOT change pose, position, or composition.\n\nCRITICAL - NEVER CHANGE (from Image 1):\n- Character's EXACT body pose, arm positions, leg positions, head tilt, body angle\n- Character's EXACT position in the frame (where they are standing/sitting)\n- Background, scene, environment - must be PIXEL PERFECT same\n- Camera angle, framing, composition, crop\n- Lighting and shadows\n- Composition\n\nSWAP ONLY these visual features FROM Image 2:\n- Face shape and facial features\n- Hair color, style, and length\n- Clothing appearance (colors, patterns, open/closed state of clothes eg: jacket open vs closed, style)\n- Visible accessories (jewelry, glasses, hats, etc.)\n\n- Facial expression fix: angle the head to turn towards the right, adjust eye gaze to look towards the right side of the frame, and slightly open the mouth to a neutral, slightly parted state\nThink of it like a costume change on the EXACT same character pose. The silhouette and position should be IDENTICAL to Image 1.\n\nOutput: Image 1 with ONLY the character's visual appearance changed to match Image 2. Pose and composition UNCHANGED.",
+      "analysis": "Appearance):* Transfer hair style,",
+      "verification": {
+        "enabled": false,
+        "passed": false,
+        "score": 0.0,
+        "reason": ""
+      },
+      "output_path": "data/output/row_0034/result.png",
+      "timing": {
+        "download_sec": 0.37,
+        "face_detection_sec": 2.67,
+        "upload_sec": 0.08,
+        "processing_sec": 32.11,
+        "total_sec": 35.53
+      },
+      "face_detection": {
+        "detected": true,
+        "method": "mediapipe_selfie_segmentation"
+      },
+      "input_metrics": {
+        "generated": {
+          "width": 1536,
+          "height": 2752,
+          "file_size_bytes": 5728329,
+          "file_size_mb": 5.46,
+          "megapixels": 4.23,
+          "brightness": 60.71,
+          "contrast": 52.12,
+          "mode": "RGB"
+        },
+        "original": {
+          "width": 608,
+          "height": 1081,
+          "file_size_bytes": 435171,
+          "file_size_mb": 0.42,
+          "megapixels": 0.66,
+          "brightness": 61.45,
+          "contrast": 53.4,
+          "mode": "RGB"
+        }
+      },
+      "output_metrics": {
+        "width": 1072,
+        "height": 1936,
+        "file_size_bytes": 2411992,
+        "file_size_mb": 2.3,
+        "megapixels": 2.08,
+        "brightness": 60.74,
+        "contrast": 52.03,
+        "mode": "RGB"
+      },
+      "error": null
+    },
+    {
+      "row": 35,
+      "success": true,
+      "timestamp": "2026-02-08T22:07:18.939371",
+      "generated_url": "https://dev-content.dashtoon.ai/stability-images/f912b97e-80e1-4316-8629-f71fb806ce6e.png",
+      "original_url": "https://dev-content.dashtoon.ai/user-uploaded-files/3e7074d3-3de4-4ee1-802b-7a4056e8e273.png",
+      "edit_prompt": "Edit ONLY the character's visual appearance in Image 1. DO NOT change pose, position, or composition.\n\nCRITICAL - NEVER CHANGE (from Image 1):\n- Character's EXACT body pose, arm positions, leg positions, head tilt, body angle\n- Character's EXACT position in the frame (where they are standing/sitting)\n- Background, scene, environment - must be PIXEL PERFECT same\n- Camera angle, framing, composition, crop\n- Lighting and shadows\n- Composition\n\nSWAP ONLY these visual features FROM Image 2:\n- Face shape and facial features\n- Hair color, style, and length\n- Clothing appearance (colors, patterns, open/closed state of clothes eg: jacket open vs closed, style)\n- Visible accessories (jewelry, glasses, hats, etc.)\n\n- Facial expression fix: Adjust eye gaze to look left, turn head to face left, narrow the wide open mouth to a slightly open speaking shape, replace hair with dark styled hair tied into a topknot with a hair ornament, adjust skin tone to an East Asian complexion, and set expression to a serious speaking look instead of surprised.\nThink of it like a costume change on the EXACT same character pose. The silhouette and position should be IDENTICAL to Image 1.\n\nOutput: Image 1 with ONLY the character's visual appearance changed to match Image 2. Pose and composition UNCHANGED.",
+      "analysis": "Maintain the exact scene composition, body pose,",
+      "verification": {
+        "enabled": false,
+        "passed": false,
+        "score": 0.0,
+        "reason": ""
+      },
+      "output_path": "data/output/row_0035/result.png",
+      "timing": {
+        "download_sec": 0.99,
+        "face_detection_sec": 2.65,
+        "upload_sec": 0.08,
+        "processing_sec": 32.27,
+        "total_sec": 36.28
+      },
+      "face_detection": {
+        "detected": true,
+        "method": "mediapipe_selfie_segmentation"
+      },
+      "input_metrics": {
+        "generated": {
+          "width": 1536,
+          "height": 2752,
+          "file_size_bytes": 5346550,
+          "file_size_mb": 5.1,
+          "megapixels": 4.23,
+          "brightness": 39.29,
+          "contrast": 34.86,
+          "mode": "RGB"
+        },
+        "original": {
+          "width": 608,
+          "height": 1081,
+          "file_size_bytes": 464159,
+          "file_size_mb": 0.44,
+          "megapixels": 0.66,
+          "brightness": 48.95,
+          "contrast": 46.53,
+          "mode": "RGB"
+        }
+      },
+      "output_metrics": {
+        "width": 1072,
+        "height": 1936,
+        "file_size_bytes": 2463826,
+        "file_size_mb": 2.35,
+        "megapixels": 2.08,
+        "brightness": 39.04,
+        "contrast": 35.07,
+        "mode": "RGB"
+      },
+      "error": null
+    },
+    {
+      "row": 36,
+      "success": true,
+      "timestamp": "2026-02-08T22:07:55.220994",
+      "generated_url": "https://dev-content.dashtoon.ai/stability-images/47fa1d4f-4002-4ad8-ba09-74faa7bc90e1.png",
+      "original_url": "https://dev-content.dashtoon.ai/user-uploaded-files/64a5fcef-1620-4e64-9106-6476f10707f4.png",
+      "edit_prompt": "Edit ONLY the character's visual appearance in Image 1. DO NOT change pose, position, or composition.\n\nCRITICAL - NEVER CHANGE (from Image 1):\n- Character's EXACT body pose, arm positions, leg positions, head tilt, body angle\n- Character's EXACT position in the frame (where they are standing/sitting)\n- Background, scene, environment - must be PIXEL PERFECT same\n- Camera angle, framing, composition, crop\n- Lighting and shadows\n- Composition\n\nSWAP ONLY these visual features FROM Image 2:\n- Face shape and facial features\n- Hair color, style, and length\n- Clothing appearance (colors, patterns, open/closed state of clothes eg: jacket open vs closed, style)\n- Visible accessories (jewelry, glasses, hats, etc.)\n\n- Facial expression fix: adjust eye gaze to look toward the viewer's left, turn the head slightly toward the viewer's left, set the expression to a concerned serious look with the head held straight without tilt\nThink of it like a costume change on the EXACT same character pose. The silhouette and position should be IDENTICAL to Image 1.\n\nOutput: Image 1 with ONLY the character's visual appearance changed to match Image 2. Pose and composition UNCHANGED.",
+      "analysis": "Maintain the exact background, lighting, camera",
+      "verification": {
+        "enabled": false,
+        "passed": false,
+        "score": 0.0,
+        "reason": ""
+      },
+      "output_path": "data/output/row_0036/result.png",
+      "timing": {
+        "download_sec": 0.38,
+        "face_detection_sec": 2.63,
+        "upload_sec": 0.08,
+        "processing_sec": 32.1,
+        "total_sec": 35.48
+      },
+      "face_detection": {
+        "detected": true,
+        "method": "mediapipe_selfie_segmentation"
+      },
+      "input_metrics": {
+        "generated": {
+          "width": 1536,
+          "height": 2752,
+          "file_size_bytes": 5551732,
+          "file_size_mb": 5.29,
+          "megapixels": 4.23,
+          "brightness": 45.49,
+          "contrast": 50.81,
+          "mode": "RGB"
+        },
+        "original": {
+          "width": 608,
+          "height": 1081,
+          "file_size_bytes": 468679,
+          "file_size_mb": 0.45,
+          "megapixels": 0.66,
+          "brightness": 44.67,
+          "contrast": 51.3,
+          "mode": "RGB"
+        }
+      },
+      "output_metrics": {
+        "width": 1072,
+        "height": 1936,
+        "file_size_bytes": 2484114,
+        "file_size_mb": 2.37,
+        "megapixels": 2.08,
+        "brightness": 45.23,
+        "contrast": 51.35,
+        "mode": "RGB"
+      },
+      "error": null
+    },
+    {
+      "row": 37,
+      "success": true,
+      "timestamp": "2026-02-08T22:08:30.700355",
+      "generated_url": "https://dev-content.dashtoon.ai/stability-images/475e7fe2-98a4-4ed8-bcf3-a45fa3dd4443.png",
+      "original_url": "https://dev-content.dashtoon.ai/user-uploaded-files/8793a66e-b4b2-410d-8c38-9c709dc0eecf.png",
+      "edit_prompt": "Edit ONLY the character's visual appearance in Image 1. DO NOT change pose, position, or composition.\n\nCRITICAL - NEVER CHANGE (from Image 1):\n- Character's EXACT body pose, arm positions, leg positions, head tilt, body angle\n- Character's EXACT position in the frame (where they are standing/sitting)\n- Background, scene, environment - must be PIXEL PERFECT same\n- Camera angle, framing, composition, crop\n- Lighting and shadows\n- Composition\n\nSWAP ONLY these visual features FROM Image 2:\n- Face shape and facial features\n- Hair color, style, and length\n- Clothing appearance (colors, patterns, open/closed state of clothes eg: jacket open vs closed, style)\n- Visible accessories (jewelry, glasses, hats, etc.)\n\n- Facial expression fix: adjust eye gaze to look towards the right side of the frame, turn the head to face slightly towards the right side of the frame, set the expression to a serious, concerned look with closed mouth\nThink of it like a costume change on the EXACT same character pose. The silhouette and position should be IDENTICAL to Image 1.\n\nOutput: Image 1 with ONLY the character's visual appearance changed to match Image 2. Pose and composition UNCHANGED.",
+      "analysis": "Maintain the exact scene composition,",
+      "verification": {
+        "enabled": false,
+        "passed": false,
+        "score": 0.0,
+        "reason": ""
+      },
+      "output_path": "data/output/row_0037/result.png",
+      "timing": {
+        "download_sec": 0.38,
+        "face_detection_sec": 2.63,
+        "upload_sec": 0.08,
+        "processing_sec": 32.22,
+        "total_sec": 35.62
+      },
+      "face_detection": {
+        "detected": true,
+        "method": "mediapipe_selfie_segmentation"
+      },
+      "input_metrics": {
+        "generated": {
+          "width": 1536,
+          "height": 2752,
+          "file_size_bytes": 5454971,
+          "file_size_mb": 5.2,
+          "megapixels": 4.23,
+          "brightness": 57.43,
+          "contrast": 40.61,
+          "mode": "RGB"
+        },
+        "original": {
+          "width": 608,
+          "height": 1080,
+          "file_size_bytes": 544932,
+          "file_size_mb": 0.52,
+          "megapixels": 0.66,
+          "brightness": 53.33,
+          "contrast": 44.43,
+          "mode": "RGB"
+        }
+      },
+      "output_metrics": {
+        "width": 1072,
+        "height": 1936,
+        "file_size_bytes": 2516566,
+        "file_size_mb": 2.4,
+        "megapixels": 2.08,
+        "brightness": 56.63,
+        "contrast": 40.36,
+        "mode": "RGB"
+      },
+      "error": null
+    },
+    {
+      "row": 38,
+      "success": true,
+      "timestamp": "2026-02-08T22:09:06.321861",
+      "generated_url": "https://dev-content.dashtoon.ai/stability-images/8b3cf24b-897c-4f0d-89b2-e94713763032.png",
+      "original_url": "https://dev-content.dashtoon.ai/user-uploaded-files/77e4964f-13fb-43d7-9d50-8becf044c1a5.png",
+      "edit_prompt": "Edit ONLY the character's visual appearance in Image 1. DO NOT change pose, position, or composition.\n\nCRITICAL - NEVER CHANGE (from Image 1):\n- Character's EXACT body pose, arm positions, leg positions, head tilt, body angle\n- Character's EXACT position in the frame (where they are standing/sitting)\n- Background, scene, environment - must be PIXEL PERFECT same\n- Camera angle, framing, composition, crop\n- Lighting and shadows\n- Composition\n\nSWAP ONLY these visual features FROM Image 2:\n- Face shape and facial features\n- Hair color, style, and length\n- Clothing appearance (colors, patterns, open/closed state of clothes eg: jacket open vs closed, style)\n- Visible accessories (jewelry, glasses, hats, etc.)\n\n- Facial expression fix: tilt head slightly to the viewer's right, adjust mouth to be slightly open as if speaking, set expression to serious by removing the subtle smile, reorient head to the tilted position\nThink of it like a costume change on the EXACT same character pose. The silhouette and position should be IDENTICAL to Image 1.\n\nOutput: Image 1 with ONLY the character's visual appearance changed to match Image 2. Pose and composition UNCHANGED.",
+      "analysis": "Maintain the exact scene composition, background, camera",
+      "verification": {
+        "enabled": false,
+        "passed": false,
+        "score": 0.0,
+        "reason": ""
+      },
+      "output_path": "data/output/row_0038/result.png",
+      "timing": {
+        "download_sec": 0.38,
+        "face_detection_sec": 2.7,
+        "upload_sec": 0.08,
+        "processing_sec": 32.28,
+        "total_sec": 35.74
+      },
+      "face_detection": {
+        "detected": true,
+        "method": "mediapipe_selfie_segmentation"
+      },
+      "input_metrics": {
+        "generated": {
+          "width": 1536,
+          "height": 2752,
+          "file_size_bytes": 5511941,
+          "file_size_mb": 5.26,
+          "megapixels": 4.23,
+          "brightness": 49.59,
+          "contrast": 45.97,
+          "mode": "RGB"
+        },
+        "original": {
+          "width": 608,
+          "height": 1080,
+          "file_size_bytes": 529974,
+          "file_size_mb": 0.51,
+          "megapixels": 0.66,
+          "brightness": 51.32,
+          "contrast": 50.41,
+          "mode": "RGB"
+        }
+      },
+      "output_metrics": {
+        "width": 1072,
+        "height": 1936,
+        "file_size_bytes": 2426603,
+        "file_size_mb": 2.31,
+        "megapixels": 2.08,
+        "brightness": 50.04,
+        "contrast": 45.62,
+        "mode": "RGB"
+      },
+      "error": null
+    },
+    {
+      "row": 39,
+      "success": true,
+      "timestamp": "2026-02-08T22:09:42.061325",
+      "generated_url": "https://dev-content.dashtoon.ai/stability-images/feb45482-f598-42d2-9702-69ae6f703456.png",
+      "original_url": "https://dev-content.dashtoon.ai/user-uploaded-files/0f1d31d8-c1f9-4e23-9232-37d60192316d.png",
+      "edit_prompt": "Edit ONLY the character's visual appearance in Image 1. DO NOT change pose, position, or composition.\n\nCRITICAL - NEVER CHANGE (from Image 1):\n- Character's EXACT body pose, arm positions, leg positions, head tilt, body angle\n- Character's EXACT position in the frame (where they are standing/sitting)\n- Background, scene, environment - must be PIXEL PERFECT same\n- Camera angle, framing, composition, crop\n- Lighting and shadows\n- Composition\n\nSWAP ONLY these visual features FROM Image 2:\n- Face shape and facial features\n- Hair color, style, and length\n- Clothing appearance (colors, patterns, open/closed state of clothes eg: jacket open vs closed, style)\n- Visible accessories (jewelry, glasses, hats, etc.)\n\n- Facial expression fix: Adjust eye gaze to look directly at the camera, turn the head slightly to the right, widen the mouth to a fully open surprised speaking state, and lower the head to stop looking upward.\nThink of it like a costume change on the EXACT same character pose. The silhouette and position should be IDENTICAL to Image 1.\n\nOutput: Image 1 with ONLY the character's visual appearance changed to match Image 2. Pose and composition UNCHANGED.",
+      "analysis": "Maintain the exact scene composition, body",
+      "verification": {
+        "enabled": false,
+        "passed": false,
+        "score": 0.0,
+        "reason": ""
+      },
+      "output_path": "data/output/row_0039/result.png",
+      "timing": {
+        "download_sec": 0.13,
+        "face_detection_sec": 2.5,
+        "upload_sec": 0.08,
+        "processing_sec": 32.13,
+        "total_sec": 35.15
+      },
+      "face_detection": {
+        "detected": true,
+        "method": "mediapipe_selfie_segmentation"
+      },
+      "input_metrics": {
+        "generated": {
+          "width": 1536,
+          "height": 2752,
+          "file_size_bytes": 5162086,
+          "file_size_mb": 4.92,
+          "megapixels": 4.23,
+          "brightness": 78.41,
+          "contrast": 63.7,
+          "mode": "RGB"
+        },
+        "original": {
+          "width": 1022,
+          "height": 1800,
+          "file_size_bytes": 895378,
+          "file_size_mb": 0.85,
+          "megapixels": 1.84,
+          "brightness": 77.1,
+          "contrast": 63.94,
+          "mode": "RGB"
+        }
+      },
+      "output_metrics": {
+        "width": 1072,
+        "height": 1936,
+        "file_size_bytes": 2418730,
+        "file_size_mb": 2.31,
+        "megapixels": 2.08,
+        "brightness": 78.09,
+        "contrast": 62.92,
+        "mode": "RGB"
+      },
+      "error": null
+    },
+    {
+      "row": 40,
+      "success": true,
+      "timestamp": "2026-02-08T22:10:17.211457",
+      "generated_url": "https://dev-content.dashtoon.ai/stability-images/19dd8537-ee1c-4bc3-b801-aff205ac009b.png",
+      "original_url": "https://dev-content.dashtoon.ai/user-uploaded-files/c7e8d0d2-1461-406d-b137-6695c5316f5f.png",
+      "edit_prompt": "Edit ONLY the character's visual appearance in Image 1. DO NOT change pose, position, or composition.\n\nCRITICAL - NEVER CHANGE (from Image 1):\n- Character's EXACT body pose, arm positions, leg positions, head tilt, body angle\n- Character's EXACT position in the frame (where they are standing/sitting)\n- Background, scene, environment - must be PIXEL PERFECT same\n- Camera angle, framing, composition, crop\n- Lighting and shadows\n- Composition\n\nSWAP ONLY these visual features FROM Image 2:\n- Face shape and facial features\n- Hair color, style, and length\n- Clothing appearance (colors, patterns, open/closed state of clothes eg: jacket open vs closed, style)\n- Visible accessories (jewelry, glasses, hats, etc.)\n\n- Facial expression fix: Replace the face with a rounder Mediterranean-featured face with short wavy dark hair, adjust eyes to look up and to the viewer's right, maintain the wide open smile showing upper teeth, align head to be slightly turned to the viewer's right.\nThink of it like a costume change on the EXACT same character pose. The silhouette and position should be IDENTICAL to Image 1.\n\nOutput: Image 1 with ONLY the character's visual appearance changed to match Image 2. Pose and composition UNCHANGED.",
+      "analysis": "dev-content.dasht",
+      "verification": {
+        "enabled": false,
+        "passed": false,
+        "score": 0.0,
+        "reason": ""
+      },
+      "output_path": "data/output/row_0040/result.png",
+      "timing": {
+        "download_sec": 0.12,
+        "face_detection_sec": 2.67,
+        "upload_sec": 0.09,
+        "processing_sec": 32.26,
+        "total_sec": 35.41
+      },
+      "face_detection": {
+        "detected": true,
+        "method": "mediapipe_selfie_segmentation"
+      },
+      "input_metrics": {
+        "generated": {
+          "width": 1536,
+          "height": 2752,
+          "file_size_bytes": 5914604,
+          "file_size_mb": 5.64,
+          "megapixels": 4.23,
+          "brightness": 56.25,
+          "contrast": 44.3,
+          "mode": "RGB"
+        },
+        "original": {
+          "width": 1018,
+          "height": 1800,
+          "file_size_bytes": 687513,
+          "file_size_mb": 0.66,
+          "megapixels": 1.83,
+          "brightness": 60.81,
+          "contrast": 42.48,
+          "mode": "RGB"
+        }
+      },
+      "output_metrics": {
+        "width": 1072,
+        "height": 1936,
+        "file_size_bytes": 2745379,
+        "file_size_mb": 2.62,
+        "megapixels": 2.08,
+        "brightness": 55.81,
+        "contrast": 43.59,
+        "mode": "RGB"
+      },
+      "error": null
+    },
+    {
+      "row": 41,
+      "success": true,
+      "timestamp": "2026-02-08T22:10:52.621187",
+      "generated_url": "https://dev-content.dashtoon.ai/stability-images/8abb217d-70a0-43b9-943d-b433c2606919.png",
+      "original_url": "https://dev-content.dashtoon.ai/user-uploaded-files/27aeff7d-def1-4751-9ba0-a4f4923d789f.png",
+      "edit_prompt": "Edit ONLY the character's visual appearance in Image 1. DO NOT change pose, position, or composition.\n\nCRITICAL - NEVER CHANGE (from Image 1):\n- Character's EXACT body pose, arm positions, leg positions, head tilt, body angle\n- Character's EXACT position in the frame (where they are standing/sitting)\n- Background, scene, environment - must be PIXEL PERFECT same\n- Camera angle, framing, composition, crop\n- Lighting and shadows\n- Composition\n\nSWAP ONLY these visual features FROM Image 2:\n- Face shape and facial features\n- Hair color, style, and length\n- Clothing appearance (colors, patterns, open/closed state of clothes eg: jacket open vs closed, style)\n- Visible accessories (jewelry, glasses, hats, etc.)\n\n- Facial expression fix: Turn head slightly to the left, shift eye gaze to look towards the left away from camera, adjust mouth to be slightly open in a concerned speaking state, and replace red hair with long brown braided hair.\nThink of it like a costume change on the EXACT same character pose. The silhouette and position should be IDENTICAL to Image 1.\n\nOutput: Image 1 with ONLY the character's visual appearance changed to match Image 2. Pose and composition UNCHANGED.",
+      "analysis": "Maintain the exact body pose, arm",
+      "verification": {
+        "enabled": false,
+        "passed": false,
+        "score": 0.0,
+        "reason": ""
+      },
+      "output_path": "data/output/row_0041/result.png",
+      "timing": {
+        "download_sec": 0.12,
+        "face_detection_sec": 2.66,
+        "upload_sec": 0.09,
+        "processing_sec": 31.95,
+        "total_sec": 35.56
+      },
+      "face_detection": {
+        "detected": true,
+        "method": "mediapipe_selfie_segmentation"
+      },
+      "input_metrics": {
+        "generated": {
+          "width": 1536,
+          "height": 2752,
+          "file_size_bytes": 5483732,
+          "file_size_mb": 5.23,
+          "megapixels": 4.23,
+          "brightness": 107.93,
+          "contrast": 34.97,
+          "mode": "RGB"
+        },
+        "original": {
+          "width": 1024,
+          "height": 1800,
+          "file_size_bytes": 1000540,
+          "file_size_mb": 0.95,
+          "megapixels": 1.84,
+          "brightness": 123.68,
+          "contrast": 41.92,
+          "mode": "RGB"
+        }
+      },
+      "output_metrics": {
+        "width": 1072,
+        "height": 1936,
+        "file_size_bytes": 2467139,
+        "file_size_mb": 2.35,
+        "megapixels": 2.08,
+        "brightness": 108.69,
+        "contrast": 34.43,
+        "mode": "RGB"
+      },
+      "error": null
+    },
+    {
+      "row": 42,
+      "success": true,
+      "timestamp": "2026-02-08T22:11:28.183158",
+      "generated_url": "https://dev-content.dashtoon.ai/stability-images/b5798b3c-17f4-4c95-92fb-eaa036b88b73.png",
+      "original_url": "https://dev-content.dashtoon.ai/user-uploaded-files/a570ccfb-5143-4826-95d0-75c451491204.png",
+      "edit_prompt": "Edit ONLY the character's visual appearance in Image 1. DO NOT change pose, position, or composition.\n\nCRITICAL - NEVER CHANGE (from Image 1):\n- Character's EXACT body pose, arm positions, leg positions, head tilt, body angle\n- Character's EXACT position in the frame (where they are standing/sitting)\n- Background, scene, environment - must be PIXEL PERFECT same\n- Camera angle, framing, composition, crop\n- Lighting and shadows\n- Composition\n\nSWAP ONLY these visual features FROM Image 2:\n- Face shape and facial features\n- Hair color, style, and length\n- Clothing appearance (colors, patterns, open/closed state of clothes eg: jacket open vs closed, style)\n- Visible accessories (jewelry, glasses, hats, etc.)\n\n- Facial expression fix: Tilt the head slightly to the viewer's right, adjust to a concerned frowning expression, close the mouth with slightly downturned lips, and align eye gaze to look directly at the hand holding the cup.\nThink of it like a costume change on the EXACT same character pose. The silhouette and position should be IDENTICAL to Image 1.\n\nOutput: Image 1 with ONLY the character's visual appearance changed to match Image 2. Pose and composition UNCHANGED.",
+      "analysis": "Maintain the exact scene composition, background, camera",
+      "verification": {
+        "enabled": false,
+        "passed": false,
+        "score": 0.0,
+        "reason": ""
+      },
+      "output_path": "data/output/row_0042/result.png",
+      "timing": {
+        "download_sec": 0.12,
+        "face_detection_sec": 2.59,
+        "upload_sec": 0.08,
+        "processing_sec": 32.14,
+        "total_sec": 35.22
+      },
+      "face_detection": {
+        "detected": true,
+        "method": "mediapipe_selfie_segmentation"
+      },
+      "input_metrics": {
+        "generated": {
+          "width": 1536,
+          "height": 2752,
+          "file_size_bytes": 5478623,
+          "file_size_mb": 5.22,
+          "megapixels": 4.23,
+          "brightness": 107.57,
+          "contrast": 38.98,
+          "mode": "RGB"
+        },
+        "original": {
+          "width": 1016,
+          "height": 1800,
+          "file_size_bytes": 1053789,
+          "file_size_mb": 1.0,
+          "megapixels": 1.83,
+          "brightness": 117.14,
+          "contrast": 43.88,
+          "mode": "RGB"
+        }
+      },
+      "output_metrics": {
+        "width": 1072,
+        "height": 1936,
+        "file_size_bytes": 2503292,
+        "file_size_mb": 2.39,
+        "megapixels": 2.08,
+        "brightness": 107.97,
+        "contrast": 38.49,
+        "mode": "RGB"
+      },
+      "error": null
+    },
+    {
+      "row": 43,
+      "success": true,
+      "timestamp": "2026-02-08T22:12:03.404124",
+      "generated_url": "https://dev-content.dashtoon.ai/stability-images/d779b12b-c818-4ddc-b419-389e8e59e2a3.png",
+      "original_url": "https://dev-content.dashtoon.ai/user-uploaded-files/986e9159-a864-4b4b-958b-76996f8ab66a.png",
+      "edit_prompt": "Edit ONLY the character's visual appearance in Image 1. DO NOT change pose, position, or composition.\n\nCRITICAL - NEVER CHANGE (from Image 1):\n- Character's EXACT body pose, arm positions, leg positions, head tilt, body angle\n- Character's EXACT position in the frame (where they are standing/sitting)\n- Background, scene, environment - must be PIXEL PERFECT same\n- Camera angle, framing, composition, crop\n- Lighting and shadows\n- Composition\n\nSWAP ONLY these visual features FROM Image 2:\n- Face shape and facial features\n- Hair color, style, and length\n- Clothing appearance (colors, patterns, open/closed state of clothes eg: jacket open vs closed, style)\n- Visible accessories (jewelry, glasses, hats, etc.)\n\n- Facial expression fix: Tilt the woman's head downwards slightly, and adjust her hair to be long, loose wavy blonde, replacing the straight hair with wavy texture and longer, flowing length.\nThink of it like a costume change on the EXACT same character pose. The silhouette and position should be IDENTICAL to Image 1.\n\nOutput: Image 1 with ONLY the character's visual appearance changed to match Image 2. Pose and composition UNCHANGED.",
+      "analysis": "Maintain the exact scene composition,",
+      "verification": {
+        "enabled": false,
+        "passed": false,
+        "score": 0.0,
+        "reason": ""
+      },
+      "output_path": "data/output/row_0043/result.png",
+      "timing": {
+        "download_sec": 0.57,
+        "face_detection_sec": 2.7,
+        "upload_sec": 0.08,
+        "processing_sec": 32.18,
+        "total_sec": 35.85
+      },
+      "face_detection": {
+        "detected": true,
+        "method": "mediapipe_selfie_segmentation"
+      },
+      "input_metrics": {
+        "generated": {
+          "width": 1536,
+          "height": 2752,
+          "file_size_bytes": 5348676,
+          "file_size_mb": 5.1,
+          "megapixels": 4.23,
+          "brightness": 108.43,
+          "contrast": 63.69,
+          "mode": "RGB"
+        },
+        "original": {
+          "width": 1016,
+          "height": 1800,
+          "file_size_bytes": 882873,
+          "file_size_mb": 0.84,
+          "megapixels": 1.83,
+          "brightness": 125.12,
+          "contrast": 58.34,
+          "mode": "RGB"
+        }
+      },
+      "output_metrics": {
+        "width": 1072,
+        "height": 1936,
+        "file_size_bytes": 2494174,
+        "file_size_mb": 2.38,
+        "megapixels": 2.08,
+        "brightness": 107.99,
+        "contrast": 62.59,
+        "mode": "RGB"
+      },
+      "error": null
+    },
+    {
+      "row": 44,
+      "success": true,
+      "timestamp": "2026-02-08T22:12:39.259399",
+      "generated_url": "https://dev-content.dashtoon.ai/stability-images/b9c3abc6-fdd5-4094-99bd-1e69e68851c5.png",
+      "original_url": "https://dev-content.dashtoon.ai/user-uploaded-files/c9b48212-7e9f-49a9-b356-ec14255ea8c9.png",
+      "edit_prompt": "Edit ONLY the character's visual appearance in Image 1. DO NOT change pose, position, or composition.\n\nCRITICAL - NEVER CHANGE (from Image 1):\n- Character's EXACT body pose, arm positions, leg positions, head tilt, body angle\n- Character's EXACT position in the frame (where they are standing/sitting)\n- Background, scene, environment - must be PIXEL PERFECT same\n- Camera angle, framing, composition, crop\n- Lighting and shadows\n- Composition\n\nSWAP ONLY these visual features FROM Image 2:\n- Face shape and facial features\n- Hair color, style, and length\n- Clothing appearance (colors, patterns, open/closed state of clothes eg: jacket open vs closed, style)\n- Visible accessories (jewelry, glasses, hats, etc.)\n\n- Facial expression fix: Adjust eye gaze to look downward, tilt head slightly down and turn gently to the left, relax the furrowed brow to create a sad soft speaking expression, set mouth to a slightly open soft speaking state, and correct hair color to light brown/blonde.\nThink of it like a costume change on the EXACT same character pose. The silhouette and position should be IDENTICAL to Image 1.\n\nOutput: Image 1 with ONLY the character's visual appearance changed to match Image 2. Pose and composition UNCHANGED.",
+      "analysis": "Maintain the exact scene composition, body pose",
+      "verification": {
+        "enabled": false,
+        "passed": false,
+        "score": 0.0,
+        "reason": ""
+      },
+      "output_path": "data/output/row_0044/result.png",
+      "timing": {
+        "download_sec": 0.28,
+        "face_detection_sec": 2.69,
+        "upload_sec": 0.47,
+        "processing_sec": 38.25,
+        "total_sec": 42.94
+      },
+      "face_detection": {
+        "detected": true,
+        "method": "mediapipe_selfie_segmentation"
+      },
+      "input_metrics": {
+        "generated": {
+          "width": 1536,
+          "height": 2752,
+          "file_size_bytes": 5543424,
+          "file_size_mb": 5.29,
+          "megapixels": 4.23,
+          "brightness": 94.71,
+          "contrast": 48.35,
+          "mode": "RGB"
+        },
+        "original": {
+          "width": 4056,
+          "height": 7168,
+          "file_size_bytes": 44957441,
+          "file_size_mb": 42.87,
+          "megapixels": 29.07,
+          "brightness": 90.84,
+          "contrast": 51.95,
+          "mode": "RGBA"
+        }
+      },
+      "output_metrics": {
+        "width": 1072,
+        "height": 1936,
+        "file_size_bytes": 2559890,
+        "file_size_mb": 2.44,
+        "megapixels": 2.08,
+        "brightness": 95.8,
+        "contrast": 47.95,
+        "mode": "RGB"
+      },
+      "error": null
+    },
+    {
+      "row": 45,
+      "success": true,
+      "timestamp": "2026-02-08T22:13:22.204082",
+      "generated_url": "https://dev-content.dashtoon.ai/stability-images/45de0764-1905-4024-bcc5-a8cf461ff500.png",
+      "original_url": "https://dev-content.dashtoon.ai/user-uploaded-files/fe0e6fce-e485-4501-8372-26e7d8024115.png",
+      "edit_prompt": "Edit ONLY the character's visual appearance in Image 1. DO NOT change pose, position, or composition.\n\nCRITICAL - NEVER CHANGE (from Image 1):\n- Character's EXACT body pose, arm positions, leg positions, head tilt, body angle\n- Character's EXACT position in the frame (where they are standing/sitting)\n- Background, scene, environment - must be PIXEL PERFECT same\n- Camera angle, framing, composition, crop\n- Lighting and shadows\n- Composition\n\nSWAP ONLY these visual features FROM Image 2:\n- Face shape and facial features\n- Hair color, style, and length\n- Clothing appearance (colors, patterns, open/closed state of clothes eg: jacket open vs closed, style)\n- Visible accessories (jewelry, glasses, hats, etc.)\n\n- Facial expression fix: tilt the head slightly downwards, adjust eye gaze to look down instead of straight ahead, change hair color to medium brown, refine the facial expression to appear more concerned with softer, relaxed features\nThink of it like a costume change on the EXACT same character pose. The silhouette and position should be IDENTICAL to Image 1.\n\nOutput: Image 1 with ONLY the character's visual appearance changed to match Image 2. Pose and composition UNCHANGED.",
+      "analysis": "Maintain the exact scene composition, body pose,",
+      "verification": {
+        "enabled": false,
+        "passed": false,
+        "score": 0.0,
+        "reason": ""
+      },
+      "output_path": "data/output/row_0045/result.png",
+      "timing": {
+        "download_sec": 0.25,
+        "face_detection_sec": 2.68,
+        "upload_sec": 0.41,
+        "processing_sec": 38.38,
+        "total_sec": 43.19
+      },
+      "face_detection": {
+        "detected": true,
+        "method": "mediapipe_selfie_segmentation"
+      },
+      "input_metrics": {
+        "generated": {
+          "width": 1536,
+          "height": 2752,
+          "file_size_bytes": 5419341,
+          "file_size_mb": 5.17,
+          "megapixels": 4.23,
+          "brightness": 97.03,
+          "contrast": 57.18,
+          "mode": "RGB"
+        },
+        "original": {
+          "width": 4016,
+          "height": 7184,
+          "file_size_bytes": 38952505,
+          "file_size_mb": 37.15,
+          "megapixels": 28.85,
+          "brightness": 105.33,
+          "contrast": 63.16,
+          "mode": "RGBA"
+        }
+      },
+      "output_metrics": {
+        "width": 1072,
+        "height": 1936,
+        "file_size_bytes": 2433546,
+        "file_size_mb": 2.32,
+        "megapixels": 2.08,
+        "brightness": 98.06,
+        "contrast": 56.86,
+        "mode": "RGB"
+      },
+      "error": null
+    },
+    {
+      "row": 46,
+      "success": true,
+      "timestamp": "2026-02-08T22:14:05.399571",
+      "generated_url": "https://dev-content.dashtoon.ai/stability-images/eeba7320-d3e9-4922-be9c-97a1884d967a.png",
+      "original_url": "https://dev-content.dashtoon.ai/user-uploaded-files/8cd4dd4a-d473-401d-b62e-7d10de23cef7.png",
+      "edit_prompt": "Edit ONLY the character's visual appearance in Image 1. DO NOT change pose, position, or composition.\n\nCRITICAL - NEVER CHANGE (from Image 1):\n- Character's EXACT body pose, arm positions, leg positions, head tilt, body angle\n- Character's EXACT position in the frame (where they are standing/sitting)\n- Background, scene, environment - must be PIXEL PERFECT same\n- Camera angle, framing, composition, crop\n- Lighting and shadows\n- Composition\n\nSWAP ONLY these visual features FROM Image 2:\n- Face shape and facial features\n- Hair color, style, and length\n- Clothing appearance (colors, patterns, open/closed state of clothes eg: jacket open vs closed, style)\n- Visible accessories (jewelry, glasses, hats, etc.)\n\n- Facial expression fix: Change hair color to light brown, tilt head back slightly, turn head toward the viewer's left, adjust closed eyes to gaze upwards, and move the braid to the viewer's right side of the head, refining the expression to a strained upward-looking pained smile.\nThink of it like a costume change on the EXACT same character pose. The silhouette and position should be IDENTICAL to Image 1.\n\nOutput: Image 1 with ONLY the character's visual appearance changed to match Image 2. Pose and composition UNCHANGED.",
+      "analysis": "Maintain the exact scene composition, camera framing",
+      "verification": {
+        "enabled": false,
+        "passed": false,
+        "score": 0.0,
+        "reason": ""
+      },
+      "output_path": "data/output/row_0046/result.png",
+      "timing": {
+        "download_sec": 0.7,
+        "face_detection_sec": 2.64,
+        "upload_sec": 0.44,
+        "processing_sec": 35.2,
+        "total_sec": 40.19
+      },
+      "face_detection": {
+        "detected": true,
+        "method": "mediapipe_selfie_segmentation"
+      },
+      "input_metrics": {
+        "generated": {
+          "width": 1536,
+          "height": 2752,
+          "file_size_bytes": 5539226,
+          "file_size_mb": 5.28,
+          "megapixels": 4.23,
+          "brightness": 88.16,
+          "contrast": 47.17,
+          "mode": "RGB"
+        },
+        "original": {
+          "width": 4056,
+          "height": 7192,
+          "file_size_bytes": 43533823,
+          "file_size_mb": 41.52,
+          "megapixels": 29.17,
+          "brightness": 86.85,
+          "contrast": 57.08,
+          "mode": "RGBA"
+        }
+      },
+      "output_metrics": {
+        "width": 1072,
+        "height": 1936,
+        "file_size_bytes": 2541532,
+        "file_size_mb": 2.42,
+        "megapixels": 2.08,
+        "brightness": 89.32,
+        "contrast": 47.11,
+        "mode": "RGB"
+      },
+      "error": null
+    },
+    {
+      "row": 47,
+      "success": true,
+      "timestamp": "2026-02-08T22:14:45.589728",
+      "generated_url": "https://dev-content.dashtoon.ai/stability-images/87c27173-1830-4ffa-adad-832cc0cc2bbd.png",
+      "original_url": "https://dev-content.dashtoon.ai/user-uploaded-files/926cbb75-654b-4413-8091-c5603bd5d862.png",
+      "edit_prompt": "Edit ONLY the character's visual appearance in Image 1. DO NOT change pose, position, or composition.\n\nCRITICAL - NEVER CHANGE (from Image 1):\n- Character's EXACT body pose, arm positions, leg positions, head tilt, body angle\n- Character's EXACT position in the frame (where they are standing/sitting)\n- Background, scene, environment - must be PIXEL PERFECT same\n- Camera angle, framing, composition, crop\n- Lighting and shadows\n- Composition\n\nSWAP ONLY these visual features FROM Image 2:\n- Face shape and facial features\n- Hair color, style, and length\n- Clothing appearance (colors, patterns, open/closed state of clothes eg: jacket open vs closed, style)\n- Visible accessories (jewelry, glasses, hats, etc.)\n\n- Facial expression fix: adjust eyes to be closed while looking down at the garment, furrow eyebrows to create a concerned/frustrated expression, adjust mouth to be closed and slightly pursed, tilt head slightly forward to look down at the fabric\nThink of it like a costume change on the EXACT same character pose. The silhouette and position should be IDENTICAL to Image 1.\n\nOutput: Image 1 with ONLY the character's visual appearance changed to match Image 2. Pose and composition UNCHANGED.",
+      "analysis": "Maintain the exact scene composition, camera",
+      "verification": {
+        "enabled": false,
+        "passed": false,
+        "score": 0.0,
+        "reason": ""
+      },
+      "output_path": "data/output/row_0047/result.png",
+      "timing": {
+        "download_sec": 0.23,
+        "face_detection_sec": 2.7,
+        "upload_sec": 0.38,
+        "processing_sec": 35.55,
+        "total_sec": 40.02
+      },
+      "face_detection": {
+        "detected": true,
+        "method": "mediapipe_selfie_segmentation"
+      },
+      "input_metrics": {
+        "generated": {
+          "width": 1536,
+          "height": 2752,
+          "file_size_bytes": 5291336,
+          "file_size_mb": 5.05,
+          "megapixels": 4.23,
+          "brightness": 132.76,
+          "contrast": 53.45,
+          "mode": "RGB"
+        },
+        "original": {
+          "width": 4072,
+          "height": 7192,
+          "file_size_bytes": 35464130,
+          "file_size_mb": 33.82,
+          "megapixels": 29.29,
+          "brightness": 135.74,
+          "contrast": 45.42,
+          "mode": "RGBA"
+        }
+      },
+      "output_metrics": {
+        "width": 1072,
+        "height": 1936,
+        "file_size_bytes": 2459016,
+        "file_size_mb": 2.35,
+        "megapixels": 2.08,
+        "brightness": 133.38,
+        "contrast": 53.0,
+        "mode": "RGB"
+      },
+      "error": null
+    },
+    {
+      "row": 48,
+      "success": true,
+      "timestamp": "2026-02-08T22:15:25.605874",
+      "generated_url": "https://dev-content.dashtoon.ai/stability-images/ba835fde-167d-4e52-9ae0-2987d1b066bb.png",
+      "original_url": "https://dev-content.dashtoon.ai/user-uploaded-files/484c1f7f-16f8-4d40-9f00-75fc257a5077.png",
+      "edit_prompt": "Edit ONLY the character's visual appearance in Image 1. DO NOT change pose, position, or composition.\n\nCRITICAL - NEVER CHANGE (from Image 1):\n- Character's EXACT body pose, arm positions, leg positions, head tilt, body angle\n- Character's EXACT position in the frame (where they are standing/sitting)\n- Background, scene, environment - must be PIXEL PERFECT same\n- Camera angle, framing, composition, crop\n- Lighting and shadows\n- Composition\n\nSWAP ONLY these visual features FROM Image 2:\n- Face shape and facial features\n- Hair color, style, and length\n- Clothing appearance (colors, patterns, open/closed state of clothes eg: jacket open vs closed, style)\n- Visible accessories (jewelry, glasses, hats, etc.)\n\n- Facial expression fix: tilt head down to look at the cloth being held, adjust eyes to look down with partially closed lids, set mouth to slightly open with visible teeth in a strained concerned expression\nThink of it like a costume change on the EXACT same character pose. The silhouette and position should be IDENTICAL to Image 1.\n\nOutput: Image 1 with ONLY the character's visual appearance changed to match Image 2. Pose and composition UNCHANGED.",
+      "analysis": "Maintain the exact scene composition, camera",
+      "verification": {
+        "enabled": false,
+        "passed": false,
+        "score": 0.0,
+        "reason": ""
+      },
+      "output_path": "data/output/row_0048/result.png",
+      "timing": {
+        "download_sec": 1.36,
+        "face_detection_sec": 2.64,
+        "upload_sec": 0.42,
+        "processing_sec": 35.63,
+        "total_sec": 41.25
+      },
+      "face_detection": {
+        "detected": true,
+        "method": "mediapipe_selfie_segmentation"
+      },
+      "input_metrics": {
+        "generated": {
+          "width": 1536,
+          "height": 2752,
+          "file_size_bytes": 5364510,
+          "file_size_mb": 5.12,
+          "megapixels": 4.23,
+          "brightness": 157.77,
+          "contrast": 50.61,
+          "mode": "RGB"
+        },
+        "original": {
+          "width": 4048,
+          "height": 7168,
+          "file_size_bytes": 40055999,
+          "file_size_mb": 38.2,
+          "megapixels": 29.02,
+          "brightness": 141.08,
+          "contrast": 48.53,
+          "mode": "RGBA"
+        }
+      },
+      "output_metrics": {
+        "width": 1072,
+        "height": 1936,
+        "file_size_bytes": 2473330,
+        "file_size_mb": 2.36,
+        "megapixels": 2.08,
+        "brightness": 157.48,
+        "contrast": 49.99,
+        "mode": "RGB"
+      },
+      "error": null
+    },
+    {
+      "row": 49,
+      "success": true,
+      "timestamp": "2026-02-08T22:16:06.859079",
+      "generated_url": "https://dev-content.dashtoon.ai/stability-images/013b18cd-face-4b01-8715-ac1b3268e8c0.png",
+      "original_url": "https://dev-content.dashtoon.ai/user-uploaded-files/a8534e8a-2974-426d-be4d-d1789d69a6e1.png",
+      "edit_prompt": "Edit ONLY the character's visual appearance in Image 1. DO NOT change pose, position, or composition.\n\nCRITICAL - NEVER CHANGE (from Image 1):\n- Character's EXACT body pose, arm positions, leg positions, head tilt, body angle\n- Character's EXACT position in the frame (where they are standing/sitting)\n- Background, scene, environment - must be PIXEL PERFECT same\n- Camera angle, framing, composition, crop\n- Lighting and shadows\n- Composition\n\nSWAP ONLY these visual features FROM Image 2:\n- Face shape and facial features\n- Hair color, style, and length\n- Clothing appearance (colors, patterns, open/closed state of clothes eg: jacket open vs closed, style)\n- Visible accessories (jewelry, glasses, hats, etc.)\n\n- Facial expression fix: Adjust eye gaze to look downwards, tilt head down slightly, shift facial expression to a speaking concerned look with an open mouth, and change hair color to dark brown.\nThink of it like a costume change on the EXACT same character pose. The silhouette and position should be IDENTICAL to Image 1.\n\nOutput: Image 1 with ONLY the character's visual appearance changed to match Image 2. Pose and composition UNCHANGED.",
+      "analysis": "Maintain the exact scene composition, camera framing,",
+      "verification": {
+        "enabled": false,
+        "passed": false,
+        "score": 0.0,
+        "reason": ""
+      },
+      "output_path": "data/output/row_0049/result.png",
+      "timing": {
+        "download_sec": 0.25,
+        "face_detection_sec": 2.64,
+        "upload_sec": 0.47,
+        "processing_sec": 38.19,
+        "total_sec": 42.8
+      },
+      "face_detection": {
+        "detected": true,
+        "method": "mediapipe_selfie_segmentation"
+      },
+      "input_metrics": {
+        "generated": {
+          "width": 1536,
+          "height": 2752,
+          "file_size_bytes": 5357372,
+          "file_size_mb": 5.11,
+          "megapixels": 4.23,
+          "brightness": 104.09,
+          "contrast": 49.52,
+          "mode": "RGB"
+        },
+        "original": {
+          "width": 4064,
+          "height": 7200,
+          "file_size_bytes": 43855534,
+          "file_size_mb": 41.82,
+          "megapixels": 29.26,
+          "brightness": 111.18,
+          "contrast": 53.27,
+          "mode": "RGBA"
+        }
+      },
+      "output_metrics": {
+        "width": 1072,
+        "height": 1936,
+        "file_size_bytes": 2357487,
+        "file_size_mb": 2.25,
+        "megapixels": 2.08,
+        "brightness": 105.29,
+        "contrast": 48.72,
+        "mode": "RGB"
+      },
+      "error": null
+    }
+  ]
+}
