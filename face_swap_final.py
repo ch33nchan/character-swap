@@ -788,6 +788,7 @@ def process_row(
     lora_strength: Optional[float] = None,
     lora_trigger: str = "",
     base_image_source: str = "generated",
+    use_csv_edit_prompt: bool = False,
 ) -> Dict[str, Any]:
     """Process single CSV row and return detailed results"""
     logger.info(f"\n{'='*60}")
@@ -830,12 +831,12 @@ def process_row(
     
     try:
         generated_url = extract_image_url(get_first_available_value(row_data, ["Generated Image"]))
-        reference_url = extract_image_url(
-            get_first_available_value(row_data, ["Reference Angle", "Front Angle"])
-        )
+        reference_url = extract_image_url(get_first_available_value(row_data, ["Reference Angle"]))
+        if not reference_url:
+            reference_url = extract_image_url(get_first_available_value(row_data, ["Front Angle"]))
         reference_angle_url = extract_image_url(get_first_available_value(row_data, ["Reference Angle"]))
         front_angle_url = extract_image_url(get_first_available_value(row_data, ["Front Angle"]))
-        edit_prompt = get_first_available_value(row_data, ["Edit Prompt", "edit prompt", "Prompt"])
+        edit_prompt = get_first_available_value(row_data, ["Edit Prompt", "edit prompt", "Prompt"]) if use_csv_edit_prompt else ""
         result['generated_url'] = generated_url
         result['reference_url'] = reference_url
         result['edit_prompt'] = edit_prompt
@@ -1013,6 +1014,7 @@ def main():
     parser.add_argument('--lora-strength', type=float, default=None, help='Override LoRA strength for workflow node 161')
     parser.add_argument('--lora-trigger', default='', help='Trigger token appended to row prompt (e.g., mychar)')
     parser.add_argument('--base-image-source', choices=['reference', 'generated'], default='generated', help='Which image is used as inpaint base/mask source (default: generated)')
+    parser.add_argument('--use-csv-edit-prompt', action='store_true', help='Append Edit Prompt/Prompt column text (default: off)')
     parser.add_argument(
         '--minimal-csv',
         action=argparse.BooleanOptionalAction,
@@ -1056,6 +1058,7 @@ def main():
             args.lora_trigger or "<none>",
         )
     logger.info(f"Base image source: {args.base_image_source}")
+    logger.info(f"Use CSV edit prompt: {args.use_csv_edit_prompt}")
     
     end = args.end_row if args.end_row else len(df)
     results = []
@@ -1109,6 +1112,7 @@ def main():
             args.lora_strength,
             args.lora_trigger,
             args.base_image_source,
+            args.use_csv_edit_prompt,
         )
         results.append(result)
         
@@ -1186,6 +1190,7 @@ def main():
             'lora_strength': args.lora_strength,
             'lora_trigger': args.lora_trigger,
             'base_image_source': args.base_image_source,
+            'use_csv_edit_prompt': args.use_csv_edit_prompt,
             'results_json': args.results_json,
         },
         'summary': {
