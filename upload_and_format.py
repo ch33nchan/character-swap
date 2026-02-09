@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 Upload result images to Azure Blob and write minimal CSV:
-Original Image, Generated Image, new image
+Generated Image, Reference Angle, new image
 Requires: pip install azure-storage-blob pandas
 """
 
@@ -44,7 +44,7 @@ def upload_image_to_azure(image_path: Path, blob_name: str) -> str:
 
 
 def main():
-    parser = argparse.ArgumentParser(description="Upload results to Azure; output minimal CSV (Original Image, Generated Image, new image)")
+    parser = argparse.ArgumentParser(description="Upload results to Azure; output minimal CSV (Generated Image, Reference Angle, new image)")
     parser.add_argument("--csv", required=True, help="Input CSV path")
     parser.add_argument("--output-csv", help="Output CSV path (default: input_with_new_image.csv)")
     args = parser.parse_args()
@@ -56,12 +56,12 @@ def main():
         return
 
     df = pd.read_csv(csv_path)
-    for required_col in ("Original Image", "Generated Image"):
-        if required_col not in df.columns:
-            print(f"ERROR: Missing required column: {required_col}")
-            return
-
-    out_df = df[["Original Image", "Generated Image"]].copy()
+    if "Generated Image" not in df.columns:
+        print("ERROR: Missing required column: Generated Image")
+        return
+    if "Reference Angle" not in df.columns:
+        df["Reference Angle"] = ""
+    out_df = df[["Generated Image", "Reference Angle"]].copy()
     out_df["new image"] = ""
 
     upload_details = []

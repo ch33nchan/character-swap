@@ -787,7 +787,7 @@ def process_row(
     lora_name: str = "",
     lora_strength: Optional[float] = None,
     lora_trigger: str = "",
-    base_image_source: str = "original",
+    base_image_source: str = "generated",
 ) -> Dict[str, Any]:
     """Process single CSV row and return detailed results"""
     logger.info(f"\n{'='*60}")
@@ -803,7 +803,7 @@ def process_row(
         'success': False,
         'timestamp': datetime.now().isoformat(),
         'generated_url': '',
-        'original_url': '',
+        'reference_url': '',
         'edit_prompt': '',
         'analysis': '',
         'verification': {
@@ -829,18 +829,18 @@ def process_row(
     total_start = time.time()
     
     try:
-        generated_url = extract_image_url(
-            get_first_available_value(row_data, ["Generated Image", "Reference Angle", "Front Angle"])
+        generated_url = extract_image_url(get_first_available_value(row_data, ["Generated Image"]))
+        reference_url = extract_image_url(
+            get_first_available_value(row_data, ["Reference Angle", "Front Angle"])
         )
-        original_url = extract_image_url(get_first_available_value(row_data, ["Original Image"]))
         reference_angle_url = extract_image_url(get_first_available_value(row_data, ["Reference Angle"]))
         front_angle_url = extract_image_url(get_first_available_value(row_data, ["Front Angle"]))
         edit_prompt = get_first_available_value(row_data, ["Edit Prompt", "edit prompt", "Prompt"])
         result['generated_url'] = generated_url
-        result['original_url'] = original_url
+        result['reference_url'] = reference_url
         result['edit_prompt'] = edit_prompt
         
-        if not generated_url or not original_url:
+        if not generated_url or not reference_url:
             result['error'] = "Missing image URLs"
             logger.error(result['error'])
             return result
@@ -849,26 +849,26 @@ def process_row(
         download_start = time.time()
         logger.info("Downloading...")
         gen_path = input_dir / "generated_raw.png"
-        orig_path = input_dir / "original.png"
+        ref_path = input_dir / "reference.png"
         
         if not download_image(generated_url, gen_path):
             result['error'] = "Failed to download generated image"
             return result
-        if not download_image(original_url, orig_path):
-            result['error'] = "Failed to download original image"
+        if not download_image(reference_url, ref_path):
+            result['error'] = "Failed to download reference image"
             return result
         result['timing']['download_sec'] = round(time.time() - download_start, 2)
         
         # Get input metrics
         result['input_metrics']['generated'] = get_image_metrics(gen_path)
-        result['input_metrics']['original'] = get_image_metrics(orig_path)
+        result['input_metrics']['reference'] = get_image_metrics(ref_path)
         
         # Select base/reference by requested direction
         if base_image_source == "generated":
             base_raw_path = gen_path
-            reference_raw_path = orig_path
+            reference_raw_path = ref_path
         else:
-            base_raw_path = orig_path
+            base_raw_path = ref_path
             reference_raw_path = gen_path
 
         # Face/character mask on base image
@@ -906,7 +906,7 @@ def process_row(
         analysis = ""
         if use_gemini_analysis:
             analysis = generate_pose_analysis_with_gemini(
-                original_url=original_url,
+                original_url=reference_url,
                 generated_url=generated_url,
                 reference_angle_url=reference_angle_url,
                 front_angle_url=front_angle_url,
@@ -915,9 +915,9 @@ def process_row(
                 timeout=gemini_timeout,
             )
             result['analysis'] = analysis
-        max_attempts = max(1, int(verifier_max_attempts if use_gemini_verifier else 1))
+        max_attempts = 1
         best_attempt_path: Optional[Path] = None
-        best_verification = {"enabled": use_gemini_verifier, "passed": False, "score": 0.0, "reason": ""}
+        best_verification = {"enabled": False, "passed": False, "score": 0.0, "reason": "Verifier disabled"}
         last_error = ""
         row_prompt = (
             f"{build_row_prompt(edit_prompt, analysis, base_image_source=base_image_source)}\nCharacter token: {lora_trigger}"
@@ -957,43 +957,9 @@ def process_row(
                 last_error = "Failed to download result"
                 continue
 
-            if use_gemini_verifier:
-                verification = verify_output_with_gemini(
-                    original_path=orig_path,
-                    generated_path=gen_path,
-                    output_path=attempt_path,
-                    edit_prompt=edit_prompt,
-                    gemini_model=gemini_model,
-                    timeout=gemini_timeout,
-                )
-                if verification.get("enabled", False):
-                    verification["passed"] = (
-                        verification.get("passed", False)
-                        and float(verification.get("score", 0.0)) >= verifier_threshold
-                    )
-                logger.info(
-                    "Verifier (attempt %d/%d): passed=%s score=%.3f reason=%s",
-                    attempt_idx,
-                    max_attempts,
-                    verification.get("passed", False),
-                    float(verification.get("score", 0.0)),
-                    verification.get("reason", ""),
-                )
-
-                if float(verification.get("score", 0.0)) > float(best_verification.get("score", 0.0)):
-                    best_verification = verification
-                    best_attempt_path = attempt_path
-                elif best_attempt_path is None:
-                    best_verification = verification
-                    best_attempt_path = attempt_path
-
-                if verification.get("passed", False):
-                    best_verification = verification
-                    best_attempt_path = attempt_path
-                    break
-            else:
-                best_attempt_path = attempt_path
-                break
+            # Verifier intentionally disabled for this workflow revision.
+            best_attempt_path = attempt_path
+            break
 
         if best_attempt_path is None:
             result['error'] = last_error or "All attempts failed"
@@ -1010,15 +976,7 @@ def process_row(
         result['timing']['processing_sec'] = round(time.time() - process_start, 2)
         result['output_path'] = str(result_path)
         result['output_metrics'] = get_image_metrics(result_path)
-        if use_gemini_verifier:
-            result['verification'] = best_verification
-            if not best_verification.get("passed", False):
-                logger.warning(
-                    "Row %d did not pass verifier after %d attempts; using best score %.3f",
-                    row_num,
-                    max_attempts,
-                    float(best_verification.get("score", 0.0)),
-                )
+        result['verification'] = best_verification
         
         result['success'] = True
         logger.info(f"SUCCESS: {result_path}")
@@ -1047,19 +1005,19 @@ def main():
     parser.add_argument('--use-gemini-analysis', action='store_true', help='Use Gemini to analyze pose/scene and augment row prompt')
     parser.add_argument('--gemini-model', type=str, default=DEFAULT_GEMINI_MODEL, help=f'Gemini model name (default: {DEFAULT_GEMINI_MODEL})')
     parser.add_argument('--gemini-timeout', type=int, default=GEMINI_TIMEOUT, help=f'Gemini timeout in seconds (default: {GEMINI_TIMEOUT})')
-    parser.add_argument('--use-gemini-verifier', action='store_true', help='Verify output against intended transfer rule using Gemini')
+    parser.add_argument('--use-gemini-verifier', action='store_true', help='Deprecated: verifier is disabled in this workflow')
     parser.add_argument('--verifier-threshold', type=float, default=0.75, help='Verifier minimum score for pass (default: 0.75)')
-    parser.add_argument('--verifier-max-attempts', type=int, default=1, help='Regenerate each row up to this many times until verifier passes (default: 1)')
+    parser.add_argument('--verifier-max-attempts', type=int, default=1, help='Deprecated: verifier is disabled in this workflow')
     parser.add_argument('--mask-mode', choices=['character', 'face'], default='character', help='Mask scope for generated image transfer (default: character)')
     parser.add_argument('--lora-path', default='', help='LoRA filename in ComfyUI models/loras (e.g., character_expression_lora.safetensors)')
     parser.add_argument('--lora-strength', type=float, default=None, help='Override LoRA strength for workflow node 161')
     parser.add_argument('--lora-trigger', default='', help='Trigger token appended to row prompt (e.g., mychar)')
-    parser.add_argument('--base-image-source', choices=['original', 'generated'], default='original', help='Which image is used as inpaint base/mask source (default: original)')
+    parser.add_argument('--base-image-source', choices=['reference', 'generated'], default='generated', help='Which image is used as inpaint base/mask source (default: generated)')
     parser.add_argument(
         '--minimal-csv',
         action=argparse.BooleanOptionalAction,
         default=True,
-        help='Write output CSV with only Original Image, Generated Image, new image (default: true)'
+        help='Write output CSV with only Generated Image, Reference Angle, new image (default: true)'
     )
     parser.add_argument('--timeout', type=int, default=COMFYUI_TIMEOUT, help=f'ComfyUI wait timeout in seconds (default: {COMFYUI_TIMEOUT})')
     parser.add_argument('--results-json', default='results.json', help='Path to write results JSON (default: results.json)')
@@ -1088,7 +1046,7 @@ def main():
     if args.use_gemini_analysis:
         logger.info(f"Gemini analysis enabled (model={args.gemini_model})")
     if args.use_gemini_verifier:
-        logger.info(f"Gemini verifier enabled (model={args.gemini_model}, threshold={args.verifier_threshold})")
+        logger.warning("Gemini verifier flag provided, but verifier is disabled in this workflow revision")
     logger.info(f"Mask mode: {args.mask_mode}")
     if args.lora_path or args.lora_strength is not None:
         logger.info(
@@ -1220,10 +1178,10 @@ def main():
             'gpu_ids': args.gpu_ids,
             'timeout_sec': args.timeout,
             'use_gemini_analysis': args.use_gemini_analysis,
-            'use_gemini_verifier': args.use_gemini_verifier,
-            'gemini_model': args.gemini_model if (args.use_gemini_analysis or args.use_gemini_verifier) else "",
-            'verifier_threshold': args.verifier_threshold if args.use_gemini_verifier else 0.0,
-            'verifier_max_attempts': args.verifier_max_attempts if args.use_gemini_verifier else 1,
+            'use_gemini_verifier': False,
+            'gemini_model': args.gemini_model if args.use_gemini_analysis else "",
+            'verifier_threshold': 0.0,
+            'verifier_max_attempts': 1,
             'lora_path': args.lora_path,
             'lora_strength': args.lora_strength,
             'lora_trigger': args.lora_trigger,
@@ -1256,10 +1214,10 @@ def main():
     if args.update_csv:
         output_csv = args.output_csv or args.csv.replace('.csv', '_results.csv')
         if args.minimal_csv:
-            for required_col in ['Original Image', 'Generated Image']:
+            for required_col in ['Generated Image', 'Reference Angle']:
                 if required_col not in df.columns:
                     df[required_col] = ''
-            out_df = df[['Original Image', 'Generated Image', 'new image']].copy()
+            out_df = df[['Generated Image', 'Reference Angle', 'new image']].copy()
             # For pilot runs, write only processed rows so downstream upload doesn't scan unrelated rows.
             slice_start = max(0, args.start_row - 1)
             slice_end = min(end, len(df))
