@@ -1,0 +1,343 @@
+{
+  "run_info": {
+    "start_time": "2026-02-09T01:54:19.047723",
+    "end_time": "2026-02-09T01:57:32.165490",
+    "duration_sec": 193.117767,
+    "csv_file": "Master - Tech Solutioning - Char Const - Rerun with head_eye gaze.csv",
+    "workflow_file": "Flux2 Klein 9b Face Swap(API).json",
+    "quality": "fast",
+    "comfyui_url": "http://localhost:8189",
+    "start_row": 1,
+    "end_row": 5,
+    "gpu_ids": null,
+    "timeout_sec": 600,
+    "use_gemini_analysis": false,
+    "use_gemini_verifier": false,
+    "gemini_model": "",
+    "verifier_threshold": 0.0,
+    "verifier_max_attempts": 1,
+    "lora_path": "character_expression_lora.safetensors",
+    "lora_strength": 1.0,
+    "lora_trigger": "mychar",
+    "base_image_source": "generated",
+    "use_csv_edit_prompt": false,
+    "results_json": "LORA_4.json"
+  },
+  "summary": {
+    "total_rows": 5,
+    "successful": 5,
+    "failed": 0,
+    "verified_passed": 0,
+    "success_rate": 100.0,
+    "total_time_sec": 193.11,
+    "avg_time_per_row_sec": 38.62,
+    "timing_breakdown": {
+      "avg_download_sec": 3.95,
+      "avg_face_detection_sec": 2.81,
+      "avg_upload_sec": 0.25,
+      "avg_processing_sec": 30.77
+    }
+  },
+  "results": [
+    {
+      "row": 1,
+      "success": true,
+      "timestamp": "2026-02-09T01:54:19.048302",
+      "generated_url": "https://dev-content.dashtoon.ai/stability-images/d494f44e-6a95-4697-a3e9-f898c241fd46.png",
+      "reference_url": "https://storage.googleapis.com/creative-tech-experiments/char-const-workflow-remix/patti_allen_front.png",
+      "edit_prompt": "",
+      "analysis": "",
+      "verification": {
+        "enabled": false,
+        "passed": false,
+        "score": 0.0,
+        "reason": "Verifier disabled"
+      },
+      "output_path": "data/output/row_0001/result.png",
+      "timing": {
+        "download_sec": 4.12,
+        "face_detection_sec": 3.2,
+        "upload_sec": 0.26,
+        "processing_sec": 33.11,
+        "total_sec": 41.6
+      },
+      "face_detection": {
+        "detected": true,
+        "method": "mediapipe_selfie_segmentation"
+      },
+      "input_metrics": {
+        "generated": {
+          "width": 1536,
+          "height": 2752,
+          "file_size_bytes": 5561517,
+          "file_size_mb": 5.3,
+          "megapixels": 4.23,
+          "brightness": 103.6,
+          "contrast": 59.19,
+          "mode": "RGB"
+        },
+        "reference": {
+          "width": 3072,
+          "height": 5504,
+          "file_size_bytes": 21000123,
+          "file_size_mb": 20.03,
+          "megapixels": 16.91,
+          "brightness": 140.12,
+          "contrast": 47.73,
+          "mode": "RGBA"
+        }
+      },
+      "output_metrics": {
+        "width": 1072,
+        "height": 1936,
+        "file_size_bytes": 2545351,
+        "file_size_mb": 2.43,
+        "megapixels": 2.08,
+        "brightness": 103.7,
+        "contrast": 59.29,
+        "mode": "RGB"
+      },
+      "error": null
+    },
+    {
+      "row": 2,
+      "success": true,
+      "timestamp": "2026-02-09T01:55:00.645264",
+      "generated_url": "https://dev-content.dashtoon.ai/stability-images/efc45287-396f-48f7-93a1-ccde56371d69.png",
+      "reference_url": "https://storage.googleapis.com/creative-tech-experiments/char-const-workflow-remix/front_three_fourth_left.png",
+      "edit_prompt": "",
+      "analysis": "",
+      "verification": {
+        "enabled": false,
+        "passed": false,
+        "score": 0.0,
+        "reason": "Verifier disabled"
+      },
+      "output_path": "data/output/row_0002/result.png",
+      "timing": {
+        "download_sec": 3.92,
+        "face_detection_sec": 2.69,
+        "upload_sec": 0.22,
+        "processing_sec": 30.12,
+        "total_sec": 37.7
+      },
+      "face_detection": {
+        "detected": true,
+        "method": "mediapipe_selfie_segmentation"
+      },
+      "input_metrics": {
+        "generated": {
+          "width": 1536,
+          "height": 2752,
+          "file_size_bytes": 5574016,
+          "file_size_mb": 5.32,
+          "megapixels": 4.23,
+          "brightness": 82.98,
+          "contrast": 74.04,
+          "mode": "RGB"
+        },
+        "reference": {
+          "width": 3072,
+          "height": 5504,
+          "file_size_bytes": 17089370,
+          "file_size_mb": 16.3,
+          "megapixels": 16.91,
+          "brightness": 94.64,
+          "contrast": 32.75,
+          "mode": "RGB"
+        }
+      },
+      "output_metrics": {
+        "width": 1072,
+        "height": 1936,
+        "file_size_bytes": 2706859,
+        "file_size_mb": 2.58,
+        "megapixels": 2.08,
+        "brightness": 82.16,
+        "contrast": 73.96,
+        "mode": "RGB"
+      },
+      "error": null
+    },
+    {
+      "row": 3,
+      "success": true,
+      "timestamp": "2026-02-09T01:55:38.350064",
+      "generated_url": "https://dev-content.dashtoon.ai/stability-images/19fedcb9-f62a-4c83-b7a9-4c8019a42e4d.png",
+      "reference_url": "https://storage.googleapis.com/creative-tech-experiments/char-const-workflow-remix/patti_allen_side.png",
+      "edit_prompt": "",
+      "analysis": "",
+      "verification": {
+        "enabled": false,
+        "passed": false,
+        "score": 0.0,
+        "reason": "Verifier disabled"
+      },
+      "output_path": "data/output/row_0003/result.png",
+      "timing": {
+        "download_sec": 3.92,
+        "face_detection_sec": 2.77,
+        "upload_sec": 0.27,
+        "processing_sec": 30.22,
+        "total_sec": 38.08
+      },
+      "face_detection": {
+        "detected": true,
+        "method": "mediapipe_selfie_segmentation"
+      },
+      "input_metrics": {
+        "generated": {
+          "width": 1536,
+          "height": 2752,
+          "file_size_bytes": 5608758,
+          "file_size_mb": 5.35,
+          "megapixels": 4.23,
+          "brightness": 106.81,
+          "contrast": 65.77,
+          "mode": "RGB"
+        },
+        "reference": {
+          "width": 3072,
+          "height": 5504,
+          "file_size_bytes": 20209334,
+          "file_size_mb": 19.27,
+          "megapixels": 16.91,
+          "brightness": 142.04,
+          "contrast": 42.59,
+          "mode": "RGBA"
+        }
+      },
+      "output_metrics": {
+        "width": 1072,
+        "height": 1936,
+        "file_size_bytes": 2506292,
+        "file_size_mb": 2.39,
+        "megapixels": 2.08,
+        "brightness": 106.6,
+        "contrast": 66.46,
+        "mode": "RGB"
+      },
+      "error": null
+    },
+    {
+      "row": 4,
+      "success": true,
+      "timestamp": "2026-02-09T01:56:16.429475",
+      "generated_url": "https://dev-content.dashtoon.ai/stability-images/2be1155a-cf19-4f23-99c6-99b963df1bef.png",
+      "reference_url": "https://storage.googleapis.com/creative-tech-experiments/char-const-workflow-remix/patti_allen_front.png",
+      "edit_prompt": "",
+      "analysis": "",
+      "verification": {
+        "enabled": false,
+        "passed": false,
+        "score": 0.0,
+        "reason": "Verifier disabled"
+      },
+      "output_path": "data/output/row_0004/result.png",
+      "timing": {
+        "download_sec": 4.08,
+        "face_detection_sec": 2.69,
+        "upload_sec": 0.27,
+        "processing_sec": 30.25,
+        "total_sec": 38.17
+      },
+      "face_detection": {
+        "detected": true,
+        "method": "mediapipe_selfie_segmentation"
+      },
+      "input_metrics": {
+        "generated": {
+          "width": 1536,
+          "height": 2752,
+          "file_size_bytes": 5800578,
+          "file_size_mb": 5.53,
+          "megapixels": 4.23,
+          "brightness": 98.33,
+          "contrast": 60.29,
+          "mode": "RGB"
+        },
+        "reference": {
+          "width": 3072,
+          "height": 5504,
+          "file_size_bytes": 21000123,
+          "file_size_mb": 20.03,
+          "megapixels": 16.91,
+          "brightness": 140.12,
+          "contrast": 47.73,
+          "mode": "RGBA"
+        }
+      },
+      "output_metrics": {
+        "width": 1072,
+        "height": 1936,
+        "file_size_bytes": 2719295,
+        "file_size_mb": 2.59,
+        "megapixels": 2.08,
+        "brightness": 98.3,
+        "contrast": 60.25,
+        "mode": "RGB"
+      },
+      "error": null
+    },
+    {
+      "row": 5,
+      "success": true,
+      "timestamp": "2026-02-09T01:56:54.600360",
+      "generated_url": "https://dev-content.dashtoon.ai/stability-images/918f9989-a873-4982-967f-d1418a1ae0ae.png",
+      "reference_url": "https://storage.googleapis.com/creative-tech-experiments/char-const-workflow-remix/front_three_fourth_left.png",
+      "edit_prompt": "",
+      "analysis": "",
+      "verification": {
+        "enabled": false,
+        "passed": false,
+        "score": 0.0,
+        "reason": "Verifier disabled"
+      },
+      "output_path": "data/output/row_0005/result.png",
+      "timing": {
+        "download_sec": 3.71,
+        "face_detection_sec": 2.72,
+        "upload_sec": 0.22,
+        "processing_sec": 30.15,
+        "total_sec": 37.56
+      },
+      "face_detection": {
+        "detected": true,
+        "method": "mediapipe_selfie_segmentation"
+      },
+      "input_metrics": {
+        "generated": {
+          "width": 1536,
+          "height": 2752,
+          "file_size_bytes": 5505178,
+          "file_size_mb": 5.25,
+          "megapixels": 4.23,
+          "brightness": 112.57,
+          "contrast": 75.94,
+          "mode": "RGB"
+        },
+        "reference": {
+          "width": 3072,
+          "height": 5504,
+          "file_size_bytes": 17089370,
+          "file_size_mb": 16.3,
+          "megapixels": 16.91,
+          "brightness": 94.64,
+          "contrast": 32.75,
+          "mode": "RGB"
+        }
+      },
+      "output_metrics": {
+        "width": 1072,
+        "height": 1936,
+        "file_size_bytes": 2603732,
+        "file_size_mb": 2.48,
+        "megapixels": 2.08,
+        "brightness": 112.36,
+        "contrast": 76.5,
+        "mode": "RGB"
+      },
+      "error": null
+    }
+  ]
+}
