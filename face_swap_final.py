@@ -779,6 +779,7 @@ def process_row(
     lora_name: str = "",
     lora_strength: Optional[float] = None,
     lora_trigger: str = "",
+    base_image_source: str = "original",
 ) -> Dict[str, Any]:
     """Process single CSV row and return detailed results"""
     logger.info(f"\n{'='*60}")
@@ -854,29 +855,37 @@ def process_row(
         result['input_metrics']['generated'] = get_image_metrics(gen_path)
         result['input_metrics']['original'] = get_image_metrics(orig_path)
         
-        # Face detection
-        face_start = time.time()
-        logger.info("Creating mask on original base image...")
-        orig_masked_path = input_dir / "original_masked.png"
-        if mask_mode == "face":
-            mask_success, mask_info = detect_face_and_create_mask(orig_path, orig_masked_path)
-            result['face_detection'] = mask_info
-            if not mask_success:
-                logger.warning("Face mask creation failed on original image, using raw original image")
-                orig_masked_path = orig_path
+        # Select base/reference by requested direction
+        if base_image_source == "generated":
+            base_raw_path = gen_path
+            reference_raw_path = orig_path
         else:
-            mask_success, mask_info = create_full_character_mask(orig_path, orig_masked_path)
+            base_raw_path = orig_path
+            reference_raw_path = gen_path
+
+        # Face/character mask on base image
+        face_start = time.time()
+        logger.info("Creating mask on %s base image...", base_image_source)
+        base_masked_path = input_dir / f"{base_image_source}_masked.png"
+        if mask_mode == "face":
+            mask_success, mask_info = detect_face_and_create_mask(base_raw_path, base_masked_path)
             result['face_detection'] = mask_info
             if not mask_success:
-                logger.warning("Character mask creation failed on original image, using raw original image")
-                orig_masked_path = orig_path
+                logger.warning("Face mask creation failed on base image, using raw base image")
+                base_masked_path = base_raw_path
+        else:
+            mask_success, mask_info = create_full_character_mask(base_raw_path, base_masked_path)
+            result['face_detection'] = mask_info
+            if not mask_success:
+                logger.warning("Character mask creation failed on base image, using raw base image")
+                base_masked_path = base_raw_path
         result['timing']['face_detection_sec'] = round(time.time() - face_start, 2)
         
         # Upload
         upload_start = time.time()
         logger.info("Uploading...")
-        base_name = upload_to_comfyui(server_url, orig_masked_path)
-        reference_name = upload_to_comfyui(server_url, gen_path)
+        base_name = upload_to_comfyui(server_url, base_masked_path)
+        reference_name = upload_to_comfyui(server_url, reference_raw_path)
         
         if not base_name or not reference_name:
             result['error'] = "Failed to upload images"
@@ -1037,6 +1046,7 @@ def main():
     parser.add_argument('--lora-path', default='', help='LoRA filename in ComfyUI models/loras (e.g., character_expression_lora.safetensors)')
     parser.add_argument('--lora-strength', type=float, default=None, help='Override LoRA strength for workflow node 161')
     parser.add_argument('--lora-trigger', default='', help='Trigger token appended to row prompt (e.g., mychar)')
+    parser.add_argument('--base-image-source', choices=['original', 'generated'], default='original', help='Which image is used as inpaint base/mask source (default: original)')
     parser.add_argument(
         '--minimal-csv',
         action=argparse.BooleanOptionalAction,
@@ -1078,6 +1088,7 @@ def main():
             args.lora_strength if args.lora_strength is not None else "<workflow-default>",
             args.lora_trigger or "<none>",
         )
+    logger.info(f"Base image source: {args.base_image_source}")
     
     end = args.end_row if args.end_row else len(df)
     results = []
@@ -1130,6 +1141,7 @@ def main():
             args.lora_path,
             args.lora_strength,
             args.lora_trigger,
+            args.base_image_source,
         )
         results.append(result)
         
@@ -1206,6 +1218,7 @@ def main():
             'lora_path': args.lora_path,
             'lora_strength': args.lora_strength,
             'lora_trigger': args.lora_trigger,
+            'base_image_source': args.base_image_source,
         },
         'summary': {
             'total_rows': len(results),
@@ -1237,6 +1250,10 @@ def main():
                 if required_col not in df.columns:
                     df[required_col] = ''
             out_df = df[['Original Image', 'Generated Image', 'new image']].copy()
+            # For pilot runs, write only processed rows so downstream upload doesn't scan unrelated rows.
+            slice_start = max(0, args.start_row - 1)
+            slice_end = min(end, len(df))
+            out_df = out_df.iloc[slice_start:slice_end].reset_index(drop=True)
             out_df.to_csv(output_csv, index=False)
         else:
             df.to_csv(output_csv, index=False)
