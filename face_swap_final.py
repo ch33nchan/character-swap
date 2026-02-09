@@ -48,12 +48,20 @@ QUALITY_PRESETS = {
     "ultra": {"steps": 20, "denoise": 1.0, "cfg": 4, "lora_strength": 0.85, "megapixels": 8.3},
 }
 
-DEFAULT_ROW_PROMPT = (
+DEFAULT_ROW_PROMPT_ORIGINAL_BASE = (
     "Image 1 is the strict base (Original Image): preserve exact pose, hand posture, camera framing, background, "
     "and facial expression from image 1. Image 2 is the identity/style source (Generated Image): transfer face "
     "identity, hairstyle, hair color/texture, skin tone, body shape, outfit, accessories, and style from image 2. "
     "Do not stitch face from image 1 onto image 2 body. Keep expression from image 1 only, while all character "
     "identity/attire should come from image 2."
+)
+
+DEFAULT_ROW_PROMPT_GENERATED_BASE = (
+    "Image 1 is the strict base (Generated Image): preserve face identity, hairstyle, hair color/texture, skin tone, "
+    "body shape, outfit, accessories, and style from image 1. Image 2 is motion/expression source (Original Image): "
+    "transfer only pose, hand posture, camera framing, background, and facial expression from image 2. "
+    "Do not copy face identity, hairstyle, or outfit from image 2. "
+    "Do not stitch original face/hair onto generated body."
 )
 
 VERIFIER_RULE = (
@@ -114,8 +122,8 @@ def extract_image_url(raw_value: Any) -> str:
     return text
 
 
-def build_row_prompt(edit_prompt: str, analysis: str = "") -> str:
-    base = DEFAULT_ROW_PROMPT
+def build_row_prompt(edit_prompt: str, analysis: str = "", base_image_source: str = "original") -> str:
+    base = DEFAULT_ROW_PROMPT_GENERATED_BASE if base_image_source == "generated" else DEFAULT_ROW_PROMPT_ORIGINAL_BASE
     if analysis:
         base = f"{base}\nPose and scene analysis: {analysis.strip()}"
     if not edit_prompt:
@@ -912,9 +920,9 @@ def process_row(
         best_verification = {"enabled": use_gemini_verifier, "passed": False, "score": 0.0, "reason": ""}
         last_error = ""
         row_prompt = (
-            f"{build_row_prompt(edit_prompt, analysis)}\nCharacter token: {lora_trigger}"
+            f"{build_row_prompt(edit_prompt, analysis, base_image_source=base_image_source)}\nCharacter token: {lora_trigger}"
             if lora_trigger
-            else build_row_prompt(edit_prompt, analysis)
+            else build_row_prompt(edit_prompt, analysis, base_image_source=base_image_source)
         )
 
         for attempt_idx in range(1, max_attempts + 1):
@@ -1054,6 +1062,7 @@ def main():
         help='Write output CSV with only Original Image, Generated Image, new image (default: true)'
     )
     parser.add_argument('--timeout', type=int, default=COMFYUI_TIMEOUT, help=f'ComfyUI wait timeout in seconds (default: {COMFYUI_TIMEOUT})')
+    parser.add_argument('--results-json', default='results.json', help='Path to write results JSON (default: results.json)')
     
     args = parser.parse_args()
     if not args.workflow and not args.quality:
@@ -1196,7 +1205,7 @@ def main():
     
     results = [convert_to_native(r) for r in results]
     
-    # Save comprehensive results.json
+    # Save comprehensive results JSON
     results_data = {
         'run_info': {
             'start_time': run_start.isoformat(),
@@ -1219,6 +1228,7 @@ def main():
             'lora_strength': args.lora_strength,
             'lora_trigger': args.lora_trigger,
             'base_image_source': args.base_image_source,
+            'results_json': args.results_json,
         },
         'summary': {
             'total_rows': len(results),
@@ -1238,9 +1248,9 @@ def main():
         'results': results
     }
     
-    with open("results.json", 'w') as f:
+    with open(args.results_json, 'w') as f:
         json.dump(results_data, f, indent=2)
-    logger.info(f"Results saved to: results.json")
+    logger.info(f"Results saved to: {args.results_json}")
     
     # Save updated CSV
     if args.update_csv:
