@@ -282,7 +282,8 @@ def verify_output_with_gemini(
         f"Edit prompt context: {edit_prompt or 'N/A'}\n\n"
         "Set score = weighted total:\n"
         "0.35*expression + 0.30*pose_hand + 0.25*identity_hair_attire + 0.10*background_scene.\n"
-        "Set passed=true only if score>=0.80 and identity_hair_attire_match_to_generated>=0.75 and expression_match_to_original>=0.75."
+        "Set passed=true only if score>=0.80 and identity_hair_attire_match_to_generated>=0.75 and expression_match_to_original>=0.75.\n"
+        "Return ONLY valid JSON. No prose."
     )
     parts: List[Dict[str, Any]] = [{"text": instruction}]
     for label, path in [("Original Image", original_path), ("Generated Image", generated_path), ("Output Image", output_path)]:
@@ -295,8 +296,8 @@ def verify_output_with_gemini(
         "contents": [{"role": "user", "parts": parts}],
         "generationConfig": {
             "temperature": 0.0,
-            "topP": 0.9,
-            "maxOutputTokens": 220,
+            "topP": 0.1,
+            "maxOutputTokens": 120,
             "response_mime_type": "application/json",
             "response_schema": {
                 "type": "OBJECT",
@@ -319,6 +320,7 @@ def verify_output_with_gemini(
                     "background_scene_match_to_original",
                 ],
             },
+            "thinkingConfig": {"thinkingBudget": 0},
         },
     }
     try:
@@ -334,6 +336,38 @@ def verify_output_with_gemini(
             if p.get("text")
         ).strip()
         parsed = _parse_verifier_kv(text) or _parse_verifier_json(text)
+        # Some preview model responses still prepend prose. Re-query once with a minimal formatter pass.
+        if (not parsed.get("reason") and not parsed.get("passed")) or str(text).strip().lower().startswith("here is"):
+            compact_prompt = (
+                "Return only JSON object with keys: passed,score,reason,expression_match_to_original,"
+                "pose_and_hand_match_to_original,identity_hair_attire_match_to_generated,"
+                "background_scene_match_to_original. No prose."
+            )
+            compact_payload = {
+                "contents": [{"role": "user", "parts": [{"text": compact_prompt}] + parts[1:]}],
+                "generationConfig": {
+                    "temperature": 0.0,
+                    "topP": 0.1,
+                    "maxOutputTokens": 100,
+                    "response_mime_type": "application/json",
+                    "response_schema": payload["generationConfig"]["response_schema"],
+                    "thinkingConfig": {"thinkingBudget": 0},
+                },
+            }
+            try:
+                response2 = requests.post(url, json=compact_payload, timeout=timeout)
+                response2.raise_for_status()
+                data2 = response2.json()
+                text2 = "".join(
+                    p.get("text", "")
+                    for p in data2.get("candidates", [{}])[0].get("content", {}).get("parts", [])
+                    if p.get("text")
+                ).strip()
+                parsed2 = _parse_verifier_kv(text2) or _parse_verifier_json(text2)
+                if parsed2:
+                    parsed = parsed2
+            except Exception:
+                pass
         if "score" not in parsed:
             parsed["score"] = 1.0 if bool(parsed.get("passed", False)) else 0.0
         score = float(parsed.get("score", 0.0))
