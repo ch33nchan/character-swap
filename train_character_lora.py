@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 LoRA training for full character (face, hair, attire) + expression.
-Uses image columns by default: Generated Image, Reference Angle.
+Uses image columns by default: Swapped Image, Reference Angle, Front Angle.
 """
 
 import argparse
@@ -42,13 +42,13 @@ class LoRATrainingPipeline:
                        source_columns: Optional[List[str]] = None) -> int:
         """
         Download images from one or more CSV columns (full character: hair, attire, multiple angles).
-        Default columns: Generated Image, Reference Angle.
+        Default columns: Swapped Image, Reference Angle, Front Angle.
         """
         logger.info("="*60)
         logger.info("STEP 1: DATASET PREPARATION (full character: hair, attire)")
         logger.info("="*60)
         if source_columns is None:
-            source_columns = ["Generated Image", "Reference Angle"]
+            source_columns = ["Swapped Image", "Reference Angle", "Front Angle"]
         self.images_dir.mkdir(parents=True, exist_ok=True)
         df = pd.read_csv(csv_path)
         logger.info(f"Loaded CSV: {len(df)} rows, columns: {source_columns}")
@@ -575,7 +575,7 @@ Examples:
     prepare_parser.add_argument('--csv', required=True, help='Path to CSV file')
     prepare_parser.add_argument('--max-images', type=int, default=30, help='Max rows to scan (multiple images per row if multiple columns)')
     prepare_parser.add_argument('--source-column', nargs='*', default=None,
-                               help='CSV columns for images (default: Generated Image, Reference Angle)')
+                               help='CSV columns for images (default: Swapped Image, Reference Angle, Front Angle)')
     prepare_parser.add_argument('--trigger-word', default='CHARNAME', help='Trigger word for LoRA')
     prepare_parser.add_argument('--character-name', default='CHARNAME', help='Character name (used in captions)')
     prepare_parser.add_argument('--work-dir', default='lora_training', help='Working directory')

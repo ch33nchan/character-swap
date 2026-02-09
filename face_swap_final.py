@@ -48,25 +48,15 @@ QUALITY_PRESETS = {
     "ultra": {"steps": 20, "denoise": 1.0, "cfg": 4, "lora_strength": 0.85, "megapixels": 8.3},
 }
 
-DEFAULT_ROW_PROMPT_ORIGINAL_BASE = (
-    "Image 1 is the strict base (Reference Image): preserve exact pose, hand posture, camera framing, background, "
-    "and facial expression from image 1. Image 2 is the identity/style source (Generated Image): transfer face "
-    "identity, hairstyle, hair color/texture, skin tone, body shape, outfit, accessories, and style from image 2. "
-    "Do not stitch face or hair from image 1 onto image 2 body. Keep expression from image 1 only, while all character "
-    "identity/attire must come from image 2."
-)
-
 DEFAULT_ROW_PROMPT_GENERATED_BASE = (
-    "Image 1 is the strict base (Generated Image): preserve face identity, hairstyle, hair color/texture, skin tone, "
-    "body shape, outfit, accessories, and style from image 1. Image 2 is motion/expression source (Reference Image): "
-    "transfer only pose, hand posture, camera framing, background, and facial expression from image 2. "
-    "Do not copy face identity, hairstyle, or outfit from image 2. "
-    "Do not stitch reference face/hair onto generated body."
+    "Image 1 is the strict base (Swapped Image): preserve scene composition, camera framing, body pose, hand posture, "
+    "background, outfit silhouette, and lighting from image 1. Image 2 is the identity source (Reference Angle/Front Angle): "
+    "transfer face identity, hairstyle, hair color/texture, facial structure, and skin details from image 2. "
+    "Do not keep face or hair from image 1. Do not mix face/hair from image 1 with image 2."
 )
 
 VERIFIER_RULE = (
-    "Expected output rule: keep expression from Reference Image, and keep character identity from Generated "
-    "Image including hairstyle, attire, body shape, and overall appearance. Keep reference scene/pose/gesture."
+    "Expected output rule: keep scene/body from Swapped Image and keep face identity/hair from Reference Angle or Front Angle."
 )
 
 
@@ -122,8 +112,8 @@ def extract_image_url(raw_value: Any) -> str:
     return text
 
 
-def build_row_prompt(edit_prompt: str, analysis: str = "", base_image_source: str = "original") -> str:
-    base = DEFAULT_ROW_PROMPT_GENERATED_BASE if base_image_source == "generated" else DEFAULT_ROW_PROMPT_ORIGINAL_BASE
+def build_row_prompt(edit_prompt: str, analysis: str = "", base_image_source: str = "generated") -> str:
+    base = DEFAULT_ROW_PROMPT_GENERATED_BASE
     if analysis:
         base = f"{base}\nPose and scene analysis: {analysis.strip()}"
     if not edit_prompt:
@@ -150,11 +140,11 @@ def generate_pose_analysis_with_gemini(
         "You are generating strict image-edit constraints.\n"
         "Return a single compact paragraph without markdown.\n"
         "Task:\n"
-        "- Keep scene composition, pose, hand gesture, camera framing, and background from Reference Image.\n"
-        "- Keep identity/body cues from Generated Image, helped by Reference Angle and Front Angle when present.\n"
+        "- Keep scene composition, pose, hand gesture, camera framing, and background from Swapped Image.\n"
+        "- Keep identity/face/hair cues from Reference Angle and Front Angle.\n"
         "- Include explicit constraints to avoid scene drift.\n\n"
-        f"Reference Image URL: {original_url}\n"
-        f"Generated Image URL: {generated_url}\n"
+        f"Swapped Image URL: {generated_url}\n"
+        f"Identity Reference URL: {original_url}\n"
         f"Reference Angle URL: {reference_angle_url or 'N/A'}\n"
         f"Front Angle URL: {front_angle_url or 'N/A'}\n"
         f"Edit Prompt: {edit_prompt or 'N/A'}\n"
@@ -416,6 +406,31 @@ def get_image_metrics(image_path: Path) -> Dict[str, Any]:
     except Exception as e:
         logger.error(f"Failed to get metrics for {image_path}: {e}")
         return {}
+
+
+def build_identity_reference_image(reference_angle_path: Path, front_angle_path: Path, output_path: Path) -> bool:
+    """Combine Reference Angle and Front Angle into one identity reference image."""
+    try:
+        output_path.parent.mkdir(parents=True, exist_ok=True)
+        ref_img = Image.open(reference_angle_path).convert("RGB")
+        front_img = Image.open(front_angle_path).convert("RGB")
+
+        target_h = max(ref_img.height, front_img.height)
+        ref_w = int(ref_img.width * (target_h / ref_img.height))
+        front_w = int(front_img.width * (target_h / front_img.height))
+
+        ref_resized = ref_img.resize((ref_w, target_h), Image.Resampling.LANCZOS)
+        front_resized = front_img.resize((front_w, target_h), Image.Resampling.LANCZOS)
+
+        separator = 12
+        canvas = Image.new("RGB", (ref_w + separator + front_w, target_h), (0, 0, 0))
+        canvas.paste(ref_resized, (0, 0))
+        canvas.paste(front_resized, (ref_w + separator, 0))
+        canvas.save(output_path, format="PNG")
+        return True
+    except Exception as exc:
+        logger.error(f"Failed to build identity reference image: {exc}")
+        return False
 
 
 def detect_face_opencv(img: np.ndarray) -> Optional[Tuple[int, int, int, int]]:
@@ -830,18 +845,16 @@ def process_row(
     total_start = time.time()
     
     try:
-        generated_url = extract_image_url(get_first_available_value(row_data, ["Generated Image"]))
-        reference_url = extract_image_url(get_first_available_value(row_data, ["Reference Angle"]))
-        if not reference_url:
-            reference_url = extract_image_url(get_first_available_value(row_data, ["Front Angle"]))
+        generated_url = extract_image_url(get_first_available_value(row_data, ["Swapped Image"]))
         reference_angle_url = extract_image_url(get_first_available_value(row_data, ["Reference Angle"]))
         front_angle_url = extract_image_url(get_first_available_value(row_data, ["Front Angle"]))
+        reference_url = reference_angle_url
         edit_prompt = get_first_available_value(row_data, ["Edit Prompt", "edit prompt", "Prompt"]) if use_csv_edit_prompt else ""
         result['generated_url'] = generated_url
         result['reference_url'] = reference_url
         result['edit_prompt'] = edit_prompt
         
-        if not generated_url or not reference_url:
+        if not generated_url or not reference_angle_url or not front_angle_url:
             result['error'] = "Missing image URLs"
             logger.error(result['error'])
             return result
@@ -850,26 +863,36 @@ def process_row(
         download_start = time.time()
         logger.info("Downloading...")
         gen_path = input_dir / "generated_raw.png"
-        ref_path = input_dir / "reference.png"
+        ref_angle_path = input_dir / "reference_angle.png"
+        front_path = input_dir / "front_angle.png"
+        identity_reference_path = input_dir / "identity_reference.png"
         
         if not download_image(generated_url, gen_path):
-            result['error'] = "Failed to download generated image"
+            result['error'] = "Failed to download swapped image"
             return result
-        if not download_image(reference_url, ref_path):
-            result['error'] = "Failed to download reference image"
+        if not download_image(reference_angle_url, ref_angle_path):
+            result['error'] = "Failed to download Reference Angle image"
+            return result
+        if not download_image(front_angle_url, front_path):
+            result['error'] = "Failed to download Front Angle image"
+            return result
+        if not build_identity_reference_image(ref_angle_path, front_path, identity_reference_path):
+            result['error'] = "Failed to build identity reference image"
             return result
         result['timing']['download_sec'] = round(time.time() - download_start, 2)
         
         # Get input metrics
         result['input_metrics']['generated'] = get_image_metrics(gen_path)
-        result['input_metrics']['reference'] = get_image_metrics(ref_path)
+        result['input_metrics']['reference_angle'] = get_image_metrics(ref_angle_path)
+        result['input_metrics']['front_angle'] = get_image_metrics(front_path)
+        result['input_metrics']['identity_reference'] = get_image_metrics(identity_reference_path)
         
         # Select base/reference by requested direction
         if base_image_source == "generated":
             base_raw_path = gen_path
-            reference_raw_path = ref_path
+            reference_raw_path = identity_reference_path
         else:
-            base_raw_path = ref_path
+            base_raw_path = identity_reference_path
             reference_raw_path = gen_path
 
         # Face/character mask on base image
@@ -907,7 +930,7 @@ def process_row(
         analysis = ""
         if use_gemini_analysis:
             analysis = generate_pose_analysis_with_gemini(
-                original_url=reference_url,
+                original_url=reference_angle_url,
                 generated_url=generated_url,
                 reference_angle_url=reference_angle_url,
                 front_angle_url=front_angle_url,
@@ -1013,13 +1036,13 @@ def main():
     parser.add_argument('--lora-path', default='', help='LoRA filename in ComfyUI models/loras (e.g., character_expression_lora.safetensors)')
     parser.add_argument('--lora-strength', type=float, default=None, help='Override LoRA strength for workflow node 161')
     parser.add_argument('--lora-trigger', default='', help='Trigger token appended to row prompt (e.g., mychar)')
-    parser.add_argument('--base-image-source', choices=['reference', 'generated'], default='generated', help='Which image is used as inpaint base/mask source (default: generated)')
+    parser.add_argument('--base-image-source', choices=['reference', 'generated'], default='generated', help='Which image is used as inpaint base/mask source (generated=Swapped Image)')
     parser.add_argument('--use-csv-edit-prompt', action='store_true', help='Append Edit Prompt/Prompt column text (default: off)')
     parser.add_argument(
         '--minimal-csv',
         action=argparse.BooleanOptionalAction,
         default=True,
-        help='Write output CSV with only Generated Image, Reference Angle, new image (default: true)'
+        help='Write output CSV with only Swapped Image, Reference Angle, Front Angle, new image (default: true)'
     )
     parser.add_argument('--timeout', type=int, default=COMFYUI_TIMEOUT, help=f'ComfyUI wait timeout in seconds (default: {COMFYUI_TIMEOUT})')
     parser.add_argument('--results-json', default='results.json', help='Path to write results JSON (default: results.json)')
@@ -1219,10 +1242,10 @@ def main():
     if args.update_csv:
         output_csv = args.output_csv or args.csv.replace('.csv', '_results.csv')
         if args.minimal_csv:
-            for required_col in ['Generated Image', 'Reference Angle']:
+            for required_col in ['Swapped Image', 'Reference Angle', 'Front Angle']:
                 if required_col not in df.columns:
                     df[required_col] = ''
-            out_df = df[['Generated Image', 'Reference Angle', 'new image']].copy()
+            out_df = df[['Swapped Image', 'Reference Angle', 'Front Angle', 'new image']].copy()
             # For pilot runs, write only processed rows so downstream upload doesn't scan unrelated rows.
             slice_start = max(0, args.start_row - 1)
             slice_end = min(end, len(df))
