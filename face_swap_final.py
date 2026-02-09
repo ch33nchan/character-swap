@@ -49,24 +49,24 @@ QUALITY_PRESETS = {
 }
 
 DEFAULT_ROW_PROMPT_ORIGINAL_BASE = (
-    "Image 1 is the strict base (Original Image): preserve exact pose, hand posture, camera framing, background, "
+    "Image 1 is the strict base (Reference Image): preserve exact pose, hand posture, camera framing, background, "
     "and facial expression from image 1. Image 2 is the identity/style source (Generated Image): transfer face "
     "identity, hairstyle, hair color/texture, skin tone, body shape, outfit, accessories, and style from image 2. "
-    "Do not stitch face from image 1 onto image 2 body. Keep expression from image 1 only, while all character "
-    "identity/attire should come from image 2."
+    "Do not stitch face or hair from image 1 onto image 2 body. Keep expression from image 1 only, while all character "
+    "identity/attire must come from image 2."
 )
 
 DEFAULT_ROW_PROMPT_GENERATED_BASE = (
     "Image 1 is the strict base (Generated Image): preserve face identity, hairstyle, hair color/texture, skin tone, "
-    "body shape, outfit, accessories, and style from image 1. Image 2 is motion/expression source (Original Image): "
+    "body shape, outfit, accessories, and style from image 1. Image 2 is motion/expression source (Reference Image): "
     "transfer only pose, hand posture, camera framing, background, and facial expression from image 2. "
     "Do not copy face identity, hairstyle, or outfit from image 2. "
-    "Do not stitch original face/hair onto generated body."
+    "Do not stitch reference face/hair onto generated body."
 )
 
 VERIFIER_RULE = (
-    "Expected output rule: keep expression from Original Image, and keep character identity from Generated "
-    "Image including hairstyle, attire, body shape, and overall appearance. Keep original scene/pose/gesture."
+    "Expected output rule: keep expression from Reference Image, and keep character identity from Generated "
+    "Image including hairstyle, attire, body shape, and overall appearance. Keep reference scene/pose/gesture."
 )
 
 
@@ -150,10 +150,10 @@ def generate_pose_analysis_with_gemini(
         "You are generating strict image-edit constraints.\n"
         "Return a single compact paragraph without markdown.\n"
         "Task:\n"
-        "- Keep scene composition, pose, hand gesture, camera framing, and background from Original Image.\n"
+        "- Keep scene composition, pose, hand gesture, camera framing, and background from Reference Image.\n"
         "- Keep identity/body cues from Generated Image, helped by Reference Angle and Front Angle when present.\n"
         "- Include explicit constraints to avoid scene drift.\n\n"
-        f"Original Image URL: {original_url}\n"
+        f"Reference Image URL: {original_url}\n"
         f"Generated Image URL: {generated_url}\n"
         f"Reference Angle URL: {reference_angle_url or 'N/A'}\n"
         f"Front Angle URL: {front_angle_url or 'N/A'}\n"
