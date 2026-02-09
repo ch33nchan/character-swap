@@ -273,11 +273,16 @@ def verify_output_with_gemini(
         "1) Original Image\n"
         "2) Generated Image\n"
         "3) Output Image\n\n"
+        "Evaluate these criteria:\n"
+        "- expression_match_to_original (0-1)\n"
+        "- pose_and_hand_match_to_original (0-1)\n"
+        "- identity_hair_attire_match_to_generated (0-1)\n"
+        "- background_scene_match_to_original (0-1)\n\n"
         f"{VERIFIER_RULE}\n"
         f"Edit prompt context: {edit_prompt or 'N/A'}\n\n"
-        "Return EXACTLY one line in this format only:\n"
-        "passed=<true|false>|score=<0-1>|reason=<short reason>\n"
-        "Do not include markdown, preface, or extra text."
+        "Set score = weighted total:\n"
+        "0.35*expression + 0.30*pose_hand + 0.25*identity_hair_attire + 0.10*background_scene.\n"
+        "Set passed=true only if score>=0.80 and identity_hair_attire_match_to_generated>=0.75 and expression_match_to_original>=0.75."
     )
     parts: List[Dict[str, Any]] = [{"text": instruction}]
     for label, path in [("Original Image", original_path), ("Generated Image", generated_path), ("Output Image", output_path)]:
@@ -291,7 +296,29 @@ def verify_output_with_gemini(
         "generationConfig": {
             "temperature": 0.0,
             "topP": 0.9,
-            "maxOutputTokens": 120,
+            "maxOutputTokens": 220,
+            "response_mime_type": "application/json",
+            "response_schema": {
+                "type": "OBJECT",
+                "properties": {
+                    "passed": {"type": "BOOLEAN"},
+                    "score": {"type": "NUMBER"},
+                    "reason": {"type": "STRING"},
+                    "expression_match_to_original": {"type": "NUMBER"},
+                    "pose_and_hand_match_to_original": {"type": "NUMBER"},
+                    "identity_hair_attire_match_to_generated": {"type": "NUMBER"},
+                    "background_scene_match_to_original": {"type": "NUMBER"},
+                },
+                "required": [
+                    "passed",
+                    "score",
+                    "reason",
+                    "expression_match_to_original",
+                    "pose_and_hand_match_to_original",
+                    "identity_hair_attire_match_to_generated",
+                    "background_scene_match_to_original",
+                ],
+            },
         },
     }
     try:
@@ -307,10 +334,16 @@ def verify_output_with_gemini(
             if p.get("text")
         ).strip()
         parsed = _parse_verifier_kv(text) or _parse_verifier_json(text)
+        if "score" not in parsed:
+            parsed["score"] = 1.0 if bool(parsed.get("passed", False)) else 0.0
+        score = float(parsed.get("score", 0.0))
+        if score > 1.0:
+            score = score / 100.0
+        score = max(0.0, min(1.0, score))
         return {
             "enabled": True,
             "passed": bool(parsed.get("passed", False)),
-            "score": float(parsed.get("score", 0.0)),
+            "score": score,
             "reason": str(parsed.get("reason", "")).strip(),
         }
     except Exception as exc:
